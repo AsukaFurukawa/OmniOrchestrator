@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OmniOrchestrator UI Mockup</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .tab-btn {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .tab-btn::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background-color: #4f46e5;
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+        .tab-btn:hover::after {
+            width: 100%;
+        }
+        .tab-btn.active {
+            color: #4f46e5;
+            font-weight: 600;
+        }
+        .tab-btn.active::after {
+            width: 100%;
+        }
+        .page {
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+        .page.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .metric-card {
+            background-color: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(79, 70, 229, 0.1), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+        .metric-card:hover::before {
+            transform: translateX(100%);
+        }
+        .metric-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -2.375rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 1rem;
+            height: 1rem;
+            border-radius: 9999px;
+            background-color: #a5b4fc;
+            border: 3px solid #e0e7ff;
+            transition: all 0.3s ease;
+        }
+        .timeline-item:hover::before {
+            transform: translateY(-50%) scale(1.2);
+            background-color: #4f46e5;
+        }
+        .suggestion-card {
+            transition: all 0.3s ease;
+            transform-origin: left;
+        }
+        .suggestion-card:hover {
+            transform: scale(1.02);
+            background-color: #eef2ff;
+        }
+        .chart-container {
+            transition: all 0.3s ease;
+        }
+        .chart-container:hover {
+            transform: scale(1.02);
+        }
+        .login-card {
+            animation: fadeInUp 0.8s ease;
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+        @keyframes floating {
+            0% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+            100% {
+                transform: translateY(0px);
+            }
+        }
+        .gradient-text {
+            background: linear-gradient(90deg, #f472b6, #818cf8, #fbbf24);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 2.5rem;
+            font-weight: 900;
+            letter-spacing: -1px;
+        }
+        .marketing-bg {
+            background: linear-gradient(120deg, #18181b 0%, #312e81 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+        .glass-card {
+            background: rgba(255,255,255,0.7);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 1.5rem;
+            border: 1px solid rgba(255,255,255,0.18);
+        }
+        .vibrant-btn {
+            background: linear-gradient(90deg, #818cf8, #f472b6);
+            color: #fff;
+            box-shadow: 0 0 16px 2px #818cf8a0;
+            border: none;
+            font-weight: 700;
+            transition: box-shadow 0.3s, transform 0.3s;
+        }
+        .vibrant-btn:hover {
+            box-shadow: 0 0 32px 8px #f472b6a0;
+            transform: scale(1.05);
+        }
+        .glass-card input, .glass-card select, .glass-card textarea {
+            background: rgba(255,255,255,0.5);
+            border: 1px solid #e0e7ff;
+        }
+        .nav-link.active {
+            color: #4f46e5;
+            font-weight: 700;
+            border-bottom: 2px solid #818cf8;
+            background: rgba(129,140,248,0.08);
+            border-radius: 0.5rem 0.5rem 0 0;
+        }
+    </style>
+</head>
+<body class="text-gray-800 marketing-bg">
+    <!-- Glassy Navigation Bar -->
+    <nav class="fixed top-0 left-0 w-full z-50 glass-card flex items-center justify-between px-8 py-3 shadow-lg" style="backdrop-filter: blur(16px);">
+        <div class="flex items-center gap-4">
+            <span class="gradient-text text-2xl font-extrabold tracking-tight">OmniOrchestrator</span>
+            <button onclick="changeTab('dashboard')" class="nav-link px-4 py-2 font-semibold text-gray-700 hover:text-indigo-600 transition">Dashboard</button>
+            <button onclick="changeTab('creator')" class="nav-link px-4 py-2 font-semibold text-gray-700 hover:text-indigo-600 transition">Campaign Creator</button>
+            <button onclick="changeTab('analytics')" class="nav-link px-4 py-2 font-semibold text-gray-700 hover:text-indigo-600 transition">Analytics</button>
+            <button onclick="changeTab('insights')" class="nav-link px-4 py-2 font-semibold text-gray-700 hover:text-indigo-600 transition">AI Insights</button>
+        </div>
+        <div>
+            <button onclick="changeTab('creator')" class="vibrant-btn rounded-lg px-5 py-2 text-base font-bold shadow-md">+ Create New Campaign</button>
+        </div>
+    </nav>
+    <div class="max-w-7xl mx-auto my-4 md:my-8 p-4 md:p-10" style="margin-top: 90px;">
+        <div class="fixed inset-0 -z-10">
+            <svg width="100%" height="100%" viewBox="0 0 1920 1080" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
+                <defs>
+                    <radialGradient id="bg1" cx="50%" cy="50%" r="80%" fx="50%" fy="50%">
+                        <stop offset="0%" stop-color="#818cf8" stop-opacity="0.7"/>
+                        <stop offset="100%" stop-color="#4f46e5" stop-opacity="0.2"/>
+                    </radialGradient>
+                    <linearGradient id="bg2" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0%" stop-color="#f472b6" stop-opacity="0.5"/>
+                        <stop offset="100%" stop-color="#818cf8" stop-opacity="0.2"/>
+                    </linearGradient>
+                </defs>
+                <ellipse cx="1600" cy="200" rx="500" ry="200" fill="url(#bg1)" filter="url(#blur1)"/>
+                <ellipse cx="400" cy="900" rx="600" ry="250" fill="url(#bg2)" filter="url(#blur2)"/>
+                <ellipse cx="1200" cy="800" rx="300" ry="120" fill="#fbbf24" fill-opacity="0.12"/>
+                <filter id="blur1"><feGaussianBlur stdDeviation="80"/></filter>
+                <filter id="blur2"><feGaussianBlur stdDeviation="100"/></filter>
+            </svg>
+        </div>
+        <!-- Login Screen -->
+        <div id="login" class="page active">
+             <div class="min-h-[70vh] flex items-center justify-center">
+                <div class="w-full max-w-md text-center bg-white p-8 rounded-xl shadow-lg login-card glass-card">
+                    <div class="flex justify-center mb-4">
+                       <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center floating">
+                            <i class="fas fa-rocket text-3xl text-indigo-500"></i>
+                       </div>
+                    </div>
+                    <h1 class="text-3xl font-bold gradient-text">OmniOrchestrator</h1>
+                    <p class="text-gray-600 mt-2 mb-8">Your AI Marketing Co-Pilot</p>
+                    <div class="space-y-4">
+                        <button class="w-full vibrant-btn py-3 px-4 rounded-lg hover:bg-indigo-700 transition-all transform hover:scale-105 flex items-center justify-center shadow-md">
+                            <i class="fab fa-google mr-2"></i>
+                            Login with Google CRM
+                        </button>
+                        <button class="w-full bg-gray-200 text-gray-700 font-semibold py-3 px-4 rounded-lg hover:bg-gray-300 transition-all transform hover:scale-105 shadow-md glass-card" onclick="changeTab('dashboard')">
+                            Continue as Guest
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Marketer Dashboard -->
+        <div id="dashboard" class="page">
+             <div class="space-y-8">
+                 <!-- Header & Action -->
+                <div class="flex justify-between items-center">
+                    <div>
+                         <h1 class="text-3xl font-bold gradient-text">Marketer Dashboard</h1>
+                         <p class="text-gray-500 mt-1">Welcome back, Sarah!</p>
+                    </div>
+                </div>
+
+                <!-- Metric Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="metric-card glass-card">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-gray-500 text-sm font-medium">Open Rate</h3>
+                            <i class="fas fa-envelope-open text-indigo-500"></i>
+                        </div>
+                        <p class="text-3xl font-bold mt-2">24.5%</p>
+                        <p class="text-green-500 text-sm mt-1 flex items-center">
+                            <i class="fas fa-arrow-up mr-1"></i>+2.1% vs last week
+                        </p>
+                    </div>
+                     <div class="metric-card glass-card">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-gray-500 text-sm font-medium">Click-Through Rate (CTR)</h3>
+                            <i class="fas fa-mouse-pointer text-indigo-500"></i>
+                        </div>
+                        <p class="text-3xl font-bold mt-2">4.2%</p>
+                        <p class="text-green-500 text-sm mt-1 flex items-center">
+                            <i class="fas fa-arrow-up mr-1"></i>+0.5% vs last week
+                        </p>
+                    </div>
+                     <div class="metric-card glass-card">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-gray-500 text-sm font-medium">Conversions</h3>
+                            <i class="fas fa-chart-line text-indigo-500"></i>
+                        </div>
+                        <p class="text-3xl font-bold mt-2">1,204</p>
+                         <p class="text-red-500 text-sm mt-1 flex items-center">
+                            <i class="fas fa-arrow-down mr-1"></i>-3.2% vs last week
+                        </p>
+                    </div>
+                     <div class="metric-card glass-card">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-gray-500 text-sm font-medium">Engagement Score</h3>
+                            <i class="fas fa-star text-indigo-500"></i>
+                        </div>
+                        <p class="text-3xl font-bold mt-2">8.2/10</p>
+                        <p class="text-gray-500 text-sm mt-1">Overall customer activity</p>
+                    </div>
+                </div>
+
+                 <!-- Suggested Actions -->
+                <div>
+                    <h2 class="text-2xl font-bold mb-4 gradient-text">Suggested Actions</h2>
+                    <div class="bg-white p-6 rounded-lg shadow-md space-y-4 glass-card">
+                        <div class="flex items-start p-4 bg-indigo-50 bg-opacity-40 rounded-lg suggestion-card glass-card">
+                             <i class="fas fa-lightbulb text-yellow-500 text-xl mr-4 mt-1 pulse"></i>
+                            <div>
+                                <h4 class="font-semibold">Re-engage inactive users</h4>
+                                <p class="text-gray-600 text-sm">Create a win-back campaign for users who haven't opened an email in 30 days. Offer a 10% discount to entice them back.</p>
+                                <button class="text-indigo-600 font-semibold text-sm mt-2 hover:underline transition-all transform hover:scale-105" onclick="changeTab('creator')">Create Campaign</button>
+                            </div>
+                        </div>
+                        <div class="flex items-start p-4 bg-indigo-50 bg-opacity-40 rounded-lg suggestion-card glass-card">
+                            <i class="fas fa-lightbulb text-yellow-500 text-xl mr-4 mt-1 pulse"></i>
+                            <div>
+                                <h4 class="font-semibold">Optimize social media posts</h4>
+                                <p class="text-gray-600 text-sm">Your recent posts on LinkedIn have high engagement. Consider creating a similar post for your new product launch this Friday.</p>
+                                <button class="text-indigo-600 font-semibold text-sm mt-2 hover:underline transition-all transform hover:scale-105">Draft Post</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+             </div>
+        </div>
+
+        <!-- Campaign Creator -->
+        <div id="creator" class="page">
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="grid grid-cols-1 md:grid-cols-12">
+                    <!-- Left Column: Controls -->
+                    <div class="md:col-span-4 bg-gray-50 p-6 border-r border-gray-200">
+                         <h2 class="text-2xl font-bold mb-6 gradient-text">AI Campaign Creator</h2>
+                         <div class="space-y-6">
+                             <div class="transform transition-all hover:scale-105">
+                                 <label class="font-semibold text-gray-700">Channel Type</label>
+                                 <select class="w-full mt-2 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 transition-all">
+                                     <option>Email</option>
+                                     <option>SMS</option>
+                                     <option>Social Media (LinkedIn)</option>
+                                 </select>
+                             </div>
+                              <div class="transform transition-all hover:scale-105">
+                                 <label class="font-semibold text-gray-700">Target Persona</label>
+                                 <select class="w-full mt-2 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 transition-all">
+                                     <option>Tech Enthusiasts</option>
+                                     <option>Marketing Managers</option>
+                                     <option>Small Business Owners</option>
+                                 </select>
+                             </div>
+                              <div class="transform transition-all hover:scale-105">
+                                 <label class="font-semibold text-gray-700">Campaign Goal</label>
+                                 <select class="w-full mt-2 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 transition-all">
+                                     <option>Promote New Feature</option>
+                                     <option>Drive Webinar Signups</option>
+                                     <option>Increase Brand Awareness</option>
+                                 </select>
+                             </div>
+                         </div>
+                    </div>
+                    <!-- Right Column: Preview -->
+                    <div class="md:col-span-8 p-6 flex flex-col h-[75vh]">
+                         <h3 class="text-xl font-semibold text-gray-800 mb-4 gradient-text">Generated Content Preview</h3>
+                         <div class="flex-grow bg-gray-100 rounded-lg p-4 border border-gray-200 transition-all hover:shadow-lg">
+                             <textarea class="w-full h-full bg-transparent border-0 resize-none focus:ring-0 text-gray-700 transition-all" placeholder="Your AI-generated content will appear here...">Subject: ✨ Introducing Our Game-Changing New Feature!
+
+Hi [Name],
+
+Ready to supercharge your marketing efforts? We've just launched an incredible new feature that will help you automate your campaigns like never before.
+
+Our new AI-powered workflow builder allows you to create complex customer journeys with just a few clicks. Save time, reduce manual work, and boost your ROI.
+
+Want to see it in action?
+
+Best,
+The OmniOrchestrator Team</textarea>
+                         </div>
+                         <div class="mt-4 flex flex-col sm:flex-row gap-3">
+                            <button class="flex-1 bg-gray-200 text-gray-700 font-semibold py-3 px-4 rounded-lg hover:bg-gray-300 transition-all transform hover:scale-105">
+                                <i class="fas fa-sync-alt mr-2"></i>Regenerate
+                            </button>
+                            <button class="flex-1 bg-gray-200 text-gray-700 font-semibold py-3 px-4 rounded-lg hover:bg-gray-300 transition-all transform hover:scale-105">
+                                <i class="fas fa-magic mr-2"></i>Change Tone
+                            </button>
+                            <button class="flex-1 bg-indigo-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-indigo-700 transition-all transform hover:scale-105">
+                                <i class="fas fa-paper-plane mr-2"></i>Send Now
+                            </button>
+                            <button class="flex-1 bg-green-500 text-white font-semibold py-3 px-4 rounded-lg hover:bg-green-600 transition-all transform hover:scale-105">
+                                <i class="fas fa-calendar-alt mr-2"></i>Schedule
+                            </button>
+                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Analytics -->
+        <div id="analytics" class="page">
+             <div class="space-y-8">
+                <!-- Filter Bar -->
+                <div class="bg-white p-4 rounded-lg shadow-sm flex flex-col md:flex-row gap-4 items-center glass-card">
+                    <h2 class="text-xl font-bold mr-4 gradient-text">Performance Analytics</h2>
+                    <div class="flex-grow flex flex-col md:flex-row gap-4">
+                       <input type="date" class="p-2 border border-gray-300 rounded-lg transition-all hover:border-indigo-500 focus:ring-2 focus:ring-indigo-500">
+                       <select class="p-2 border border-gray-300 rounded-lg transition-all hover:border-indigo-500 focus:ring-2 focus:ring-indigo-500">
+                           <option>All Campaigns</option>
+                           <option>Q2 Product Launch</option>
+                           <option>Webinar Promotion</option>
+                       </select>
+                    </div>
+                    <button class="bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-indigo-700 transition-all transform hover:scale-105">
+                        <i class="fas fa-filter mr-2"></i>Apply Filters
+                    </button>
+                </div>
+
+                <!-- Mini Metric Cards with Charts -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="metric-card glass-card flex flex-col items-center">
+                        <h3 class="text-gray-500 mb-1">Impressions</h3>
+                        <canvas id="impressionsMiniChart" width="120" height="60"></canvas>
+                        <p class="text-2xl font-bold mt-2">1.2M</p>
+                    </div>
+                    <div class="metric-card glass-card flex flex-col items-center">
+                        <h3 class="text-gray-500 mb-1">Open Rate</h3>
+                        <canvas id="openRateMiniChart" width="120" height="60"></canvas>
+                        <p class="text-2xl font-bold mt-2">32.1%</p>
+                    </div>
+                    <div class="metric-card glass-card flex flex-col items-center">
+                        <h3 class="text-gray-500 mb-1">CTR</h3>
+                        <canvas id="ctrMiniChart" width="120" height="60"></canvas>
+                        <p class="text-2xl font-bold mt-2">5.8%</p>
+                    </div>
+                    <div class="metric-card glass-card flex flex-col items-center">
+                        <h3 class="text-gray-500 mb-1">Conversions</h3>
+                        <canvas id="conversionsMiniChart" width="120" height="60"></canvas>
+                        <p class="text-2xl font-bold mt-2">876</p>
+                    </div>
+                </div>
+
+                <!-- Audience Segmentation Pie Chart -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="glass-card p-6 flex flex-col items-center">
+                        <h3 class="font-bold mb-4 gradient-text">Audience Segmentation</h3>
+                        <canvas id="audienceMiniPie" width="180" height="180"></canvas>
+                    </div>
+                    <div class="glass-card p-6 flex flex-col justify-center">
+                        <h3 class="font-bold mb-4 gradient-text">AI Insights</h3>
+                        <ul class="list-disc pl-6 text-gray-700 space-y-2">
+                            <li>Tech Enthusiasts are most active on Mondays and Thursdays.</li>
+                            <li>Marketing Managers respond best to LinkedIn campaigns.</li>
+                            <li>SMB Owners have the highest conversion rate from SMS.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Insights Page -->
+        <div id="insights" class="page">
+            <div class="glass-card p-8 my-8">
+                <h1 class="gradient-text mb-6">AI Insights & Suggestions</h1>
+                <div class="space-y-6">
+                    <div class="glass-card p-6">
+                        <h2 class="font-bold text-lg mb-2">🧠 Next Best Action</h2>
+                        <p>Based on recent campaign performance, consider launching a retargeting campaign for users who clicked but did not convert. Offer a limited-time incentive.</p>
+                    </div>
+                    <div class="glass-card p-6">
+                        <h2 class="font-bold text-lg mb-2">🚀 Campaign Idea</h2>
+                        <p>Try an interactive email campaign with a quiz or poll to boost engagement and collect more customer data for personalization.</p>
+                    </div>
+                    <div class="glass-card p-6">
+                        <h2 class="font-bold text-lg mb-2">📈 Optimization Tip</h2>
+                        <p>Send your next newsletter at 10:00 AM local time for your audience. This time slot has the highest open rates this month.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Tab Logic ---
+        const tabs = document.querySelectorAll('.tab-btn');
+        const pages = document.querySelectorAll('.page');
+        const settingsTabs = document.querySelectorAll('#settings nav a');
+        const settingsContents = document.querySelectorAll('#settings .md\\:col-span-9 > div');
+
+        function changeTab(targetId) {
+            // Animate out current tab
+            const currentPage = document.querySelector('.page.active');
+            if (currentPage) {
+                currentPage.style.opacity = '0';
+                currentPage.style.transform = 'translateY(20px)';
+            }
+
+            // Update nav bar active state
+            document.querySelectorAll('.nav-link').forEach(btn => {
+                btn.classList.remove('active');
+                if(btn.getAttribute('onclick').includes(targetId)) {
+                    btn.classList.add('active');
+                }
+            });
+
+            // Update tabs (for legacy tab-btns)
+            tabs.forEach(tab => {
+                tab.classList.remove('active');
+                if(tab.getAttribute('onclick').includes(targetId)) {
+                    tab.classList.add('active');
+                }
+            });
+
+            // Animate in new tab
+            setTimeout(() => {
+                pages.forEach(page => {
+                    page.classList.remove('active');
+                    if (page.id === targetId) {
+                        page.classList.add('active');
+                        page.style.opacity = '1';
+                        page.style.transform = 'translateY(0)';
+                    }
+                });
+
+                // Initialize charts if analytics tab is active
+                if(targetId === 'analytics') {
+                    renderCharts();
+                }
+            }, 300);
+        }
+        
+        settingsTabs.forEach((tab, index) => {
+            tab.addEventListener('click', (e) => {
+                e.preventDefault();
+                settingsTabs.forEach(t => t.classList.remove('text-indigo-700', 'bg-indigo-100', 'font-semibold'));
+                tab.classList.add('text-indigo-700', 'bg-indigo-100', 'font-semibold');
+
+                settingsContents.forEach(content => {
+                    content.style.opacity = '0';
+                    content.style.transform = 'translateY(20px)';
+                    setTimeout(() => {
+                        content.style.display = 'none';
+                    }, 300);
+                });
+
+                setTimeout(() => {
+                    settingsContents[index].style.display = 'block';
+                    setTimeout(() => {
+                        settingsContents[index].style.opacity = '1';
+                        settingsContents[index].style.transform = 'translateY(0)';
+                    }, 50);
+                }, 300);
+            });
+        });
+
+        // --- Chart.js Logic ---
+        let impressionsMiniChart, openRateMiniChart, ctrMiniChart, conversionsMiniChart, audienceMiniPie;
+
+        function renderCharts() {
+            // Impressions Bar
+            if (impressionsMiniChart) impressionsMiniChart.destroy();
+            impressionsMiniChart = new Chart(document.getElementById('impressionsMiniChart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Impressions',
+                        data: [200, 300, 400, 350, 500, 600],
+                        backgroundColor: '#818cf8',
+                        borderRadius: 6,
+                        barThickness: 12
+                    }]
+                },
+                options: {responsive: false, plugins: {legend: {display: false}}, animation: {duration: 600}}
+            });
+            // Open Rate Line
+            if (openRateMiniChart) openRateMiniChart.destroy();
+            openRateMiniChart = new Chart(document.getElementById('openRateMiniChart').getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Open Rate',
+                        data: [20, 25, 28, 30, 32, 32.1],
+                        borderColor: '#f472b6',
+                        backgroundColor: 'rgba(244,114,182,0.08)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {responsive: false, plugins: {legend: {display: false}}, animation: {duration: 600}}
+            });
+            // CTR Line
+            if (ctrMiniChart) ctrMiniChart.destroy();
+            ctrMiniChart = new Chart(document.getElementById('ctrMiniChart').getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'CTR',
+                        data: [2.5, 3.1, 4.0, 4.5, 5.2, 5.8],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16,185,129,0.08)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {responsive: false, plugins: {legend: {display: false}}, animation: {duration: 600}}
+            });
+            // Conversions Bar
+            if (conversionsMiniChart) conversionsMiniChart.destroy();
+            conversionsMiniChart = new Chart(document.getElementById('conversionsMiniChart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Conversions',
+                        data: [100, 150, 200, 300, 400, 876],
+                        backgroundColor: '#fbbf24',
+                        borderRadius: 6,
+                        barThickness: 12
+                    }]
+                },
+                options: {responsive: false, plugins: {legend: {display: false}}, animation: {duration: 600}}
+            });
+            // Audience Pie
+            if (audienceMiniPie) audienceMiniPie.destroy();
+            audienceMiniPie = new Chart(document.getElementById('audienceMiniPie').getContext('2d'), {
+                type: 'pie',
+                data: {
+                    labels: ['Tech Enthusiasts', 'Marketing Managers', 'SMB Owners'],
+                    datasets: [{
+                        data: [45, 35, 20],
+                        backgroundColor: ['#4f46e5', '#818cf8', '#fbbf24'],
+                    }]
+                },
+                options: {responsive: false, plugins: {legend: {position: 'bottom'}}, animation: {duration: 600}}
+            });
+        }
+
+        // Add hover effects to metric cards
+        document.querySelectorAll('.metric-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-5px) scale(1.02)';
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+
+        // Add loading animation to buttons
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('click', function(e) {
+                if (!this.classList.contains('no-loading')) {
+                    const originalContent = this.innerHTML;
+                    this.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Loading...';
+                    this.disabled = true;
+                    
+                    setTimeout(() => {
+                        this.innerHTML = originalContent;
+                        this.disabled = false;
+                    }, 1000);
+                }
+            });
+        });
+
+        // Add smooth scroll behavior
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Set initial state
+        document.addEventListener("DOMContentLoaded", () => {
+            changeTab('login');
+            
+            // Add entrance animation to metric cards
+            document.querySelectorAll('.metric-card').forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        });
+    </script>
+</body>
+</html> 
