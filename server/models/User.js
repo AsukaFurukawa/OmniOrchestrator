@@ -300,88 +300,186 @@ userSchema.virtual('fullName').get(function() {
   return this.name;
 });
 
-// Method to check if user has reached API limits
-userSchema.methods.hasReachedLimit = function(apiType) {
-  const usage = this.apiUsage.currentMonth;
+// Instance methods for usage tracking
+userSchema.methods.hasReachedLimit = function(type) {
+  const current = this.apiUsage.currentMonth;
   const limits = this.apiUsage.limits;
   
-  switch (apiType) {
+  switch(type) {
     case 'campaign':
-      return usage.campaignGenerations >= limits.campaignGenerations;
+      return current.campaignGenerations >= limits.campaignGenerations;
     case 'image':
-      return usage.imageGenerations >= limits.imageGenerations;
+      return current.imageGenerations >= limits.imageGenerations;
     case 'analysis':
-      return usage.analysisRequests >= limits.analysisRequests;
+      return current.analysisRequests >= limits.analysisRequests;
     default:
       return false;
   }
 };
 
-// Method to increment API usage
-userSchema.methods.incrementUsage = function(apiType) {
-  const usage = this.apiUsage.currentMonth;
+userSchema.methods.incrementUsage = function(type) {
+  const current = this.apiUsage.currentMonth;
   
-  switch (apiType) {
+  switch(type) {
     case 'campaign':
-      usage.campaignGenerations += 1;
+      current.campaignGenerations += 1;
       break;
     case 'image':
-      usage.imageGenerations += 1;
+      current.imageGenerations += 1;
       break;
     case 'analysis':
-      usage.analysisRequests += 1;
+      current.analysisRequests += 1;
       break;
   }
   
-  usage.totalRequests += 1;
+  current.totalRequests += 1;
   return this.save();
 };
 
-// Method to get active campaigns
-userSchema.methods.getActiveCampaigns = function() {
-  return this.campaigns.filter(campaign => campaign.status === 'active');
+userSchema.methods.getRemainingUsage = function(type) {
+  const current = this.apiUsage.currentMonth;
+  const limits = this.apiUsage.limits;
+  
+  switch(type) {
+    case 'campaign':
+      return Math.max(0, limits.campaignGenerations - current.campaignGenerations);
+    case 'image':
+      return Math.max(0, limits.imageGenerations - current.imageGenerations);
+    case 'analysis':
+      return Math.max(0, limits.analysisRequests - current.analysisRequests);
+    default:
+      return 0;
+  }
 };
 
-// Method to calculate total campaign performance
-userSchema.methods.getTotalPerformance = function() {
+userSchema.methods.resetMonthlyUsage = function() {
+  const now = new Date();
+  const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  
+  // Archive current month usage
+  this.apiUsage.history.push({
+    month: monthKey,
+    year: now.getFullYear(),
+    usage: { ...this.apiUsage.currentMonth }
+  });
+  
+  // Reset current month counters
+  this.apiUsage.currentMonth = {
+    campaignGenerations: 0,
+    imageGenerations: 0,
+    analysisRequests: 0,
+    totalRequests: 0
+  };
+  
+  return this.save();
+};
+
+userSchema.methods.upgradePlan = function(newPlan) {
+  const planLimits = {
+    free: {
+      campaignGenerations: 50,
+      imageGenerations: 20,
+      analysisRequests: 100
+    },
+    pro: {
+      campaignGenerations: 500,
+      imageGenerations: 200,
+      analysisRequests: 1000
+    },
+    enterprise: {
+      campaignGenerations: 5000,
+      imageGenerations: 2000,
+      analysisRequests: 10000
+    }
+  };
+  
+  this.profile.subscription.plan = newPlan;
+  this.apiUsage.limits = planLimits[newPlan] || planLimits.free;
+  
+  return this.save();
+};
+
+userSchema.methods.addCampaign = function(campaignData) {
+  const campaign = {
+    name: campaignData.name,
+    type: campaignData.type,
+    status: campaignData.status || 'draft',
+    content: campaignData.content || {},
+    targeting: campaignData.targeting || {},
+    metrics: {
+      impressions: 0,
+      clicks: 0,
+      conversions: 0,
+      spend: 0
+    },
+    createdAt: new Date(),
+    updatedAt: new Date()
+  };
+  
+  this.campaigns.push(campaign);
+  return this.save();
+};
+
+userSchema.methods.updateCampaign = function(campaignId, updates) {
+  const campaign = this.campaigns.id(campaignId);
+  if (!campaign) {
+    throw new Error('Campaign not found');
+  }
+  
+  Object.assign(campaign, updates);
+  campaign.updatedAt = new Date();
+  
+  return this.save();
+};
+
+userSchema.methods.deleteCampaign = function(campaignId) {
+  const campaign = this.campaigns.id(campaignId);
+  if (!campaign) {
+    throw new Error('Campaign not found');
+  }
+  
+  campaign.remove();
+  return this.save();
+};
+
+userSchema.methods.getCampaignStats = function() {
   const campaigns = this.campaigns;
   
-  return campaigns.reduce((total, campaign) => {
-    total.impressions += campaign.metrics.impressions || 0;
-    total.clicks += campaign.metrics.clicks || 0;
-    total.conversions += campaign.metrics.conversions || 0;
-    total.spend += campaign.metrics.spend || 0;
-    return total;
-  }, { impressions: 0, clicks: 0, conversions: 0, spend: 0 });
+  return {
+    total: campaigns.length,
+    active: campaigns.filter(c => c.status === 'active').length,
+    draft: campaigns.filter(c => c.status === 'draft').length,
+    completed: campaigns.filter(c => c.status === 'completed').length,
+    paused: campaigns.filter(c => c.status === 'paused').length,
+    totalImpressions: campaigns.reduce((sum, c) => sum + c.metrics.impressions, 0),
+    totalClicks: campaigns.reduce((sum, c) => sum + c.metrics.clicks, 0),
+    totalConversions: campaigns.reduce((sum, c) => sum + c.metrics.conversions, 0),
+    totalSpend: campaigns.reduce((sum, c) => sum + c.metrics.spend, 0)
+  };
 };
 
-// Pre-save middleware to update timestamps
+// Static methods
+userSchema.statics.findByEmail = function(email) {
+  return this.findOne({ email: email.toLowerCase() });
+};
+
+userSchema.statics.findActiveUsers = function() {
+  return this.find({ 
+    'profile.subscription.status': 'active',
+    'profile.lastLogin': { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } // Active within 30 days
+  });
+};
+
+userSchema.statics.getUsersByPlan = function(plan) {
+  return this.find({ 'profile.subscription.plan': plan });
+};
+
+// Pre-save middleware
 userSchema.pre('save', function(next) {
-  if (this.campaigns && this.campaigns.length > 0) {
-    this.campaigns.forEach(campaign => {
-      if (campaign.isModified()) {
-        campaign.updatedAt = new Date();
-      }
-    });
+  if (this.isModified('email')) {
+    this.email = this.email.toLowerCase();
   }
   next();
 });
-
-// Static method to find users by industry
-userSchema.statics.findByIndustry = function(industry) {
-  return this.find({ industry: new RegExp(industry, 'i') });
-};
-
-// Static method to get subscription statistics
-userSchema.statics.getSubscriptionStats = function() {
-  return this.aggregate([
-    {
-      $group: {
-        _id: '$profile.subscription.plan',
-        count: { $sum: 1 }
-      }
-    }
-  ]);
-};
 
 module.exports = mongoose.model('User', userSchema); 

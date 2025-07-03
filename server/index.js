@@ -17,6 +17,7 @@ const socialRoutes = require('./routes/social');
 const trendRoutes = require('./routes/trends');
 const webhookRoutes = require('./routes/webhooks');
 const videoRoutes = require('./routes/video');
+const usageRoutes = require('./routes/usage');
 
 // Import middleware
 const authMiddleware = require('./middleware/auth');
@@ -25,6 +26,10 @@ const errorHandler = require('./middleware/errorHandler');
 // Import services
 const CronService = require('./services/cronService');
 const SocketService = require('./services/socketService');
+const UsageTrackingService = require('./services/usageTrackingService');
+const ConversationalAI = require('./services/conversationalAI');
+const AdvancedAnalytics = require('./services/advancedAnalytics');
+const SentimentAnalysis = require('./services/sentimentAnalysis');
 
 const app = express();
 const server = createServer(app);
@@ -41,10 +46,11 @@ app.use(helmet({
     directives: {
       defaultSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdn.tailwindcss.com", "https://cdnjs.cloudflare.com"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-hashes'", "https://cdn.tailwindcss.com", "https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-hashes'", "https://cdn.tailwindcss.com", "https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com", "https://cdn.socket.io"],
+      scriptSrcElem: ["'self'", "'unsafe-inline'", "https://cdn.tailwindcss.com", "https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com", "https://cdn.socket.io"],
       scriptSrcAttr: ["'unsafe-inline'"],
       imgSrc: ["'self'", "data:", "https:", "blob:"],
-      connectSrc: ["'self'", "https://api.openai.com", "wss:"],
+      connectSrc: ["'self'", "https://api.openai.com", "wss:", "ws:", "http://localhost:3000"],
       fontSrc: ["'self'", "https://fonts.gstatic.com", "https://fonts.googleapis.com", "https://cdnjs.cloudflare.com"]
     }
   }
@@ -87,8 +93,10 @@ app.use('/api/analytics', authMiddleware, analyticsRoutes);
 app.use('/api/ai', authMiddleware, aiRoutes);
 app.use('/api/social', authMiddleware, socialRoutes);
 app.use('/api/trends', authMiddleware, trendRoutes);
+app.use('/api/usage', usageRoutes);
 app.use('/api/webhooks', webhookRoutes);
 app.use('/api/video', authMiddleware, videoRoutes);
+app.use('/api/conversational', authMiddleware, require('./routes/conversational'));
 
 // Serve the main UI for the root path
 app.get('/', (req, res) => {
@@ -105,8 +113,19 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Initialize Socket.IO service
+// Initialize services
 const socketService = new SocketService(io);
+const usageTrackingService = new UsageTrackingService();
+const conversationalAI = new ConversationalAI();
+const advancedAnalytics = new AdvancedAnalytics();
+const sentimentAnalysis = new SentimentAnalysis();
+
+// Make services available globally
+global.socketService = socketService;
+global.usageTracker = usageTrackingService;
+global.conversationalAI = conversationalAI;
+global.advancedAnalytics = advancedAnalytics;
+global.sentimentAnalysis = sentimentAnalysis;
 
 // Error handling middleware
 app.use(errorHandler);
@@ -124,7 +143,7 @@ app.use('*', (req, res) => {
 const cronService = new CronService();
 cronService.start();
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
 
 server.listen(PORT, () => {
   console.log(`🚀 OmniOrchestra server running on port ${PORT}`);

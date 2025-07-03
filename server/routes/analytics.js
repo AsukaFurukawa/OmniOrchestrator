@@ -1,5 +1,7 @@
 const express = require('express');
 const User = require('../models/User');
+const auth = require('../middleware/auth');
+const { tenantContext } = require('../middleware/tenantContext');
 
 const router = express.Router();
 
@@ -224,6 +226,307 @@ router.get('/roi', async (req, res) => {
       success: false,
       error: 'Failed to fetch ROI analytics',
       details: error.message
+    });
+  }
+});
+
+/**
+ * @route   POST /api/analytics/advanced/campaign
+ * @desc    Get advanced AI-powered campaign analysis
+ * @access  Private
+ */
+router.post('/advanced/campaign', auth, tenantContext, async (req, res) => {
+  try {
+    const { campaignId, options = {} } = req.body;
+    
+    if (!campaignId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Campaign ID is required'
+      });
+    }
+
+    // Check usage limits
+    if (global.usageTracker) {
+      const canUse = await global.usageTracker.checkUsageLimit(
+        req.user.id,
+        req.tenant?.id,
+        'advanced_analytics'
+      );
+      
+      if (!canUse.allowed) {
+        return res.status(429).json({
+          success: false,
+          error: 'Advanced analytics limit exceeded',
+          limit: canUse.limit,
+          used: canUse.used
+        });
+      }
+    }
+
+    // Get advanced analytics
+    const analysis = await global.advancedAnalytics.analyzeCampaignPerformance(
+      req.user.id,
+      campaignId,
+      options
+    );
+
+    // Track usage
+    if (global.usageTracker) {
+      await global.usageTracker.trackUsage(
+        req.user.id,
+        req.tenant?.id,
+        'advanced_analytics',
+        1
+      );
+    }
+
+    // Send real-time updates
+    if (global.socketService) {
+      global.socketService.sendToUser(req.user.id, 'advanced_analytics', {
+        type: 'campaign_analysis',
+        campaignId,
+        performanceScore: analysis.analysis.overview.performanceScore,
+        status: analysis.analysis.overview.status,
+        timestamp: new Date()
+      });
+    }
+
+    res.json(analysis);
+  } catch (error) {
+    console.error('Advanced analytics error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to generate advanced analytics'
+    });
+  }
+});
+
+/**
+ * @route   POST /api/analytics/sentiment/brand
+ * @desc    Analyze brand sentiment across sources
+ * @access  Private
+ */
+router.post('/sentiment/brand', auth, tenantContext, async (req, res) => {
+  try {
+    const { brandName, options = {} } = req.body;
+    
+    if (!brandName) {
+      return res.status(400).json({
+        success: false,
+        error: 'Brand name is required'
+      });
+    }
+
+    // Check usage limits - development bypass
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔧 Development mode: Bypassing sentiment analysis usage limits');
+    } else if (global.usageTracker && global.usageTracker.checkUsageLimit) {
+      try {
+        const canUse = await global.usageTracker.checkUsageLimit(
+          req.user.id,
+          req.tenant?.id,
+          'sentiment_analysis'
+        );
+        
+        if (!canUse.allowed) {
+          return res.status(429).json({
+            success: false,
+            error: 'Sentiment analysis limit exceeded',
+            limit: canUse.limit,
+            used: canUse.used
+          });
+        }
+      } catch (error) {
+        console.log('🔧 Usage tracking error, continuing in development mode:', error.message);
+      }
+    }
+
+    // Analyze brand sentiment
+    const analysis = await global.sentimentAnalysis.analyzeBrandSentiment(
+      brandName,
+      options
+    );
+
+    // Track usage
+    if (global.usageTracker) {
+      await global.usageTracker.trackUsage(
+        req.user.id,
+        req.tenant?.id,
+        'sentiment_analysis',
+        1
+      );
+    }
+
+    // Send real-time updates
+    if (global.socketService) {
+      global.socketService.sendToUser(req.user.id, 'sentiment_analysis', {
+        brandName,
+        overall: analysis.sentiment.overall,
+        volume: analysis.sentiment.volume,
+        timestamp: new Date()
+      });
+    }
+
+    res.json(analysis);
+  } catch (error) {
+    console.error('Sentiment analysis error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to analyze sentiment'
+    });
+  }
+});
+
+/**
+ * @route   POST /api/analytics/sentiment/content
+ * @desc    Analyze sentiment of specific content
+ * @access  Private
+ */
+router.post('/sentiment/content', auth, tenantContext, async (req, res) => {
+  try {
+    const { text, contentType = 'general' } = req.body;
+    
+    if (!text) {
+      return res.status(400).json({
+        success: false,
+        error: 'Text content is required'
+      });
+    }
+
+    // Check usage limits - development bypass  
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔧 Development mode: Bypassing content sentiment analysis usage limits');
+    } else if (global.usageTracker && global.usageTracker.checkUsageLimit) {
+      try {
+        const canUse = await global.usageTracker.checkUsageLimit(
+          req.user.id,
+          req.tenant?.id,
+          'sentiment_analysis'
+        );
+        
+        if (!canUse.allowed) {
+          return res.status(429).json({
+            success: false,
+            error: 'Sentiment analysis limit exceeded',
+            limit: canUse.limit,
+            used: canUse.used
+          });
+        }
+      } catch (error) {
+        console.log('🔧 Usage tracking error, continuing in development mode:', error.message);
+      }
+    }
+
+    // Analyze content sentiment
+    const analysis = await global.sentimentAnalysis.analyzeSingleContent(text, contentType);
+
+    // Track usage
+    if (global.usageTracker) {
+      await global.usageTracker.trackUsage(
+        req.user.id,
+        req.tenant?.id,
+        'sentiment_analysis',
+        1
+      );
+    }
+
+    res.json({
+      success: true,
+      sentiment: analysis,
+      contentType,
+      analyzedAt: new Date()
+    });
+  } catch (error) {
+    console.error('Content sentiment analysis error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to analyze content sentiment'
+    });
+  }
+});
+
+/**
+ * @route   POST /api/analytics/sentiment/monitoring/start
+ * @desc    Start real-time sentiment monitoring
+ * @access  Private
+ */
+router.post('/sentiment/monitoring/start', auth, tenantContext, async (req, res) => {
+  try {
+    const { brandName, options = {} } = req.body;
+    
+    if (!brandName) {
+      return res.status(400).json({
+        success: false,
+        error: 'Brand name is required'
+      });
+    }
+
+    // Start monitoring
+    const monitoring = await global.sentimentAnalysis.startRealtimeMonitoring(
+      req.user.id,
+      brandName,
+      options
+    );
+
+    res.json(monitoring);
+  } catch (error) {
+    console.error('Sentiment monitoring start error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to start sentiment monitoring'
+    });
+  }
+});
+
+/**
+ * @route   POST /api/analytics/sentiment/monitoring/stop
+ * @desc    Stop real-time sentiment monitoring
+ * @access  Private
+ */
+router.post('/sentiment/monitoring/stop', auth, tenantContext, async (req, res) => {
+  try {
+    const { monitoringId } = req.body;
+    
+    if (!monitoringId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Monitoring ID is required'
+      });
+    }
+
+    // Stop monitoring
+    const result = global.sentimentAnalysis.stopMonitoring(monitoringId);
+
+    res.json(result);
+  } catch (error) {
+    console.error('Sentiment monitoring stop error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to stop sentiment monitoring'
+    });
+  }
+});
+
+/**
+ * @route   GET /api/analytics/sentiment/alerts
+ * @desc    Get sentiment alerts for user
+ * @access  Private
+ */
+router.get('/sentiment/alerts', auth, tenantContext, async (req, res) => {
+  try {
+    const alerts = global.sentimentAnalysis.getUserAlerts(req.user.id);
+
+    res.json({
+      success: true,
+      alerts,
+      count: alerts.length
+    });
+  } catch (error) {
+    console.error('Sentiment alerts error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch sentiment alerts'
     });
   }
 });
