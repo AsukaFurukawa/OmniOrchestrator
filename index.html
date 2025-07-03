@@ -1285,6 +1285,141 @@ P.S. Early adopters get 50% off their first month!</textarea>
     </div>
 
     <script>
+        // --- EMERGENCY BUTTON FIX - CORE FUNCTIONS FIRST ---
+        console.log('🚀 OmniOrchestrator JavaScript Loading...');
+        
+        // Test function to verify JavaScript is working
+        function testJS() {
+            alert('✅ JavaScript is working! Functions are loaded.');
+            console.log('✅ JavaScript test successful');
+        }
+        
+        // Core navigation function - PRIORITY FIX
+        function changeTab(targetId) {
+            console.log('🎯 Navigation triggered:', targetId);
+            
+            try {
+                // Hide all pages
+                document.querySelectorAll('.page').forEach(page => {
+                    page.classList.remove('active');
+                    page.style.display = 'none';
+                });
+                
+                // Show target page
+                const targetPage = document.getElementById(targetId);
+                if (targetPage) {
+                    targetPage.classList.add('active');
+                    targetPage.style.display = 'block';
+                    console.log('✅ Switched to:', targetId);
+                    
+                    // Update navigation
+                    document.querySelectorAll('.nav-link').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    
+                    // Show success message
+                    if (typeof showNotification === 'function') {
+                        showNotification(`✨ Welcome to ${targetId.charAt(0).toUpperCase() + targetId.slice(1)}!`, 'success');
+                    } else {
+                        alert(`Switched to ${targetId}!`);
+                    }
+                } else {
+                    console.error('❌ Page not found:', targetId);
+                    alert('Page not found: ' + targetId);
+                }
+            } catch (error) {
+                console.error('❌ Navigation error:', error);
+                alert('Navigation error: ' + error.message);
+            }
+        }
+        
+        // Quick notification function
+        function showNotification(message, type = 'info') {
+            console.log('📢', message);
+            
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed; 
+                top: 20px; 
+                right: 20px; 
+                z-index: 9999;
+                background: rgba(0,0,0,0.8); 
+                color: white; 
+                padding: 15px 20px; 
+                border-radius: 10px;
+                font-weight: bold;
+                border: 2px solid #667eea;
+                box-shadow: 0 0 20px rgba(102, 126, 234, 0.5);
+            `;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 3000);
+        }
+        
+        // Quick campaign generator
+        function generateCampaign() {
+            console.log('🤖 Generating campaign...');
+            showNotification('AI is generating your campaign...', 'info');
+            
+            const textarea = document.getElementById('campaignPreview');
+            if (textarea) {
+                textarea.value = `Subject: ✨ The Future of Marketing is Here!
+
+Hi [Name],
+
+Ready to revolutionize your marketing with AI? 
+
+Our cutting-edge OmniOrchestrator platform is transforming how businesses create, manage, and optimize their marketing campaigns.
+
+🚀 AI-powered content generation
+🎬 Automated video creation  
+📊 Real-time performance analytics
+🧠 Intelligent audience insights
+
+Join the marketing revolution today!
+
+Best regards,
+The OmniOrchestrator Team
+
+P.S. Early adopters get 50% off their first month!`;
+                
+                showNotification('Campaign generated successfully! ✨', 'success');
+            } else {
+                showNotification('Campaign area not found', 'error');
+            }
+        }
+        
+        // Quick video generator
+        function generateVideo() {
+            console.log('🎬 Generating video...');
+            showNotification('AI video generation started! 🎬', 'info');
+            
+            setTimeout(() => {
+                showNotification('Video generated successfully! 🎬', 'success');
+            }, 3000);
+        }
+        
+        // Other button functions
+        function sendCampaign() {
+            showNotification('Campaign sent successfully! 🚀', 'success');
+        }
+        
+        function scheduleCampaign() {
+            showNotification('Campaign scheduled! ⏰', 'success');
+        }
+        
+        function regenerateCampaign() {
+            generateCampaign();
+        }
+        
         // --- IMMEDIATE NAVIGATION FIX ---
         function changeTab(targetId) {
             console.log('🚀 Switching to tab:', targetId);
@@ -1324,40 +1459,6 @@ P.S. Early adopters get 50% off their first month!</textarea>
                     console.error('❌ Page not found:', targetId);
                 }
             }, 300);
-        }
-
-        // Simple notification function
-        function showNotification(message, type = 'info') {
-            console.log('📢 Notification:', message);
-            
-            const notification = document.createElement('div');
-            notification.className = `fixed top-20 right-6 z-50 neon-glass-card p-4 rounded-2xl transform translate-x-full transition-all duration-500`;
-            
-            const colors = {
-                success: 'border-green-500/50 text-green-400',
-                error: 'border-red-500/50 text-red-400', 
-                warning: 'border-yellow-500/50 text-yellow-400',
-                info: 'border-blue-500/50 text-blue-400'
-            };
-            
-            notification.className += ` ${colors[type]}`;
-            notification.innerHTML = `
-                <div class="flex items-center">
-                    <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'times' : type === 'warning' ? 'exclamation' : 'info'} mr-3 text-xl glow-text"></i>
-                    <span class="font-bold">${message}</span>
-                </div>
-            `;
-            
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.style.transform = 'translateX(0)';
-            }, 100);
-            
-            setTimeout(() => {
-                notification.style.transform = 'translateX(100%)';
-                setTimeout(() => notification.remove(), 500);
-            }, 4000);
         }
 
         // --- ESSENTIAL FUNCTIONS FOR BUTTONS ---
@@ -1495,7 +1596,7 @@ The OmniOrchestrator Team`
             generateCampaign();
         }
 
-        // --- Global State Management ---
+        // --- GLOBAL STATE MANAGEMENT ---
         const AppState = {
             currentUser: null,
             campaigns: [],
@@ -1503,7 +1604,7 @@ The OmniOrchestrator Team`
             isLoading: false
         };
 
-        // --- API Service Functions ---
+        // --- API SERVICE FUNCTIONS ---
         class APIService {
             static async get(endpoint) {
                 try {
@@ -1530,7 +1631,7 @@ The OmniOrchestrator Team`
             }
         }
 
-        // --- Tab Logic with Backend Integration ---
+        // --- TAB LOGIC WITH BACKEND INTEGRATION ---
         const tabs = document.querySelectorAll('.tab-btn');
         const pages = document.querySelectorAll('.page');
 
@@ -1588,7 +1689,7 @@ The OmniOrchestrator Team`
             }, 300);
         }
 
-        // --- Dashboard Data Loading ---
+        // --- DASHBOARD DATA LOADING ---
         async function loadDashboardData() {
             try {
                 const [metricsRes, campaignsRes, insightsRes] = await Promise.all([
@@ -1666,7 +1767,7 @@ The OmniOrchestrator Team`
             }
         }
 
-        // --- Campaign Creator Functions ---
+        // --- CAMPAIGN CREATOR FUNCTIONS ---
         async function loadCreatorData() {
             try {
                 const templatesRes = await APIService.get('/ai/campaign-templates');
@@ -1728,7 +1829,7 @@ The OmniOrchestrator Team`
             }
         }
 
-        // --- Video Creator Functions ---
+        // --- VIDEO CREATOR FUNCTIONS ---
         async function loadVideoData() {
             try {
                 const modelsRes = await APIService.get('/video/models');
@@ -1843,7 +1944,7 @@ The OmniOrchestrator Team`
             }
         }
 
-        // --- Analytics Functions ---
+        // --- ANALYTICS FUNCTIONS ---
         async function loadAnalyticsData() {
             try {
                 const [metricsRes, trendsRes] = await Promise.all([
@@ -1865,7 +1966,7 @@ The OmniOrchestrator Team`
             }
         }
 
-        // --- AI Insights Functions ---
+        // --- AI INSIGHTS FUNCTIONS ---
         async function loadInsightsData() {
             try {
                 const insightsRes = await APIService.get('/ai/comprehensive-insights');
@@ -1877,7 +1978,7 @@ The OmniOrchestrator Team`
             }
         }
 
-                // --- Additional Campaign Functions ---
+                // --- ADDITIONAL CAMPAIGN FUNCTIONS ---
         async function regenerateCampaign() {
             showNotification('Regenerating campaign with new AI variations...', 'info');
             await generateCampaign();
@@ -1917,7 +2018,7 @@ The OmniOrchestrator Team`
             showNotification('Campaign scheduled for optimal send time! ⏰', 'success');
         }
 
-        // --- Mock Data Functions ---
+        // --- MOCK DATA FUNCTIONS ---
         function generateMockAnalyticsData() {
             return {
                 metrics: {
@@ -1958,7 +2059,7 @@ The OmniOrchestrator Team`
             console.log('Updating video models:', models);
         }
 
-        // --- Notification System ---
+        // --- NOTIFICATION SYSTEM ---
         function showNotification(message, type = 'info') {
             const notification = document.createElement('div');
             notification.className = `fixed top-20 right-6 z-50 neon-glass-card p-4 rounded-2xl transform translate-x-full transition-all duration-500`;
@@ -1992,7 +2093,7 @@ The OmniOrchestrator Team`
             }, 4000);
         }
 
-        // --- Enhanced Button Interactions ---
+        // --- ENHANCED BUTTON INTERACTIONS ---
         function addEnhancedInteractions() {
             // Add glowing effects to buttons on hover
             document.querySelectorAll('.neon-btn, .holographic-card').forEach(btn => {
@@ -2011,7 +2112,7 @@ The OmniOrchestrator Team`
             });
         }
 
-        // --- Chart.js Logic ---
+        // --- CHART.JS LOGIC ---
         let impressionsMiniChart, openRateMiniChart, ctrMiniChart, conversionsMiniChart, audienceMiniPie;
 
         function renderCharts() {
@@ -2298,7 +2399,7 @@ The OmniOrchestrator Team`
             console.log('✅ OmniOrchestrator Ready!');
         });
 
-        // --- Background Effects ---
+        // --- BACKGROUND EFFECTS ---
         function initializeBackgroundEffects() {
             // Add dynamic particle system
             const particles = [];
