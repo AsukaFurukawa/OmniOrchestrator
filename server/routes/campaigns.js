@@ -1,9 +1,11 @@
 const express = require('express');
 const User = require('../models/User');
 const AIService = require('../services/aiService');
+const UsageTrackingService = require('../services/usageTrackingService');
 
 const router = express.Router();
 const aiService = new AIService();
+const usageTracker = new UsageTrackingService();
 
 // Get all campaigns for user
 router.get('/', async (req, res) => {
@@ -114,16 +116,34 @@ router.post('/', async (req, res) => {
 
     // Auto-generate content if requested
     if (autoGenerate && generateParams) {
-      // Check API limits
-      if (user.hasReachedLimit('campaign')) {
-        return res.status(429).json({
-          success: false,
-          error: 'Campaign generation limit reached',
-          details: 'Upgrade your plan to generate more campaigns'
-        });
-      }
-
       try {
+        // Track usage and check limits
+        const usageResult = await usageTracker.trackUsage(req.user.userId, 'campaign', 1, {
+          action: 'generate_campaign',
+          type: type,
+          autoGenerate: true
+        });
+
+        if (!usageResult.success) {
+          return res.status(429).json({
+            success: false,
+            error: 'Campaign generation limit reached',
+            details: 'Upgrade your plan to generate more campaigns',
+            remaining: usageResult.remaining,
+            limit: usageResult.limit
+          });
+        }
+
+        // Notify via socket about generation start
+        const socketService = req.app.locals.socketService;
+        if (socketService) {
+          await socketService.sendGenerationProgress(req.user.userId, {
+            type: 'campaign',
+            step: 'Starting generation',
+            progress: 0
+          });
+        }
+
         const generatedContent = await aiService.generateCampaignContent({
           ...generateParams,
           channel: type
@@ -135,11 +155,27 @@ router.post('/', async (req, res) => {
           cta: generatedContent.callToAction
         };
 
-        // Increment usage
-        await user.incrementUsage('campaign');
+        // Notify completion
+        if (socketService) {
+          await socketService.sendGenerationProgress(req.user.userId, {
+            type: 'campaign',
+            step: 'Generation complete',
+            progress: 100
+          });
+        }
+
       } catch (aiError) {
         console.error('AI generation error:', aiError);
-        // Continue with provided content if AI fails
+        
+        // If it's a usage limit error, return it
+        if (aiError.message.includes('limit reached')) {
+          return res.status(429).json({
+            success: false,
+            error: aiError.message
+          });
+        }
+        
+        // Continue with provided content if AI fails for other reasons
       }
     }
 
@@ -159,15 +195,26 @@ router.post('/', async (req, res) => {
       updatedAt: new Date()
     };
 
-    user.campaigns.push(newCampaign);
-    await user.save();
-
+    // Add campaign using user method
+    await user.addCampaign(newCampaign);
     const createdCampaign = user.campaigns[user.campaigns.length - 1];
+
+    // Send real-time notification
+    const socketService = req.app.locals.socketService;
+    if (socketService) {
+      await socketService.sendNotification(req.user.userId, {
+        type: 'campaign_created',
+        title: 'Campaign Created',
+        message: `Campaign "${name}" has been created successfully`,
+        campaignId: createdCampaign._id
+      });
+    }
 
     res.status(201).json({
       success: true,
       campaign: createdCampaign,
-      message: autoGenerate ? 'Campaign created with AI-generated content' : 'Campaign created successfully'
+      message: autoGenerate ? 'Campaign created with AI-generated content' : 'Campaign created successfully',
+      usage: await usageTracker.getUserUsageStats(req.user.userId)
     });
   } catch (error) {
     console.error('Create campaign error:', error);
@@ -190,29 +237,22 @@ router.put('/:campaignId', async (req, res) => {
       });
     }
 
-    const campaign = user.campaigns.id(req.params.campaignId);
-    if (!campaign) {
-      return res.status(404).json({
-        success: false,
-        error: 'Campaign not found'
+    // Update campaign using user method
+    await user.updateCampaign(req.params.campaignId, req.body);
+    const updatedCampaign = user.campaigns.id(req.params.campaignId);
+
+    // Send real-time update
+    const socketService = req.app.locals.socketService;
+    if (socketService) {
+      await socketService.sendCampaignMetrics(req.user.userId, req.params.campaignId, {
+        ...updatedCampaign.metrics,
+        lastUpdate: new Date()
       });
     }
 
-    const { name, content, targeting, status } = req.body;
-
-    // Update campaign fields
-    if (name) campaign.name = name;
-    if (content) campaign.content = { ...campaign.content, ...content };
-    if (targeting) campaign.targeting = { ...campaign.targeting, ...targeting };
-    if (status) campaign.status = status;
-
-    campaign.updatedAt = new Date();
-
-    await user.save();
-
     res.json({
       success: true,
-      campaign,
+      campaign: updatedCampaign,
       message: 'Campaign updated successfully'
     });
   } catch (error) {
@@ -236,16 +276,19 @@ router.delete('/:campaignId', async (req, res) => {
       });
     }
 
-    const campaign = user.campaigns.id(req.params.campaignId);
-    if (!campaign) {
-      return res.status(404).json({
-        success: false,
-        error: 'Campaign not found'
+    // Delete campaign using user method
+    await user.deleteCampaign(req.params.campaignId);
+
+    // Send real-time notification
+    const socketService = req.app.locals.socketService;
+    if (socketService) {
+      await socketService.sendNotification(req.user.userId, {
+        type: 'campaign_deleted',
+        title: 'Campaign Deleted',
+        message: 'Campaign has been deleted successfully',
+        campaignId: req.params.campaignId
       });
     }
-
-    campaign.remove();
-    await user.save();
 
     res.json({
       success: true,
@@ -450,6 +493,101 @@ router.get('/:campaignId/performance', async (req, res) => {
     res.status(500).json({
       success: false,
       error: 'Failed to get campaign performance',
+      details: error.message
+    });
+  }
+});
+
+// Get campaign analytics
+router.get('/:campaignId/analytics', async (req, res) => {
+  try {
+    const user = await User.findById(req.user.userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found'
+      });
+    }
+
+    const campaign = user.campaigns.id(req.params.campaignId);
+    if (!campaign) {
+      return res.status(404).json({
+        success: false,
+        error: 'Campaign not found'
+      });
+    }
+
+    // Track analytics request
+    await usageTracker.trackUsage(req.user.userId, 'analysis', 1, {
+      action: 'campaign_analytics',
+      campaignId: req.params.campaignId
+    });
+
+    // Generate analytics data (in production, this would come from real data)
+    const analytics = {
+      campaign: {
+        id: campaign._id,
+        name: campaign.name,
+        type: campaign.type,
+        status: campaign.status
+      },
+      metrics: campaign.metrics,
+      performance: {
+        ctr: campaign.metrics.impressions > 0 ? ((campaign.metrics.clicks / campaign.metrics.impressions) * 100).toFixed(2) : 0,
+        cpc: campaign.metrics.clicks > 0 ? (campaign.metrics.spend / campaign.metrics.clicks).toFixed(2) : 0,
+        conversionRate: campaign.metrics.clicks > 0 ? ((campaign.metrics.conversions / campaign.metrics.clicks) * 100).toFixed(2) : 0,
+        costPerConversion: campaign.metrics.conversions > 0 ? (campaign.metrics.spend / campaign.metrics.conversions).toFixed(2) : 0
+      },
+      trends: {
+        impressionsTrend: '+15%',
+        clicksTrend: '+8%',
+        conversionsTrend: '+12%'
+      },
+      timestamp: new Date()
+    };
+
+    res.json({
+      success: true,
+      analytics,
+      usage: await usageTracker.getUserUsageStats(req.user.userId)
+    });
+  } catch (error) {
+    console.error('Campaign analytics error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch campaign analytics',
+      details: error.message
+    });
+  }
+});
+
+// Get user campaign statistics
+router.get('/stats/overview', async (req, res) => {
+  try {
+    const user = await User.findById(req.user.userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found'
+      });
+    }
+
+    const campaignStats = user.getCampaignStats();
+    const usageStats = await usageTracker.getUserUsageStats(req.user.userId);
+
+    res.json({
+      success: true,
+      stats: {
+        campaigns: campaignStats,
+        usage: usageStats,
+        timestamp: new Date()
+      }
+    });
+  } catch (error) {
+    console.error('Campaign stats error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch campaign statistics',
       details: error.message
     });
   }

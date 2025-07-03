@@ -215,7 +215,8 @@ router.put('/profile', authMiddleware, async (req, res) => {
       preferences: Joi.object({
         emailNotifications: Joi.boolean().optional(),
         marketingInsights: Joi.boolean().optional(),
-        trendAlerts: Joi.boolean().optional()
+        trendAlerts: Joi.boolean().optional(),
+        theme: Joi.string().valid('light', 'dark').optional()
       }).optional()
     });
 
@@ -254,14 +255,14 @@ router.put('/profile', authMiddleware, async (req, res) => {
         email: user.email,
         company: user.company,
         industry: user.industry,
-        profile: user.profile
+        preferences: user.profile.preferences
       }
     });
   } catch (error) {
     console.error('Profile update error:', error);
     res.status(500).json({
       success: false,
-      error: 'Failed to update profile',
+      error: 'Profile update failed',
       details: error.message
     });
   }
@@ -324,11 +325,11 @@ router.put('/change-password', authMiddleware, async (req, res) => {
   }
 });
 
-// Logout (blacklist token - simplified version)
+// Logout user (invalidate token)
 router.post('/logout', authMiddleware, async (req, res) => {
   try {
-    // In a production app, you'd want to blacklist the token
-    // For now, we'll just return success
+    // In a production app, you'd maintain a blacklist of invalidated tokens
+    // For now, we'll just send a success response
     res.json({
       success: true,
       message: 'Logged out successfully'
@@ -343,10 +344,76 @@ router.post('/logout', authMiddleware, async (req, res) => {
   }
 });
 
-// Refresh token
-router.post('/refresh', authMiddleware, async (req, res) => {
+// Request password reset
+router.post('/forgot-password', async (req, res) => {
   try {
-    const user = await User.findById(req.user.userId);
+    const { email } = req.body;
+    
+    const user = await User.findOne({ email });
+    if (!user) {
+      // Don't reveal whether user exists or not
+      return res.json({
+        success: true,
+        message: 'If an account with that email exists, we\'ve sent a password reset link'
+      });
+    }
+
+    // Generate reset token
+    const resetToken = jwt.sign(
+      { userId: user._id, type: 'password_reset' },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+
+    // In production, you'd send this via email
+    // For now, we'll just log it
+    console.log(`Password reset token for ${email}: ${resetToken}`);
+
+    res.json({
+      success: true,
+      message: 'Password reset link sent to your email',
+      // Remove this in production
+      resetToken: process.env.NODE_ENV === 'development' ? resetToken : undefined
+    });
+  } catch (error) {
+    console.error('Password reset error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Password reset failed',
+      details: error.message
+    });
+  }
+});
+
+// Reset password
+router.post('/reset-password', async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+
+    if (!token || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        error: 'Token and new password are required'
+      });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        error: 'Password must be at least 6 characters long'
+      });
+    }
+
+    // Verify reset token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (decoded.type !== 'password_reset') {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid reset token'
+      });
+    }
+
+    const user = await User.findById(decoded.userId);
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -354,8 +421,57 @@ router.post('/refresh', authMiddleware, async (req, res) => {
       });
     }
 
-    // Generate new JWT token
-    const token = jwt.sign(
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 12);
+    user.password = hashedPassword;
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'Password reset successfully'
+    });
+  } catch (error) {
+    if (error.name === 'TokenExpiredError') {
+      return res.status(400).json({
+        success: false,
+        error: 'Reset token has expired'
+      });
+    }
+    
+    console.error('Password reset error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Password reset failed',
+      details: error.message
+    });
+  }
+});
+
+// Refresh token
+router.post('/refresh-token', async (req, res) => {
+  try {
+    const { refreshToken } = req.body;
+    
+    if (!refreshToken) {
+      return res.status(401).json({
+        success: false,
+        error: 'Refresh token required'
+      });
+    }
+
+    // Verify refresh token
+    const decoded = jwt.verify(refreshToken, process.env.JWT_SECRET);
+    
+    const user = await User.findById(decoded.userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found'
+      });
+    }
+
+    // Generate new access token
+    const newToken = jwt.sign(
       { 
         userId: user._id, 
         email: user.email,
@@ -367,20 +483,51 @@ router.post('/refresh', authMiddleware, async (req, res) => {
 
     res.json({
       success: true,
-      token,
+      token: newToken,
       user: {
         id: user._id,
         name: user.name,
-        email: user.email,
-        company: user.company,
-        industry: user.industry
+        email: user.email
       }
     });
   } catch (error) {
     console.error('Token refresh error:', error);
+    res.status(401).json({
+      success: false,
+      error: 'Invalid refresh token'
+    });
+  }
+});
+
+// Get user statistics
+router.get('/stats', authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found'
+      });
+    }
+
+    const stats = {
+      totalCampaigns: user.campaigns.length,
+      activeCampaigns: user.campaigns.filter(c => c.status === 'active').length,
+      apiUsage: user.apiUsage.currentMonth,
+      monthlyLimits: user.apiUsage.limits,
+      memberSince: user.profile.joinedAt,
+      lastLogin: user.profile.lastLogin
+    };
+
+    res.json({
+      success: true,
+      stats
+    });
+  } catch (error) {
+    console.error('Stats error:', error);
     res.status(500).json({
       success: false,
-      error: 'Token refresh failed',
+      error: 'Failed to fetch user stats',
       details: error.message
     });
   }

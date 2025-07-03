@@ -2,15 +2,36 @@ const express = require('express');
 const AIService = require('../services/aiService');
 const SocialMediaService = require('../services/socialMediaService');
 const TrendsService = require('../services/trendsService');
+const UsageTrackingService = require('../services/usageTrackingService');
+const User = require('../models/User');
 
 const router = express.Router();
 const aiService = new AIService();
 const socialService = new SocialMediaService();
 const trendsService = new TrendsService();
+const usageTracker = new UsageTrackingService();
 
 // Generate marketing campaign content
 router.post('/generate-campaign', async (req, res) => {
   try {
+    // Check usage limits first
+    const user = await User.findById(req.user.userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found'
+      });
+    }
+
+    if (user.hasReachedLimit('campaign')) {
+      return res.status(429).json({
+        success: false,
+        error: 'Campaign generation limit reached',
+        details: 'Upgrade your plan to generate more campaigns',
+        remaining: user.getRemainingUsage('campaign')
+      });
+    }
+
     const {
       product,
       targetAudience,
@@ -21,11 +42,29 @@ router.post('/generate-campaign', async (req, res) => {
       includeVisual = false
     } = req.body;
 
+    // Notify start of generation
+    const socketService = req.app.locals.socketService;
+    if (socketService) {
+      await socketService.sendGenerationProgress(req.user.userId, {
+        type: 'campaign',
+        step: 'Analyzing market trends',
+        progress: 10
+      });
+    }
+
     // Get current trends for context
     const trendData = await trendsService.getMarketTrends(
       req.body.industry || 'technology',
       req.body.keywords || []
     );
+
+    if (socketService) {
+      await socketService.sendGenerationProgress(req.user.userId, {
+        type: 'campaign',
+        step: 'Generating content',
+        progress: 40
+      });
+    }
 
     const campaignData = {
       product,
@@ -40,14 +79,52 @@ router.post('/generate-campaign', async (req, res) => {
     // Generate campaign content
     const content = await aiService.generateCampaignContent(campaignData);
 
+    if (socketService) {
+      await socketService.sendGenerationProgress(req.user.userId, {
+        type: 'campaign',
+        step: 'Generating visuals',
+        progress: 70
+      });
+    }
+
     let visual = null;
     if (includeVisual && content.visualDescription) {
+      // Check image generation limits
+      if (user.hasReachedLimit('image')) {
+        return res.status(429).json({
+          success: false,
+          error: 'Image generation limit reached',
+          details: 'Upgrade your plan to generate more images'
+        });
+      }
+
       // Generate accompanying visual
       visual = await aiService.generateMarketingVisual({
         description: content.visualDescription,
         style: "professional marketing",
         brandColors: req.body.brandColors || "",
         includeText: content.headline || ""
+      });
+
+      // Track image usage
+      await usageTracker.trackUsage(req.user.userId, 'image', 1, {
+        action: 'campaign_visual',
+        description: content.visualDescription
+      });
+    }
+
+    // Track campaign generation usage
+    await usageTracker.trackUsage(req.user.userId, 'campaign', 1, {
+      action: 'generate_campaign',
+      channel,
+      targetAudience
+    });
+
+    if (socketService) {
+      await socketService.sendGenerationProgress(req.user.userId, {
+        type: 'campaign',
+        step: 'Complete',
+        progress: 100
       });
     }
 
@@ -62,7 +139,8 @@ router.post('/generate-campaign', async (req, res) => {
           channel,
           targetAudience
         }
-      }
+      },
+      usage: await usageTracker.getUserUsageStats(req.user.userId)
     });
   } catch (error) {
     console.error('Campaign generation error:', error);

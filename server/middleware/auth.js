@@ -4,6 +4,20 @@ const authMiddleware = (req, res, next) => {
   try {
     const token = req.header('Authorization')?.replace('Bearer ', '');
     
+    // Development mode bypass - if no JWT_SECRET or MongoDB issues
+    if (process.env.NODE_ENV === 'development' && (!process.env.JWT_SECRET || !token || token.startsWith('dev-token-'))) {
+      console.log('🔧 Development mode: Bypassing authentication');
+      req.user = {
+        id: 'dev-user-123',
+        userId: 'dev-user-123',
+        name: 'Marketing Maverick',
+        email: 'dev@omniorchestrator.com',
+        company: 'Demo Company',
+        plan: 'Pro'
+      };
+      return next();
+    }
+    
     if (!token) {
       return res.status(401).json({
         success: false,

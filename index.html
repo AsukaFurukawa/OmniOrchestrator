@@ -160,6 +160,50 @@
             width: 80%;
         }
         
+        /* New Navigation Styles */
+        .nav-link-v2 {
+            color: #e2e8f0;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-link-v2:hover {
+            color: #c084fc;
+            text-shadow: 0 0 10px rgba(192, 132, 252, 0.5);
+        }
+        
+        .nav-link-v2.active {
+            color: #fff;
+            background: rgba(168, 85, 247, 0.2);
+            border-color: rgba(168, 85, 247, 0.5);
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.3);
+        }
+        
+        .nav-link-v2::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #a855f7, #ec4899);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link-v2:hover::before {
+            width: 100%;
+        }
+        
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-slideDown {
+            animation: slideDown 0.3s ease-out;
+        }
+        
         /* Metric Cards with Holographic Effect */
         .holographic-card {
             background: linear-gradient(135deg, 
@@ -324,6 +368,63 @@
             color: rgba(255, 255, 255, 0.5);
         }
         
+        /* Dropdown Styling Fix */
+        select {
+            background: rgba(15, 15, 35, 0.9) !important;
+            color: white !important;
+            border: 2px solid rgba(168, 85, 247, 0.3) !important;
+            border-radius: 12px !important;
+            padding: 12px 16px !important;
+            font-size: 14px !important;
+            backdrop-filter: blur(10px) !important;
+        }
+        
+        select option {
+            background: rgba(15, 15, 35, 0.95) !important;
+            color: white !important;
+            padding: 8px 12px !important;
+        }
+        
+        select:focus {
+            outline: none !important;
+            border-color: #a855f7 !important;
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.4) !important;
+        }
+        
+        select:hover {
+            border-color: rgba(168, 85, 247, 0.5) !important;
+            background: rgba(15, 15, 35, 0.95) !important;
+        }
+
+        /* Industry Dashboard Styling */
+        .industry-btn {
+            background: rgba(15, 15, 35, 0.8);
+            border: 2px solid rgba(168, 85, 247, 0.2);
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .industry-btn:hover {
+            border-color: rgba(168, 85, 247, 0.6);
+            background: rgba(168, 85, 247, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(168, 85, 247, 0.3);
+        }
+        
+        .industry-btn.active {
+            border-color: #a855f7;
+            background: rgba(168, 85, 247, 0.2);
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+        }
+        
+        .industry-dashboard {
+            display: none;
+        }
+        
+        .industry-dashboard.active {
+            display: block;
+        }
+
         /* Floating Animation */
         .float-animation {
             animation: floatEffect 6s ease-in-out infinite;
@@ -359,22 +460,106 @@
 </head>
 <body class="text-gray-800 marketing-bg">
     <!-- Futuristic Neon Navigation Bar -->
-    <nav class="fixed top-0 left-0 w-full z-50 neon-nav flex items-center justify-between px-8 py-4">
-        <div class="flex items-center gap-6">
-            <span class="premium-gradient-text text-3xl font-extrabold tracking-tight glow-text">⚡ OmniOrchestrator</span>
-            <button onclick="changeTab('dashboard')" class="nav-link font-semibold transition">🏠 Dashboard</button>
-            <button onclick="changeTab('creator')" class="nav-link font-semibold transition">✨ Campaign Creator</button>
-            <button onclick="changeTab('video')" class="nav-link font-semibold transition">🎬 Video Creator</button>
-            <button onclick="changeTab('analytics')" class="nav-link font-semibold transition">📊 Analytics</button>
-            <button onclick="changeTab('insights')" class="nav-link font-semibold transition">🧠 AI Insights</button>
+    <nav class="fixed top-0 left-0 w-full z-50 backdrop-blur-lg bg-gradient-to-r from-purple-900/20 via-blue-900/20 to-pink-900/20 border-b border-purple-500/20 shadow-2xl">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <span class="premium-gradient-text text-2xl font-extrabold tracking-tight glow-text">⚡ OmniOrchestrator</span>
+                    </div>
+                </div>
+                
+                <!-- Navigation Links -->
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <button onclick="changeTab('dashboard')" class="nav-link-v2 px-3 py-2 rounded-md text-sm font-medium transition-all duration-300 hover:bg-purple-500/20 hover:text-purple-300 border border-transparent hover:border-purple-500/30">
+                            🏠 Dashboard
+                        </button>
+                        <button onclick="changeTab('creator')" class="nav-link-v2 px-3 py-2 rounded-md text-sm font-medium transition-all duration-300 hover:bg-purple-500/20 hover:text-purple-300 border border-transparent hover:border-purple-500/30">
+                            ✨ Creator
+                        </button>
+                        <button onclick="changeTab('video')" class="nav-link-v2 px-3 py-2 rounded-md text-sm font-medium transition-all duration-300 hover:bg-purple-500/20 hover:text-purple-300 border border-transparent hover:border-purple-500/30">
+                            🎬 Video
+                        </button>
+                        <button onclick="changeTab('analytics')" class="nav-link-v2 px-3 py-2 rounded-md text-sm font-medium transition-all duration-300 hover:bg-purple-500/20 hover:text-purple-300 border border-transparent hover:border-purple-500/30">
+                            📊 Analytics
+                        </button>
+                        <button onclick="changeTab('insights')" class="nav-link-v2 px-3 py-2 rounded-md text-sm font-medium transition-all duration-300 hover:bg-purple-500/20 hover:text-purple-300 border border-transparent hover:border-purple-500/30">
+                            🧠 Insights
+                        </button>
+                        <button onclick="changeTab('ai-chat')" class="nav-link-v2 px-3 py-2 rounded-md text-sm font-medium transition-all duration-300 hover:bg-purple-500/20 hover:text-purple-300 border border-transparent hover:border-purple-500/30">
+                            🤖 AI Chat
+                        </button>
+                        <button onclick="changeTab('advanced-analytics')" class="nav-link-v2 px-3 py-2 rounded-md text-sm font-medium transition-all duration-300 hover:bg-purple-500/20 hover:text-purple-300 border border-transparent hover:border-purple-500/30">
+                            🧠 Advanced
+                        </button>
+                        <button onclick="changeTab('sentiment-dashboard')" class="nav-link-v2 px-3 py-2 rounded-md text-sm font-medium transition-all duration-300 hover:bg-purple-500/20 hover:text-purple-300 border border-transparent hover:border-purple-500/30">
+                            💭 Sentiment
+                        </button>
+                        <button onclick="changeTab('enhanced-video')" class="nav-link-v2 px-3 py-2 rounded-md text-sm font-medium transition-all duration-300 hover:bg-purple-500/20 hover:text-purple-300 border border-transparent hover:border-purple-500/30">
+                            🎬 AI Studio
+                        </button>
+                        <button onclick="changeTab('company-profile')" class="nav-link-v2 px-3 py-2 rounded-md text-sm font-medium transition-all duration-300 hover:bg-purple-500/20 hover:text-purple-300 border border-transparent hover:border-purple-500/30">
+                            🏢 Company
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Mobile menu button -->
+                <div class="md:hidden">
+                    <button onclick="toggleMobileMenu()" class="inline-flex items-center justify-center p-2 rounded-md text-purple-400 hover:text-white hover:bg-purple-500/20 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        <svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
         </div>
+        
+        <!-- Mobile menu -->
+        <div id="mobile-menu" class="md:hidden hidden">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-black/50 backdrop-blur-lg">
+                <button onclick="changeTab('dashboard')" class="nav-link-v2 block px-3 py-2 rounded-md text-base font-medium w-full text-left transition-all duration-300 hover:bg-purple-500/20 hover:text-purple-300">
+                    🏠 Dashboard
+                </button>
+                <button onclick="changeTab('creator')" class="nav-link-v2 block px-3 py-2 rounded-md text-base font-medium w-full text-left transition-all duration-300 hover:bg-purple-500/20 hover:text-purple-300">
+                    ✨ Creator
+                </button>
+                <button onclick="changeTab('video')" class="nav-link-v2 block px-3 py-2 rounded-md text-base font-medium w-full text-left transition-all duration-300 hover:bg-purple-500/20 hover:text-purple-300">
+                    🎬 Video
+                </button>
+                <button onclick="changeTab('analytics')" class="nav-link-v2 block px-3 py-2 rounded-md text-base font-medium w-full text-left transition-all duration-300 hover:bg-purple-500/20 hover:text-purple-300">
+                    📊 Analytics
+                </button>
+                <button onclick="changeTab('insights')" class="nav-link-v2 block px-3 py-2 rounded-md text-base font-medium w-full text-left transition-all duration-300 hover:bg-purple-500/20 hover:text-purple-300">
+                    🧠 Insights
+                </button>
+                <button onclick="changeTab('ai-chat')" class="nav-link-v2 block px-3 py-2 rounded-md text-base font-medium w-full text-left transition-all duration-300 hover:bg-purple-500/20 hover:text-purple-300">
+                    🤖 AI Chat
+                </button>
+                <button onclick="changeTab('advanced-analytics')" class="nav-link-v2 block px-3 py-2 rounded-md text-base font-medium w-full text-left transition-all duration-300 hover:bg-purple-500/20 hover:text-purple-300">
+                    🧠 Advanced
+                </button>
+                <button onclick="changeTab('sentiment-dashboard')" class="nav-link-v2 block px-3 py-2 rounded-md text-base font-medium w-full text-left transition-all duration-300 hover:bg-purple-500/20 hover:text-purple-300">
+                    💭 Sentiment
+                </button>
+                <button onclick="changeTab('enhanced-video')" class="nav-link-v2 block px-3 py-2 rounded-md text-base font-medium w-full text-left transition-all duration-300 hover:bg-purple-500/20 hover:text-purple-300">
+                    🎬 AI Studio
+                </button>
+                <button onclick="changeTab('company-profile')" class="nav-link-v2 block px-3 py-2 rounded-md text-base font-medium w-full text-left transition-all duration-300 hover:bg-purple-500/20 hover:text-purple-300">
+                    🏢 Company
+                </button>
+            </div>
+        </div>
+    </nav>
         <div>
             <button onclick="changeTab('creator')" class="neon-btn px-6 py-3 text-base font-bold">
                 <i class="fas fa-plus mr-2"></i>Create Campaign
             </button>
         </div>
     </nav>
-    <div class="max-w-7xl mx-auto my-4 md:my-8 p-4 md:p-10" style="margin-top: 90px;">
+    <div class="max-w-7xl mx-auto my-4 md:my-8 p-4 md:p-10" style="margin-top: 80px;">
         <div class="fixed inset-0 -z-10">
             <svg width="100%" height="100%" viewBox="0 0 1920 1080" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
                 <defs>
@@ -395,7 +580,7 @@
             </svg>
         </div>
         <!-- Premium Login Screen -->
-        <div id="login" class="page active">
+        <div id="login" class="page active" style="opacity: 1; transform: translateY(0) scale(1);">
              <div class="min-h-[70vh] flex items-center justify-center relative">
                 <!-- Floating Particles Background -->
                 <div class="absolute inset-0 overflow-hidden">
@@ -430,10 +615,40 @@
                             </div>
                         </div>
                         
-                        <button class="w-full neon-glass-card border-2 border-purple-500/30 text-white font-bold py-4 px-6 rounded-2xl hover:border-purple-400 transition-all transform hover:scale-105 group" onclick="changeTab('dashboard')">
+                        <button class="w-full neon-glass-card border-2 border-purple-500/30 text-white font-bold py-4 px-6 rounded-2xl hover:border-purple-400 transition-all transform hover:scale-105 group mb-4" onclick="quickLogin()">
                             <i class="fas fa-bolt mr-3 text-xl text-yellow-400 group-hover:text-yellow-300 transition-colors"></i>
                             Enter the Future →
                         </button>
+                        
+                        <div class="text-center text-gray-400 text-sm mb-4">or</div>
+                        
+                        <div class="space-y-4">
+                            <input type="email" id="loginEmail" placeholder="Email" class="w-full neon-input py-3 px-4 rounded-xl" />
+                            <input type="password" id="loginPassword" placeholder="Password" class="w-full neon-input py-3 px-4 rounded-xl" />
+                            <button onclick="loginUser()" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold py-3 px-6 rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all transform hover:scale-105">
+                                <i class="fas fa-sign-in-alt mr-2"></i>Login
+                            </button>
+                        </div>
+                        
+                        <div class="text-center mt-6">
+                            <button onclick="showRegister()" class="text-purple-400 hover:text-purple-300 transition-colors">
+                                Don't have an account? <span class="underline">Register here</span>
+                            </button>
+                        </div>
+                        
+                        <div id="registerForm" class="hidden mt-6 space-y-4">
+                            <h3 class="text-xl font-bold text-white mb-4">Create Account</h3>
+                            <input type="text" id="registerName" placeholder="Full Name" class="w-full neon-input py-3 px-4 rounded-xl" />
+                            <input type="email" id="registerEmail" placeholder="Email" class="w-full neon-input py-3 px-4 rounded-xl" />
+                            <input type="text" id="registerCompany" placeholder="Company Name" class="w-full neon-input py-3 px-4 rounded-xl" />
+                            <input type="password" id="registerPassword" placeholder="Password" class="w-full neon-input py-3 px-4 rounded-xl" />
+                            <button onclick="registerUser()" class="w-full bg-gradient-to-r from-green-600 to-blue-600 text-white font-bold py-3 px-6 rounded-xl hover:from-green-700 hover:to-blue-700 transition-all transform hover:scale-105">
+                                <i class="fas fa-user-plus mr-2"></i>Create Account
+                            </button>
+                            <button onclick="showLogin()" class="w-full text-purple-400 hover:text-purple-300 transition-colors">
+                                Already have an account? <span class="underline">Login here</span>
+                            </button>
+                        </div>
                     </div>
                     
                     <div class="mt-8 grid grid-cols-3 gap-4 text-center">
@@ -457,6 +672,41 @@
         <!-- Marketer Dashboard -->
         <div id="dashboard" class="page">
              <div class="space-y-8">
+                 <!-- Industry Dashboard Selector -->
+                 <div class="holographic-card p-6 mb-8">
+                     <h3 class="text-2xl font-bold text-white mb-4">🏢 Industry Dashboard</h3>
+                     <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                         <button onclick="switchIndustryDashboard('technology')" class="industry-btn p-4 rounded-xl text-center hover:scale-105 transition-transform" data-industry="technology">
+                             <div class="text-2xl mb-2">💻</div>
+                             <div class="text-sm font-bold">Technology</div>
+                         </button>
+                         <button onclick="switchIndustryDashboard('healthcare')" class="industry-btn p-4 rounded-xl text-center hover:scale-105 transition-transform" data-industry="healthcare">
+                             <div class="text-2xl mb-2">🏥</div>
+                             <div class="text-sm font-bold">Healthcare</div>
+                         </button>
+                         <button onclick="switchIndustryDashboard('finance')" class="industry-btn p-4 rounded-xl text-center hover:scale-105 transition-transform" data-industry="finance">
+                             <div class="text-2xl mb-2">💰</div>
+                             <div class="text-sm font-bold">Finance</div>
+                         </button>
+                         <button onclick="switchIndustryDashboard('e-commerce')" class="industry-btn p-4 rounded-xl text-center hover:scale-105 transition-transform" data-industry="e-commerce">
+                             <div class="text-2xl mb-2">🛒</div>
+                             <div class="text-sm font-bold">E-commerce</div>
+                         </button>
+                         <button onclick="switchIndustryDashboard('education')" class="industry-btn p-4 rounded-xl text-center hover:scale-105 transition-transform" data-industry="education">
+                             <div class="text-2xl mb-2">🎓</div>
+                             <div class="text-sm font-bold">Education</div>
+                         </button>
+                         <button onclick="switchIndustryDashboard('real-estate')" class="industry-btn p-4 rounded-xl text-center hover:scale-105 transition-transform" data-industry="real-estate">
+                             <div class="text-2xl mb-2">🏠</div>
+                             <div class="text-sm font-bold">Real Estate</div>
+                         </button>
+                     </div>
+                 </div>
+                 
+                 <!-- Dynamic Industry Content -->
+                 <div id="industry-content">
+                     <!-- Default/Technology Dashboard -->
+                     <div id="dashboard-technology" class="industry-dashboard active">
                  <!-- Futuristic Header -->
                 <div class="flex justify-between items-center">
                     <div>
@@ -599,6 +849,8 @@
                         </div>
                     </div>
                 </div>
+                     </div>
+                 </div>
              </div>
         </div>
 
@@ -1284,6 +1536,445 @@ P.S. Early adopters get 50% off their first month!</textarea>
         </div>
     </div>
 
+    <!-- Add Socket.IO and AI Chat Interface -->
+    <script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
+    
+    <!-- AI Chat Interface -->
+    <div id="ai-chat" class="page">
+        <div class="space-y-8">
+            <!-- Chat Header -->
+            <div class="neon-glass-card p-8 rounded-3xl">
+                <h1 class="text-5xl font-black premium-gradient-text mb-6 glow-text">🤖 AI Marketing Assistant</h1>
+                <p class="text-gray-300 text-xl mb-4">Chat with your AI marketing expert for insights, analysis, and recommendations</p>
+                
+                <!-- AI Status -->
+                <div class="flex items-center space-x-4">
+                    <div class="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                    <span class="text-green-400 font-semibold">AI Assistant Online</span>
+                    <span class="text-gray-400">|</span>
+                    <span class="text-gray-400">Response time: <span class="text-blue-400">~2s</span></span>
+                </div>
+            </div>
+            
+            <!-- Chat Container -->
+            <div class="neon-glass-card rounded-3xl overflow-hidden">
+                <!-- Chat Messages -->
+                <div id="chat-messages" class="h-96 overflow-y-auto p-6 space-y-4">
+                    <!-- Welcome Message -->
+                    <div class="flex items-start space-x-4">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-robot text-white"></i>
+                        </div>
+                        <div class="neon-glass-card p-4 rounded-2xl max-w-md">
+                            <p class="text-white">👋 Hello! I'm your AI Marketing Assistant. I can help you with:</p>
+                            <ul class="text-gray-300 text-sm mt-2 space-y-1">
+                                <li>• Campaign performance analysis</li>
+                                <li>• Strategic recommendations</li>
+                                <li>• Data interpretation</li>
+                                <li>• Optimization insights</li>
+                            </ul>
+                            <p class="text-blue-400 text-sm mt-2">What would you like to know?</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Chat Input -->
+                <div class="border-t border-gray-700 p-6">
+                    <div class="flex space-x-4">
+                        <input 
+                            id="chat-input" 
+                            type="text" 
+                            placeholder="Ask me about your marketing performance..."
+                            class="flex-1 p-4 neon-input text-white rounded-2xl"
+                            onkeypress="handleChatKeyPress(event)"
+                        >
+                        <button 
+                            id="send-chat" 
+                            onclick="sendChatMessage()"
+                            class="neon-btn px-6 py-4 font-bold rounded-2xl">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Quick Actions -->
+                    <div class="flex flex-wrap gap-2 mt-4">
+                        <button onclick="quickChat('Analyze my campaign performance')" class="px-3 py-1 bg-gray-700 text-gray-300 rounded-lg text-sm hover:bg-gray-600 transition">
+                            📊 Campaign Analysis
+                        </button>
+                        <button onclick="quickChat('What are my top optimization opportunities?')" class="px-3 py-1 bg-gray-700 text-gray-300 rounded-lg text-sm hover:bg-gray-600 transition">
+                            ⚡ Optimization Tips
+                        </button>
+                        <button onclick="quickChat('Show me strategic recommendations')" class="px-3 py-1 bg-gray-700 text-gray-300 rounded-lg text-sm hover:bg-gray-600 transition">
+                            🎯 Strategy
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enhanced Analytics with AI -->
+    <div id="advanced-analytics" class="page">
+        <div class="space-y-8">
+            <!-- Advanced Analytics Header -->
+            <div class="neon-glass-card p-8 rounded-3xl">
+                <h1 class="text-5xl font-black premium-gradient-text mb-6 glow-text">🧠 AI-Powered Analytics</h1>
+                <p class="text-gray-300 text-xl mb-6">Advanced AI insights, predictions, and recommendations</p>
+                
+                <!-- Campaign Selector -->
+                <div class="flex space-x-4">
+                    <select id="campaign-selector" class="p-3 neon-input text-white rounded-xl flex-1">
+                        <option value="">Select a campaign to analyze...</option>
+                    </select>
+                    <button onclick="runAIAnalysis()" class="neon-btn px-6 py-3 font-bold rounded-xl">
+                        <i class="fas fa-brain mr-2"></i>Analyze with AI
+                    </button>
+                </div>
+            </div>
+            
+            <!-- AI Analysis Results -->
+            <div id="ai-analysis-results" class="hidden">
+                <!-- Performance Score -->
+                <div class="neon-glass-card p-8 rounded-3xl mb-8">
+                    <div class="text-center">
+                        <h2 class="text-3xl font-black premium-gradient-text mb-4">Performance Score</h2>
+                        <div class="relative w-32 h-32 mx-auto mb-4">
+                            <canvas id="performance-score-chart" width="128" height="128"></canvas>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <span id="performance-score-text" class="text-3xl font-black text-white">0</span>
+                            </div>
+                        </div>
+                        <p id="performance-status" class="text-xl font-bold text-gray-300"></p>
+                    </div>
+                </div>
+                
+                <!-- AI Insights -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Insights -->
+                    <div class="neon-glass-card p-8 rounded-3xl">
+                        <h3 class="text-2xl font-black premium-gradient-text mb-6">🔍 AI Insights</h3>
+                        <div id="ai-insights-content" class="space-y-4">
+                            <!-- AI insights will be populated here -->
+                        </div>
+                    </div>
+                    
+                    <!-- Predictions -->
+                    <div class="neon-glass-card p-8 rounded-3xl">
+                        <h3 class="text-2xl font-black premium-gradient-text mb-6">🔮 Predictions</h3>
+                        <div id="ai-predictions-content" class="space-y-4">
+                            <!-- AI predictions will be populated here -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recommendations -->
+                <div class="neon-glass-card p-8 rounded-3xl">
+                    <h3 class="text-2xl font-black premium-gradient-text mb-6">💡 AI Recommendations</h3>
+                    <div id="ai-recommendations-content" class="space-y-4">
+                        <!-- AI recommendations will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sentiment Analysis Dashboard -->
+    <div id="sentiment-dashboard" class="page">
+        <div class="space-y-8">
+            <!-- Sentiment Header -->
+            <div class="neon-glass-card p-8 rounded-3xl">
+                <h1 class="text-5xl font-black premium-gradient-text mb-6 glow-text">💭 Brand Sentiment Monitor</h1>
+                <p class="text-gray-300 text-xl mb-6">Real-time brand reputation tracking and sentiment analysis</p>
+                
+                <!-- Brand Input -->
+                <div class="flex space-x-4">
+                    <input 
+                        id="brand-name-input" 
+                        type="text" 
+                        placeholder="Enter your brand name..."
+                        class="flex-1 p-3 neon-input text-white rounded-xl"
+                    >
+                    <button onclick="analyzeBrandSentiment()" class="neon-btn px-6 py-3 font-bold rounded-xl">
+                        <i class="fas fa-search mr-2"></i>Analyze Sentiment
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Sentiment Results -->
+            <div id="sentiment-results" class="hidden">
+                <!-- Overall Sentiment -->
+                <div class="neon-glass-card p-8 rounded-3xl mb-8">
+                    <div class="text-center">
+                        <h2 class="text-3xl font-black premium-gradient-text mb-4">Overall Sentiment</h2>
+                        <div id="sentiment-score" class="text-6xl font-black mb-4">0.0</div>
+                        <div id="sentiment-label" class="text-2xl font-bold mb-4">Neutral</div>
+                        <div id="sentiment-confidence" class="text-gray-400">Confidence: 0%</div>
+                    </div>
+                </div>
+                
+                <!-- Sentiment Breakdown -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="neon-glass-card p-8 rounded-3xl">
+                        <h3 class="text-2xl font-black premium-gradient-text mb-6">📊 Sentiment Breakdown</h3>
+                        <div id="sentiment-breakdown" class="space-y-4">
+                            <!-- Sentiment breakdown will be populated here -->
+                        </div>
+                    </div>
+                    
+                    <div class="neon-glass-card p-8 rounded-3xl">
+                        <h3 class="text-2xl font-black premium-gradient-text mb-6">📱 Recent Mentions</h3>
+                        <div id="recent-mentions" class="space-y-4 max-h-64 overflow-y-auto">
+                            <!-- Recent mentions will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Company Profile Management Page -->
+    <div id="company-profile" class="page">
+        <div class="space-y-8">
+            <div class="text-center">
+                <h2 class="text-4xl font-bold premium-gradient-text mb-4">🏢 Company Profile</h2>
+                <p class="text-xl text-gray-300">Manage your company data and AI marketing preferences</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Company Information -->
+                <div class="holographic-card p-8">
+                    <h3 class="text-2xl font-bold text-white mb-6">📊 Company Information</h3>
+                    <form id="companyForm" class="space-y-4">
+                        <div>
+                            <label class="block text-gray-300 text-sm font-bold mb-2">Company Name</label>
+                            <input type="text" id="companyName" class="neon-input w-full py-3 px-4 rounded-xl" placeholder="Your Company Name">
+                        </div>
+                        <div>
+                            <label class="block text-gray-300 text-sm font-bold mb-2">Industry</label>
+                            <select id="companyIndustry" class="w-full py-3 px-4 rounded-xl">
+                                <option value="technology">Technology</option>
+                                <option value="healthcare">Healthcare</option>
+                                <option value="finance">Finance</option>
+                                <option value="e-commerce">E-commerce</option>
+                                <option value="education">Education</option>
+                                <option value="manufacturing">Manufacturing</option>
+                                <option value="real-estate">Real Estate</option>
+                                <option value="hospitality">Hospitality</option>
+                                <option value="retail">Retail</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-gray-300 text-sm font-bold mb-2">Company Size</label>
+                            <select id="companySize" class="w-full py-3 px-4 rounded-xl">
+                                <option value="startup">Startup (1-10 employees)</option>
+                                <option value="small">Small (11-50 employees)</option>
+                                <option value="medium">Medium (51-200 employees)</option>
+                                <option value="large">Large (201-1000 employees)</option>
+                                <option value="enterprise">Enterprise (1000+ employees)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-gray-300 text-sm font-bold mb-2">Website</label>
+                            <input type="url" id="companyWebsite" class="neon-input w-full py-3 px-4 rounded-xl" placeholder="https://your-website.com">
+                        </div>
+                        <div>
+                            <label class="block text-gray-300 text-sm font-bold mb-2">Target Market</label>
+                            <textarea id="targetMarket" class="neon-input w-full py-3 px-4 rounded-xl h-24" placeholder="Describe your target audience and market..."></textarea>
+                        </div>
+                        <button type="button" onclick="saveCompanyProfile()" class="w-full neon-btn py-3 px-6 rounded-xl font-bold">
+                            💾 Save Company Profile
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Marketing Preferences -->
+                <div class="holographic-card p-8">
+                    <h3 class="text-2xl font-bold text-white mb-6">🎯 Marketing Preferences</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-gray-300 text-sm font-bold mb-2">Brand Voice</label>
+                            <select id="brandVoice" class="w-full py-3 px-4 rounded-xl">
+                                <option value="professional">Professional</option>
+                                <option value="friendly">Friendly & Conversational</option>
+                                <option value="authoritative">Authoritative</option>
+                                <option value="creative">Creative & Innovative</option>
+                                <option value="casual">Casual & Relaxed</option>
+                                <option value="luxury">Luxury & Premium</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-gray-300 text-sm font-bold mb-2">Primary Marketing Goals</label>
+                            <div class="space-y-2">
+                                <label class="flex items-center text-gray-300">
+                                    <input type="checkbox" class="mr-2" value="brand-awareness"> Brand Awareness
+                                </label>
+                                <label class="flex items-center text-gray-300">
+                                    <input type="checkbox" class="mr-2" value="lead-generation"> Lead Generation
+                                </label>
+                                <label class="flex items-center text-gray-300">
+                                    <input type="checkbox" class="mr-2" value="sales"> Sales & Conversions
+                                </label>
+                                <label class="flex items-center text-gray-300">
+                                    <input type="checkbox" class="mr-2" value="engagement"> Customer Engagement
+                                </label>
+                                <label class="flex items-center text-gray-300">
+                                    <input type="checkbox" class="mr-2" value="retention"> Customer Retention
+                                </label>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-gray-300 text-sm font-bold mb-2">Monthly Marketing Budget</label>
+                            <select id="marketingBudget" class="w-full py-3 px-4 rounded-xl">
+                                <option value="under-1k">Under $1,000</option>
+                                <option value="1k-5k">$1,000 - $5,000</option>
+                                <option value="5k-15k">$5,000 - $15,000</option>
+                                <option value="15k-50k">$15,000 - $50,000</option>
+                                <option value="50k-plus">$50,000+</option>
+                            </select>
+                        </div>
+                        <button type="button" onclick="saveMarketingPreferences()" class="w-full neon-btn py-3 px-6 rounded-xl font-bold">
+                            🎯 Save Marketing Preferences
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Company Data Dashboard -->
+            <div class="holographic-card p-8">
+                <h3 class="text-2xl font-bold text-white mb-6">📈 Company Data Overview</h3>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="bg-gradient-to-r from-blue-600/20 to-purple-600/20 p-6 rounded-xl border border-blue-500/30">
+                        <div class="text-3xl font-bold text-blue-400">42</div>
+                        <div class="text-gray-300">Active Campaigns</div>
+                    </div>
+                    <div class="bg-gradient-to-r from-green-600/20 to-blue-600/20 p-6 rounded-xl border border-green-500/30">
+                        <div class="text-3xl font-bold text-green-400">89.5%</div>
+                        <div class="text-gray-300">Data Quality</div>
+                    </div>
+                    <div class="bg-gradient-to-r from-purple-600/20 to-pink-600/20 p-6 rounded-xl border border-purple-500/30">
+                        <div class="text-3xl font-bold text-purple-400">127GB</div>
+                        <div class="text-gray-300">Data Processed</div>
+                    </div>
+                    <div class="bg-gradient-to-r from-orange-600/20 to-red-600/20 p-6 rounded-xl border border-orange-500/30">
+                        <div class="text-3xl font-bold text-orange-400">98.2%</div>
+                        <div class="text-gray-300">AI Accuracy</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enhanced Video Generation -->
+    <div id="enhanced-video" class="page">
+        <div class="space-y-8">
+            <!-- Video Generation Header -->
+            <div class="neon-glass-card p-8 rounded-3xl">
+                <h1 class="text-5xl font-black premium-gradient-text mb-6 glow-text">🎬 AI Video Studio</h1>
+                <p class="text-gray-300 text-xl mb-6">Professional video generation with AI templates and real-time progress</p>
+            </div>
+            
+            <!-- Video Templates -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="neon-glass-card p-6 rounded-3xl cursor-pointer hover:scale-105 transition" onclick="selectTemplate('product_showcase')">
+                    <div class="text-center">
+                        <div class="text-4xl mb-4">📦</div>
+                        <h3 class="text-white font-bold mb-2">Product Showcase</h3>
+                        <p class="text-gray-400 text-sm">15s professional product demo</p>
+                    </div>
+                </div>
+                <div class="neon-glass-card p-6 rounded-3xl cursor-pointer hover:scale-105 transition" onclick="selectTemplate('brand_story')">
+                    <div class="text-center">
+                        <div class="text-4xl mb-4">🎭</div>
+                        <h3 class="text-white font-bold mb-2">Brand Story</h3>
+                        <p class="text-gray-400 text-sm">30s cinematic brand narrative</p>
+                    </div>
+                </div>
+                <div class="neon-glass-card p-6 rounded-3xl cursor-pointer hover:scale-105 transition" onclick="selectTemplate('social_media')">
+                    <div class="text-center">
+                        <div class="text-4xl mb-4">📱</div>
+                        <h3 class="text-white font-bold mb-2">Social Media</h3>
+                        <p class="text-gray-400 text-sm">8s trendy social content</p>
+                    </div>
+                </div>
+                <div class="neon-glass-card p-6 rounded-3xl cursor-pointer hover:scale-105 transition" onclick="selectTemplate('explainer')">
+                    <div class="text-center">
+                        <div class="text-4xl mb-4">🎓</div>
+                        <h3 class="text-white font-bold mb-2">Explainer</h3>
+                        <p class="text-gray-400 text-sm">60s educational content</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Video Generation Form -->
+            <div class="neon-glass-card p-8 rounded-3xl">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-white font-bold mb-2">Product/Brand Name</label>
+                            <input id="video-product-name" type="text" class="w-full p-3 neon-input text-white rounded-xl" placeholder="Enter product or brand name">
+                        </div>
+                        <div>
+                            <label class="block text-white font-bold mb-2">Target Audience</label>
+                            <input id="video-target-audience" type="text" class="w-full p-3 neon-input text-white rounded-xl" placeholder="Who is your target audience?">
+                        </div>
+                        <div>
+                            <label class="block text-white font-bold mb-2">Key Message</label>
+                            <textarea id="video-key-message" class="w-full p-3 neon-input text-white rounded-xl h-24" placeholder="What's your main message?"></textarea>
+                        </div>
+                    </div>
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-white font-bold mb-2">Call to Action</label>
+                            <input id="video-cta" type="text" class="w-full p-3 neon-input text-white rounded-xl" placeholder="What action should viewers take?">
+                        </div>
+                        <div>
+                            <label class="block text-white font-bold mb-2">Template</label>
+                            <select id="video-template" class="w-full p-3 neon-input text-white rounded-xl">
+                                <option value="product_showcase">Product Showcase (15s)</option>
+                                <option value="brand_story">Brand Story (30s)</option>
+                                <option value="social_media">Social Media (8s)</option>
+                                <option value="explainer">Explainer (60s)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-white font-bold mb-2">Style</label>
+                            <select id="video-style" class="w-full p-3 neon-input text-white rounded-xl">
+                                <option value="professional">Professional</option>
+                                <option value="cinematic">Cinematic</option>
+                                <option value="trendy">Trendy</option>
+                                <option value="educational">Educational</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-8 text-center">
+                    <button onclick="generateAIVideo()" class="neon-btn px-8 py-4 text-xl font-bold rounded-2xl">
+                        <i class="fas fa-video mr-3"></i>Generate AI Video
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Video Generation Progress -->
+            <div id="video-progress" class="neon-glass-card p-8 rounded-3xl hidden">
+                <h3 class="text-2xl font-black premium-gradient-text mb-6">🎬 Video Generation in Progress</h3>
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center">
+                        <span id="progress-status" class="text-white font-bold">Initializing...</span>
+                        <span id="progress-time" class="text-gray-400">Estimated: 2 min</span>
+                    </div>
+                    <div class="w-full bg-gray-700 rounded-full h-4">
+                        <div id="progress-bar" class="bg-gradient-to-r from-blue-500 to-purple-600 h-4 rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                    <div id="progress-percentage" class="text-center text-gray-300">0%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Features Navigation - Now integrated directly in HTML -->
+
     <script>
         // --- EMERGENCY BUTTON FIX - CORE FUNCTIONS FIRST ---
         console.log('🚀 OmniOrchestrator JavaScript Loading...');
@@ -1292,6 +1983,133 @@ P.S. Early adopters get 50% off their first month!</textarea>
         function testJS() {
             alert('✅ JavaScript is working! Functions are loaded.');
             console.log('✅ JavaScript test successful');
+        }
+        
+        // Mobile menu toggle
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (mobileMenu.classList.contains('hidden')) {
+                mobileMenu.classList.remove('hidden');
+                mobileMenu.classList.add('animate-slideDown');
+            } else {
+                mobileMenu.classList.add('hidden');
+                mobileMenu.classList.remove('animate-slideDown');
+            }
+        }
+        
+        // Quick login for development
+        function quickLogin() {
+            console.log('🔐 Quick login for development');
+            
+            // Create a development JWT token
+            const devToken = 'dev-token-' + Date.now();
+            localStorage.setItem('token', devToken);
+            localStorage.setItem('user', JSON.stringify({
+                id: 'dev-user-123',
+                name: 'Marketing Maverick',
+                email: 'dev@omniorchestrator.com',
+                company: 'Demo Company',
+                plan: 'Pro'
+            }));
+            
+            showNotification('✅ Logged in successfully!', 'success');
+            
+            setTimeout(() => {
+                changeTab('dashboard');
+            }, 1000);
+        }
+        
+        // Show/hide login and registration forms
+        function showRegister() {
+            document.getElementById('registerForm').classList.remove('hidden');
+            document.querySelector('.space-y-4').classList.add('hidden');
+            document.querySelector('.text-center').classList.add('hidden');
+        }
+        
+        function showLogin() {
+            document.getElementById('registerForm').classList.add('hidden');
+            document.querySelector('.space-y-4').classList.remove('hidden');
+            document.querySelector('.text-center').classList.remove('hidden');
+        }
+        
+        // User login function
+        async function loginUser() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!email || !password) {
+                showNotification('Please enter email and password', 'warning');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    
+                    showNotification('✅ Login successful!', 'success');
+                    
+                    setTimeout(() => {
+                        changeTab('dashboard');
+                    }, 1000);
+                } else {
+                    showNotification(data.error || 'Login failed', 'error');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showNotification('Login failed. Please try again.', 'error');
+            }
+        }
+        
+        // User registration function
+        async function registerUser() {
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const company = document.getElementById('registerCompany').value;
+            const password = document.getElementById('registerPassword').value;
+            
+            if (!name || !email || !company || !password) {
+                showNotification('Please fill in all fields', 'warning');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name, email, company, password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    
+                    showNotification('✅ Account created successfully!', 'success');
+                    
+                    setTimeout(() => {
+                        changeTab('dashboard');
+                    }, 1000);
+                } else {
+                    showNotification(data.error || 'Registration failed', 'error');
+                }
+            } catch (error) {
+                console.error('Registration error:', error);
+                showNotification('Registration failed. Please try again.', 'error');
+            }
         }
         
         // Core navigation function - PRIORITY FIX
@@ -1313,7 +2131,7 @@ P.S. Early adopters get 50% off their first month!</textarea>
                     console.log('✅ Switched to:', targetId);
                     
                     // Update navigation
-                    document.querySelectorAll('.nav-link').forEach(btn => {
+                    document.querySelectorAll('.nav-link, .nav-link-v2').forEach(btn => {
                         btn.classList.remove('active');
                     });
                     
@@ -1341,7 +2159,7 @@ P.S. Early adopters get 50% off their first month!</textarea>
             const notification = document.createElement('div');
             notification.style.cssText = `
                 position: fixed; 
-                top: 20px; 
+                top: 80px; 
                 right: 20px; 
                 z-index: 9999;
                 background: rgba(0,0,0,0.8); 
@@ -1433,7 +2251,7 @@ P.S. Early adopters get 50% off their first month!`;
             }
 
             // Update nav bar active state
-            document.querySelectorAll('.nav-link').forEach(btn => {
+            document.querySelectorAll('.nav-link, .nav-link-v2').forEach(btn => {
                 btn.classList.remove('active');
                 if(btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(targetId)) {
                     btn.classList.add('active');
@@ -1459,6 +2277,40 @@ P.S. Early adopters get 50% off their first month!`;
                     console.error('❌ Page not found:', targetId);
                 }
             }, 300);
+        }
+
+        // --- API HELPER FUNCTIONS ---
+        function getAuthHeaders() {
+            const token = localStorage.getItem('token');
+            return {
+                'Content-Type': 'application/json',
+                'Authorization': token ? `Bearer ${token}` : ''
+            };
+        }
+        
+        async function apiCall(url, options = {}) {
+            const defaultOptions = {
+                headers: getAuthHeaders(),
+                ...options
+            };
+            
+            try {
+                const response = await fetch(url, defaultOptions);
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || `HTTP ${response.status}`);
+                }
+                
+                return data;
+            } catch (error) {
+                console.error('API call failed:', error);
+                if (error.message.includes('401')) {
+                    showNotification('Please login first', 'warning');
+                    changeTab('login');
+                }
+                throw error;
+            }
         }
 
         // --- ESSENTIAL FUNCTIONS FOR BUTTONS ---
@@ -1606,10 +2458,30 @@ The OmniOrchestrator Team`
 
         // --- API SERVICE FUNCTIONS ---
         class APIService {
+            static getHeaders() {
+                const token = localStorage.getItem('token');
+                return {
+                    'Content-Type': 'application/json',
+                    'Authorization': token ? `Bearer ${token}` : ''
+                };
+            }
+
             static async get(endpoint) {
                 try {
-                    const response = await fetch(`/api${endpoint}`);
-                    return await response.json();
+                    const response = await fetch(`/api${endpoint}`, {
+                        headers: this.getHeaders()
+                    });
+                    const data = await response.json();
+                    
+                    if (!response.ok) {
+                        if (response.status === 401) {
+                            showNotification('Please login first', 'warning');
+                            changeTab('login');
+                        }
+                        return { success: false, error: data.error || `HTTP ${response.status}` };
+                    }
+                    
+                    return data;
                 } catch (error) {
                     console.error('API Error:', error);
                     return { success: false, error: error.message };
@@ -1620,10 +2492,20 @@ The OmniOrchestrator Team`
                 try {
                     const response = await fetch(`/api${endpoint}`, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: this.getHeaders(),
                         body: JSON.stringify(data)
                     });
-                    return await response.json();
+                    const responseData = await response.json();
+                    
+                    if (!response.ok) {
+                        if (response.status === 401) {
+                            showNotification('Please login first', 'warning');
+                            changeTab('login');
+                        }
+                        return { success: false, error: responseData.error || `HTTP ${response.status}` };
+                    }
+                    
+                    return responseData;
                 } catch (error) {
                     console.error('API Error:', error);
                     return { success: false, error: error.message };
@@ -1647,12 +2529,12 @@ The OmniOrchestrator Team`
             }
 
             // Update nav bar active state with neon effects
-            document.querySelectorAll('.nav-link').forEach(btn => {
-                btn.classList.remove('active');
-                if(btn.getAttribute('onclick').includes(targetId)) {
-                    btn.classList.add('active');
-                }
-            });
+                            document.querySelectorAll('.nav-link, .nav-link-v2').forEach(btn => {
+                    btn.classList.remove('active');
+                    if(btn.getAttribute('onclick').includes(targetId)) {
+                        btn.classList.add('active');
+                    }
+                });
 
             // Animate in new tab with backend data loading
             setTimeout(async () => {
@@ -2398,6 +3280,798 @@ The OmniOrchestrator Team`
             
             console.log('✅ OmniOrchestrator Ready!');
         });
+
+        // --- AI INTEGRATION FUNCTIONS ---
+        
+        // Socket.IO connection
+        let socket = null;
+        
+        // Initialize Socket.IO connection
+        function initSocket() {
+            if (!socket) {
+                socket = io();
+                
+                // Handle connection events
+                socket.on('connect', () => {
+                    console.log('Connected to server');
+                    showNotification('Real-time connection established ⚡', 'success');
+                });
+                
+                socket.on('disconnect', () => {
+                    console.log('Disconnected from server');
+                    showNotification('Connection lost - reconnecting...', 'warning');
+                });
+                
+                // Handle AI responses
+                socket.on('ai_response', (data) => {
+                    console.log('AI response received:', data);
+                    showNotification(`AI ${data.conversationType} response ready`, 'info');
+                });
+                
+                // Handle video generation progress
+                socket.on('video_generation_progress', (data) => {
+                    updateVideoProgress(data);
+                });
+                
+                // Handle sentiment alerts
+                socket.on('sentiment_alert', (data) => {
+                    showSentimentAlert(data);
+                });
+                
+                // Handle advanced analytics updates
+                socket.on('advanced_analytics', (data) => {
+                    showNotification(`Analytics complete: ${data.status} performance`, 'info');
+                });
+            }
+        }
+
+        // --- CONVERSATIONAL AI FUNCTIONS ---
+        
+        async function sendChatMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // Add user message to chat
+            addChatMessage(message, 'user');
+            input.value = '';
+            
+            // Show typing indicator
+            showTypingIndicator();
+            
+            try {
+                const response = await fetch('/api/conversational/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        context: {
+                            userType: 'marketer',
+                            currentPage: getCurrentPage()
+                        }
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    hideTypingIndicator();
+                    addChatMessage(result.response, 'ai', result.insights);
+                    
+                    // Show suggested actions if available
+                    if (result.suggestedActions && result.suggestedActions.length > 0) {
+                        showSuggestedActions(result.suggestedActions);
+                    }
+                } else {
+                    hideTypingIndicator();
+                    addChatMessage('Sorry, I encountered an error. Please try again.', 'ai');
+                }
+            } catch (error) {
+                hideTypingIndicator();
+                addChatMessage('Sorry, I\'m having trouble connecting. Please try again.', 'ai');
+                console.error('Chat error:', error);
+            }
+        }
+        
+        function addChatMessage(message, sender, insights = null) {
+            const chatMessages = document.getElementById('chat-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'flex items-start space-x-4';
+            
+            if (sender === 'user') {
+                messageDiv.innerHTML = `
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-green-500 to-teal-600 flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-user text-white"></i>
+                    </div>
+                    <div class="neon-glass-card p-4 rounded-2xl max-w-md ml-auto">
+                        <p class="text-white">${message}</p>
+                    </div>
+                `;
+            } else {
+                messageDiv.innerHTML = `
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-robot text-white"></i>
+                    </div>
+                    <div class="neon-glass-card p-4 rounded-2xl max-w-2xl">
+                        <p class="text-white">${message}</p>
+                        ${insights && insights.actions ? `
+                            <div class="mt-3 space-y-2">
+                                <p class="text-blue-400 text-sm font-semibold">💡 Key Actions:</p>
+                                ${insights.actions.slice(0, 3).map(action => `
+                                    <div class="text-gray-300 text-sm">• ${action}</div>
+                                `).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        function showTypingIndicator() {
+            const chatMessages = document.getElementById('chat-messages');
+            const typingDiv = document.createElement('div');
+            typingDiv.id = 'typing-indicator';
+            typingDiv.className = 'flex items-start space-x-4';
+            typingDiv.innerHTML = `
+                <div class="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-robot text-white"></i>
+                </div>
+                <div class="neon-glass-card p-4 rounded-2xl">
+                    <div class="flex space-x-2">
+                        <div class="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
+                        <div class="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+                        <div class="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                    </div>
+                </div>
+            `;
+            chatMessages.appendChild(typingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        function hideTypingIndicator() {
+            const indicator = document.getElementById('typing-indicator');
+            if (indicator) {
+                indicator.remove();
+            }
+        }
+        
+        function quickChat(message) {
+            document.getElementById('chat-input').value = message;
+            sendChatMessage();
+        }
+        
+        function handleChatKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendChatMessage();
+            }
+        }
+
+        // --- ADVANCED ANALYTICS FUNCTIONS ---
+        
+        async function runAIAnalysis() {
+            const campaignSelector = document.getElementById('campaign-selector');
+            const campaignId = campaignSelector.value;
+            
+            if (!campaignId) {
+                showNotification('Please select a campaign to analyze', 'warning');
+                return;
+            }
+            
+            showNotification('Running AI analysis... 🧠', 'info');
+            
+            try {
+                const response = await fetch('/api/analytics/advanced/campaign', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({
+                        campaignId: campaignId,
+                        options: {
+                            timeframe: '30d',
+                            includeCompetitors: true,
+                            includeTrends: true
+                        }
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    displayAdvancedAnalytics(result.analysis);
+                    showNotification('AI analysis complete! 🎉', 'success');
+                } else {
+                    showNotification(`Analysis failed: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                showNotification('Analysis error occurred', 'error');
+                console.error('Advanced analytics error:', error);
+            }
+        }
+        
+        function displayAdvancedAnalytics(analysis) {
+            const resultsDiv = document.getElementById('ai-analysis-results');
+            resultsDiv.classList.remove('hidden');
+            
+            // Update performance score
+            const scoreText = document.getElementById('performance-score-text');
+            const statusText = document.getElementById('performance-status');
+            
+            if (scoreText && statusText) {
+                scoreText.textContent = analysis.overview.performanceScore;
+                statusText.textContent = getStatusText(analysis.overview.status);
+                statusText.className = `text-xl font-bold ${getStatusColor(analysis.overview.status)}`;
+            }
+            
+            // Update insights
+            const insightsContent = document.getElementById('ai-insights-content');
+            if (insightsContent) {
+                insightsContent.innerHTML = '';
+                
+                if (analysis.insights && analysis.insights.summary) {
+                    const insightDiv = document.createElement('div');
+                    insightDiv.className = 'holographic-card p-4 rounded-2xl';
+                    insightDiv.innerHTML = `
+                        <h4 class="text-white font-bold mb-2">📊 Key Insights</h4>
+                        <p class="text-gray-300 text-sm">${analysis.insights.summary}</p>
+                    `;
+                    insightsContent.appendChild(insightDiv);
+                }
+            }
+            
+            // Update predictions
+            const predictionsContent = document.getElementById('ai-predictions-content');
+            if (predictionsContent) {
+                predictionsContent.innerHTML = '';
+                
+                if (analysis.predictions) {
+                    Object.keys(analysis.predictions).forEach(predictionType => {
+                        const prediction = analysis.predictions[predictionType];
+                        const predictionDiv = document.createElement('div');
+                        predictionDiv.className = 'holographic-card p-4 rounded-2xl';
+                        predictionDiv.innerHTML = `
+                            <h4 class="text-white font-bold mb-2">🔮 ${formatPredictionType(predictionType)}</h4>
+                            <p class="text-gray-300 text-sm">${formatPrediction(prediction)}</p>
+                            <div class="text-blue-400 text-xs mt-2">Confidence: ${Math.round((prediction.confidence || 0.8) * 100)}%</div>
+                        `;
+                        predictionsContent.appendChild(predictionDiv);
+                    });
+                }
+            }
+            
+            // Update recommendations
+            const recommendationsContent = document.getElementById('ai-recommendations-content');
+            if (recommendationsContent) {
+                recommendationsContent.innerHTML = '';
+                
+                if (analysis.recommendations) {
+                    analysis.recommendations.slice(0, 5).forEach((rec, index) => {
+                        const recDiv = document.createElement('div');
+                        recDiv.className = 'holographic-card p-4 rounded-2xl';
+                        recDiv.innerHTML = `
+                            <div class="flex items-start">
+                                <div class="w-8 h-8 rounded-full bg-gradient-to-r from-yellow-500 to-orange-600 flex items-center justify-center mr-4 flex-shrink-0">
+                                    <span class="text-white text-sm font-bold">${index + 1}</span>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="text-white font-bold mb-1">${rec.action}</h4>
+                                    <p class="text-gray-400 text-xs">Priority: ${rec.priority} | Category: ${rec.category}</p>
+                                </div>
+                            </div>
+                        `;
+                        recommendationsContent.appendChild(recDiv);
+                    });
+                }
+            }
+        }
+
+        // --- SENTIMENT ANALYSIS FUNCTIONS ---
+        
+        async function analyzeBrandSentiment() {
+            const brandInput = document.getElementById('brand-name-input');
+            const brandName = brandInput.value.trim();
+            
+            if (!brandName) {
+                showNotification('Please enter a brand name', 'warning');
+                return;
+            }
+            
+            showNotification('Analyzing brand sentiment... 💭', 'info');
+            
+            try {
+                const response = await fetch('/api/analytics/sentiment/brand', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({
+                        brandName: brandName,
+                        options: {
+                            sources: ['social', 'review', 'news'],
+                            timeframe: '7d'
+                        }
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    displaySentimentResults(result);
+                    showNotification('Sentiment analysis complete! 📊', 'success');
+                } else {
+                    showNotification(`Sentiment analysis failed: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                showNotification('Sentiment analysis error occurred', 'error');
+                console.error('Sentiment analysis error:', error);
+            }
+        }
+        
+        function displaySentimentResults(result) {
+            const resultsDiv = document.getElementById('sentiment-results');
+            resultsDiv.classList.remove('hidden');
+            
+            const sentiment = result.sentiment;
+            
+            // Update overall sentiment
+            const scoreElement = document.getElementById('sentiment-score');
+            const labelElement = document.getElementById('sentiment-label');
+            const confidenceElement = document.getElementById('sentiment-confidence');
+            
+            if (scoreElement && labelElement && confidenceElement) {
+                scoreElement.textContent = sentiment.overall.score.toFixed(2);
+                scoreElement.className = `text-6xl font-black mb-4 ${getSentimentColor(sentiment.overall.score)}`;
+                
+                labelElement.textContent = sentiment.overall.label.replace('_', ' ').toUpperCase();
+                labelElement.className = `text-2xl font-bold mb-4 ${getSentimentColor(sentiment.overall.score)}`;
+                
+                confidenceElement.textContent = `Confidence: ${Math.round(sentiment.overall.confidence * 100)}%`;
+            }
+            
+            // Update sentiment breakdown
+            const breakdownDiv = document.getElementById('sentiment-breakdown');
+            if (breakdownDiv) {
+                breakdownDiv.innerHTML = '';
+                
+                if (sentiment.breakdown) {
+                    Object.keys(sentiment.breakdown).forEach(category => {
+                        const count = sentiment.breakdown[category];
+                        const percentage = Math.round((count / sentiment.volume) * 100);
+                        
+                        const barDiv = document.createElement('div');
+                        barDiv.className = 'space-y-2';
+                        barDiv.innerHTML = `
+                            <div class="flex justify-between items-center">
+                                <span class="text-white font-semibold">${category.replace('_', ' ').toUpperCase()}</span>
+                                <span class="text-gray-400">${count} (${percentage}%)</span>
+                            </div>
+                            <div class="w-full bg-gray-700 rounded-full h-2">
+                                <div class="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full" style="width: ${percentage}%"></div>
+                            </div>
+                        `;
+                        breakdownDiv.appendChild(barDiv);
+                    });
+                }
+            }
+            
+            // Update recent mentions
+            const mentionsDiv = document.getElementById('recent-mentions');
+            if (mentionsDiv) {
+                mentionsDiv.innerHTML = '';
+                
+                if (result.mentions) {
+                    result.mentions.slice(0, 10).forEach(mention => {
+                        const mentionDiv = document.createElement('div');
+                        mentionDiv.className = 'holographic-card p-3 rounded-xl';
+                        mentionDiv.innerHTML = `
+                            <p class="text-gray-300 text-sm mb-2">"${mention.text}"</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-500 text-xs">@${mention.author}</span>
+                                <span class="text-gray-500 text-xs">${mention.source}</span>
+                            </div>
+                        `;
+                        mentionsDiv.appendChild(mentionDiv);
+                    });
+                }
+            }
+        }
+
+        // --- ENHANCED VIDEO GENERATION FUNCTIONS ---
+        
+        function selectTemplate(template) {
+            document.getElementById('video-template').value = template;
+            showNotification(`Selected ${template.replace('_', ' ')} template`, 'info');
+        }
+        
+        async function generateAIVideo() {
+            const productName = document.getElementById('video-product-name').value.trim();
+            const targetAudience = document.getElementById('video-target-audience').value.trim();
+            const keyMessage = document.getElementById('video-key-message').value.trim();
+            const cta = document.getElementById('video-cta').value.trim();
+            const template = document.getElementById('video-template').value;
+            const style = document.getElementById('video-style').value;
+            
+            if (!productName || !targetAudience || !keyMessage || !cta) {
+                showNotification('Please fill in all required fields', 'warning');
+                return;
+            }
+            
+            // Show progress bar
+            const progressDiv = document.getElementById('video-progress');
+            progressDiv.classList.remove('hidden');
+            
+            try {
+                const response = await fetch('/api/video/create-marketing-video', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({
+                        productName,
+                        targetAudience,
+                        keyMessage,
+                        callToAction: cta,
+                        template,
+                        style,
+                        industry: getCurrentUser()?.industry || 'technology',
+                        brandPersonality: style
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showNotification('Video generation started! 🎬', 'success');
+                    // Progress will be updated via Socket.IO
+                } else {
+                    showNotification(`Video generation failed: ${result.error}`, 'error');
+                    progressDiv.classList.add('hidden');
+                }
+            } catch (error) {
+                showNotification('Video generation error occurred', 'error');
+                progressDiv.classList.add('hidden');
+                console.error('Video generation error:', error);
+            }
+        }
+        
+        function updateVideoProgress(data) {
+            const progressBar = document.getElementById('progress-bar');
+            const progressPercentage = document.getElementById('progress-percentage');
+            const progressStatus = document.getElementById('progress-status');
+            const progressTime = document.getElementById('progress-time');
+            
+            if (progressBar && progressPercentage && progressStatus) {
+                progressBar.style.width = `${data.progress}%`;
+                progressPercentage.textContent = `${data.progress}%`;
+                progressStatus.textContent = data.message || formatProgressStatus(data.status);
+                
+                if (data.estimatedTimeRemaining) {
+                    const minutes = Math.ceil(data.estimatedTimeRemaining / 60);
+                    progressTime.textContent = `Estimated: ${minutes} min`;
+                }
+                
+                if (data.progress >= 100) {
+                    setTimeout(() => {
+                        document.getElementById('video-progress').classList.add('hidden');
+                        showNotification('Video generated successfully! 🎉', 'success');
+                    }, 2000);
+                }
+            }
+        }
+
+        // --- UTILITY FUNCTIONS ---
+        
+        function getStatusText(status) {
+            const statusMap = {
+                'excellent': 'Excellent Performance',
+                'good': 'Good Performance',
+                'fair': 'Fair Performance',
+                'needs_improvement': 'Needs Improvement'
+            };
+            return statusMap[status] || 'Unknown Status';
+        }
+        
+        function getStatusColor(status) {
+            const colorMap = {
+                'excellent': 'text-green-400',
+                'good': 'text-blue-400',
+                'fair': 'text-yellow-400',
+                'needs_improvement': 'text-red-400'
+            };
+            return colorMap[status] || 'text-gray-400';
+        }
+        
+        function getSentimentColor(score) {
+            if (score > 0.6) return 'text-green-400';
+            if (score > 0.2) return 'text-blue-400';
+            if (score >= -0.2) return 'text-gray-400';
+            if (score >= -0.6) return 'text-yellow-400';
+            return 'text-red-400';
+        }
+        
+        function formatPredictionType(type) {
+            return type.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+        }
+        
+        function formatPrediction(prediction) {
+            if (prediction.predicted_rate) {
+                return `Predicted rate: ${(prediction.predicted_rate * 100).toFixed(1)}%`;
+            }
+            if (prediction.recommended_budget) {
+                return `Recommended budget: $${prediction.recommended_budget.toLocaleString()}`;
+            }
+            if (prediction.reasoning) {
+                return prediction.reasoning;
+            }
+            return 'Prediction data available';
+        }
+        
+        function formatProgressStatus(status) {
+            return status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        }
+        
+        function showSentimentAlert(alert) {
+            showNotification(`⚠️ Sentiment Alert: ${alert.severity} - ${alert.brandName}`, 'warning');
+        }
+        
+        function getCurrentPage() {
+            const activeTab = document.querySelector('.page:not(.hidden)');
+            return activeTab ? activeTab.id : 'dashboard';
+        }
+        
+        function getCurrentUser() {
+            try {
+                const userStr = localStorage.getItem('user');
+                return userStr ? JSON.parse(userStr) : null;
+            } catch (error) {
+                console.error('Error parsing user from localStorage:', error);
+                return null;
+            }
+        }
+        
+        // --- INDUSTRY DASHBOARD FUNCTIONS ---
+        
+        function switchIndustryDashboard(industry) {
+            // Remove active class from all buttons
+            document.querySelectorAll('.industry-btn').forEach(btn => btn.classList.remove('active'));
+            
+            // Add active class to clicked button
+            document.querySelector(`[data-industry="${industry}"]`).classList.add('active');
+            
+            // Hide all industry dashboards
+            document.querySelectorAll('.industry-dashboard').forEach(dashboard => {
+                dashboard.classList.remove('active');
+            });
+            
+            // Show selected industry dashboard
+            const selectedDashboard = document.getElementById(`dashboard-${industry}`);
+            if (selectedDashboard) {
+                selectedDashboard.classList.add('active');
+            }
+            
+            // Update dashboard content based on industry
+            updateIndustryDashboard(industry);
+            
+            showNotification(`🏢 Switched to ${industry} dashboard`, 'success');
+        }
+        
+        function updateIndustryDashboard(industry) {
+            const industryData = {
+                technology: {
+                    metrics: {
+                        leads: '2,847',
+                        conversion: '12.8%',
+                        growth: '+24.5%',
+                        specialMetric: 'API Calls: 45.2K'
+                    },
+                    color: 'blue'
+                },
+                healthcare: {
+                    metrics: {
+                        leads: '1,234',
+                        conversion: '18.2%',
+                        growth: '+18.3%',
+                        specialMetric: 'Patient Leads: 890'
+                    },
+                    color: 'green'
+                },
+                finance: {
+                    metrics: {
+                        leads: '987',
+                        conversion: '22.1%',
+                        growth: '+31.2%',
+                        specialMetric: 'High-Value: $2.4M'
+                    },
+                    color: 'yellow'
+                },
+                'e-commerce': {
+                    metrics: {
+                        leads: '4,567',
+                        conversion: '8.9%',
+                        growth: '+42.1%',
+                        specialMetric: 'Cart Value: $127'
+                    },
+                    color: 'purple'
+                },
+                education: {
+                    metrics: {
+                        leads: '1,890',
+                        conversion: '15.4%',
+                        growth: '+19.8%',
+                        specialMetric: 'Course Signups: 450'
+                    },
+                    color: 'indigo'
+                },
+                'real-estate': {
+                    metrics: {
+                        leads: '445',
+                        conversion: '28.7%',
+                        growth: '+15.2%',
+                        specialMetric: 'Showings: 234'
+                    },
+                    color: 'orange'
+                }
+            };
+            
+            const data = industryData[industry] || industryData.technology;
+            
+            // Update metrics in the current dashboard
+            try {
+                const dashboard = document.getElementById(`dashboard-${industry}`);
+                if (dashboard) {
+                    // Update the metrics if they exist
+                    const leadsStat = dashboard.querySelector('.leads-stat');
+                    const conversionStat = dashboard.querySelector('.conversion-stat');
+                    const growthStat = dashboard.querySelector('.growth-stat');
+                    
+                    if (leadsStat) leadsStat.textContent = data.metrics.leads;
+                    if (conversionStat) conversionStat.textContent = data.metrics.conversion;
+                    if (growthStat) growthStat.textContent = data.metrics.growth;
+                }
+            } catch (error) {
+                console.log('Dashboard metrics update skipped:', error.message);
+            }
+        }
+
+        // --- COMPANY PROFILE FUNCTIONS ---
+        
+        function saveCompanyProfile() {
+            const companyData = {
+                name: document.getElementById('companyName').value,
+                industry: document.getElementById('companyIndustry').value,
+                size: document.getElementById('companySize').value,
+                website: document.getElementById('companyWebsite').value,
+                targetMarket: document.getElementById('targetMarket').value,
+                timestamp: new Date().toISOString()
+            };
+            
+            if (!companyData.name) {
+                showNotification('Please enter a company name', 'warning');
+                return;
+            }
+            
+            // Save to localStorage
+            localStorage.setItem('companyProfile', JSON.stringify(companyData));
+            
+            // Update user profile with industry
+            const currentUser = getCurrentUser();
+            if (currentUser) {
+                currentUser.industry = companyData.industry;
+                currentUser.company = companyData.name;
+                localStorage.setItem('user', JSON.stringify(currentUser));
+            }
+            
+            showNotification('💾 Company profile saved successfully!', 'success');
+            
+            // Future: Send to API
+            // await fetch('/api/companies/profile', { method: 'POST', body: JSON.stringify(companyData) });
+        }
+        
+        function saveMarketingPreferences() {
+            const preferences = {
+                brandVoice: document.getElementById('brandVoice').value,
+                budget: document.getElementById('marketingBudget').value,
+                goals: Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value),
+                timestamp: new Date().toISOString()
+            };
+            
+            // Save to localStorage
+            localStorage.setItem('marketingPreferences', JSON.stringify(preferences));
+            
+            showNotification('🎯 Marketing preferences saved successfully!', 'success');
+            
+            // Future: Send to API
+            // await fetch('/api/companies/preferences', { method: 'POST', body: JSON.stringify(preferences) });
+        }
+        
+        function loadCompanyProfile() {
+            try {
+                const companyProfile = localStorage.getItem('companyProfile');
+                if (companyProfile) {
+                    const data = JSON.parse(companyProfile);
+                    document.getElementById('companyName').value = data.name || '';
+                    document.getElementById('companyIndustry').value = data.industry || 'technology';
+                    document.getElementById('companySize').value = data.size || 'startup';
+                    document.getElementById('companyWebsite').value = data.website || '';
+                    document.getElementById('targetMarket').value = data.targetMarket || '';
+                }
+                
+                const marketingPreferences = localStorage.getItem('marketingPreferences');
+                if (marketingPreferences) {
+                    const prefs = JSON.parse(marketingPreferences);
+                    document.getElementById('brandVoice').value = prefs.brandVoice || 'professional';
+                    document.getElementById('marketingBudget').value = prefs.budget || 'under-1k';
+                    
+                    // Check the goal checkboxes
+                    prefs.goals?.forEach(goal => {
+                        const checkbox = document.querySelector(`input[value="${goal}"]`);
+                        if (checkbox) checkbox.checked = true;
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading company profile:', error);
+            }
+        }
+
+        // --- INITIALIZE AI FEATURES ---
+        
+        // Initialize Socket.IO when page loads
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initSocket);
+        } else {
+            initSocket();
+        }
+        
+        // Load sample campaign data for advanced analytics
+        function loadSampleCampaigns() {
+            const campaignSelector = document.getElementById('campaign-selector');
+            if (campaignSelector) {
+                const campaigns = [
+                    { id: 'q2-product-launch', name: 'Q2 Product Launch - TechCorp' },
+                    { id: 'holiday-campaign', name: 'Holiday Campaign 2024' },
+                    { id: 'ai-video-series', name: 'AI Video Marketing Series' },
+                    { id: 'brand-awareness', name: 'Brand Awareness Campaign' },
+                    { id: 'lead-generation', name: 'Lead Generation Campaign' }
+                ];
+                
+                campaigns.forEach(campaign => {
+                    const option = document.createElement('option');
+                    option.value = campaign.id;
+                    option.textContent = campaign.name;
+                    campaignSelector.appendChild(option);
+                });
+            }
+        }
+        
+        // Initialize sample data when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSampleCampaigns();
+            loadCompanyProfile();
+            initializeIndustryDashboard();
+        });
+        
+        function initializeIndustryDashboard() {
+            // Set default industry based on user profile or default to technology
+            const currentUser = getCurrentUser();
+            const defaultIndustry = currentUser?.industry || 'technology';
+            
+            // Initialize the default industry dashboard
+            setTimeout(() => {
+                if (document.querySelector(`[data-industry="${defaultIndustry}"]`)) {
+                    switchIndustryDashboard(defaultIndustry);
+                }
+            }, 100);
+        }
 
         // --- BACKGROUND EFFECTS ---
         function initializeBackgroundEffects() {

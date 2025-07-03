@@ -86,7 +86,28 @@ async function tenantContext(req, res, next) {
         }
         
         // Load tenant configuration
-        const tenant = await Tenant.findByTenantId(tenantId);
+        let tenant;
+        try {
+            tenant = await Tenant.findByTenantId(tenantId);
+        } catch (error) {
+            console.log('🔧 Development mode: Using mock tenant due to DB error');
+        }
+        
+        // Development mode fallback
+        if (!tenant && process.env.NODE_ENV === 'development') {
+            tenant = {
+                _id: 'dev-tenant-123',
+                tenantId: tenantId,
+                companyName: 'Demo Company',
+                plan: {
+                    type: 'Pro',
+                    status: 'active',
+                    features: ['ai-generation', 'advanced-analytics', 'video-creation']
+                },
+                isFeatureEnabled: () => true,
+                getRemainingUsage: () => 1000
+            };
+        }
         
         if (!tenant) {
             return res.status(404).json({
