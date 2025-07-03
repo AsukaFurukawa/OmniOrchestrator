@@ -5,6 +5,7 @@ const rateLimit = require('express-rate-limit');
 const mongoose = require('mongoose');
 const { createServer } = require('http');
 const { Server } = require('socket.io');
+const path = require('path');
 require('dotenv').config();
 
 // Import routes
@@ -15,6 +16,7 @@ const aiRoutes = require('./routes/ai');
 const socialRoutes = require('./routes/social');
 const trendRoutes = require('./routes/trends');
 const webhookRoutes = require('./routes/webhooks');
+const videoRoutes = require('./routes/video');
 
 // Import middleware
 const authMiddleware = require('./middleware/auth');
@@ -73,14 +75,24 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/omniorche
 .then(() => console.log('✅ Connected to MongoDB'))
 .catch(err => console.error('❌ MongoDB connection error:', err));
 
+// Serve static files from the root directory
+app.use(express.static('.'));
+
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/tenants', require('./routes/tenants')); // No auth required for tenant config
 app.use('/api/campaigns', authMiddleware, campaignRoutes);
 app.use('/api/analytics', authMiddleware, analyticsRoutes);
 app.use('/api/ai', authMiddleware, aiRoutes);
 app.use('/api/social', authMiddleware, socialRoutes);
 app.use('/api/trends', authMiddleware, trendRoutes);
 app.use('/api/webhooks', webhookRoutes);
+app.use('/api/video', authMiddleware, videoRoutes);
+
+// Serve the main UI for the root path
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'index.html'));
+});
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -98,9 +110,13 @@ const socketService = new SocketService(io);
 // Error handling middleware
 app.use(errorHandler);
 
-// 404 handler
+// 404 handler - serve frontend for non-API routes
 app.use('*', (req, res) => {
-  res.status(404).json({ error: 'Route not found' });
+  if (req.originalUrl.startsWith('/api/')) {
+    res.status(404).json({ error: 'Route not found' });
+  } else {
+    res.sendFile(path.join(__dirname, '..', 'index.html'));
+  }
 });
 
 // Start cron jobs

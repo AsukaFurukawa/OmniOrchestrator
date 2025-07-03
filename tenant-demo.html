@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏢 OmniOrchestrator - Multi-Tenant Demo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 25%, #2d1b69 50%, #1e3a8a 75%, #0f172a 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .demo-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .demo-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+        
+        .demo-card:hover::before {
+            left: 100%;
+        }
+        
+        .demo-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        .tech-theme {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+        
+        .healthcare-theme {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(59, 130, 246, 0.1));
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+        
+        .ecommerce-theme {
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.1), rgba(139, 92, 246, 0.1));
+            border-color: rgba(236, 72, 153, 0.3);
+        }
+        
+        .demo-theme {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            border-color: rgba(102, 126, 234, 0.3);
+        }
+        
+        .premium-gradient-text {
+            background: linear-gradient(135deg, #ff6b6b, #ffd93d, #6bcf7f, #4d96ff, #9c88ff);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientFlow 3s ease infinite;
+            font-weight: 900;
+        }
+        
+        @keyframes gradientFlow {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
+        .neon-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 16px;
+            color: white;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .neon-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+        }
+        
+        .floating-animation {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .feature-badge {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 8px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body class="text-white">
+    <!-- Header -->
+    <header class="py-8 px-6 text-center">
+        <div class="max-w-7xl mx-auto">
+            <div class="floating-animation">
+                <h1 class="text-6xl font-black premium-gradient-text mb-6">
+                    🏢 Multi-Tenant Demo
+                </h1>
+                <p class="text-2xl text-gray-300 mb-4">Experience OmniOrchestrator for Different Companies</p>
+                <p class="text-lg text-gray-400 max-w-3xl mx-auto">
+                    See how our AI marketing platform adapts to different industries with custom branding, 
+                    unique features, and tailored experiences. Each tenant gets their own personalized environment.
+                </p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Demo Companies -->
+    <main class="py-12 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                
+                <!-- Tech Startup -->
+                <div class="demo-card tech-theme p-8 relative">
+                    <div class="absolute top-6 right-6">
+                        <div class="status-indicator"></div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <div class="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mb-4">
+                            <i class="fas fa-rocket text-2xl text-white"></i>
+                        </div>
+                        <h2 class="text-3xl font-black text-white mb-2">TechFlow Solutions</h2>
+                        <p class="text-blue-400 font-semibold mb-4">Technology Startup</p>
+                        <p class="text-gray-300 text-sm leading-relaxed">
+                            A cutting-edge tech startup focused on AI and automation solutions. 
+                            Features a modern blue and purple theme with sleek animations.
+                        </p>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <div class="flex flex-wrap gap-2">
+                            <span class="feature-badge">
+                                <i class="fas fa-palette"></i>
+                                Blue Theme
+                            </span>
+                            <span class="feature-badge">
+                                <i class="fas fa-rocket"></i>
+                                AI Focus
+                            </span>
+                            <span class="feature-badge">
+                                <i class="fas fa-chart-line"></i>
+                                Growth Mode
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <button onclick="openDemo('tech-startup')" class="w-full neon-btn py-4 px-6 text-lg font-bold">
+                            <i class="fas fa-external-link-alt mr-2"></i>
+                            Launch TechFlow Demo
+                        </button>
+                        <div class="grid grid-cols-2 gap-4 text-center">
+                            <div>
+                                <div class="text-blue-400 font-bold text-xl">AI-First</div>
+                                <div class="text-xs text-gray-400">Approach</div>
+                            </div>
+                            <div>
+                                <div class="text-purple-400 font-bold text-xl">Series A</div>
+                                <div class="text-xs text-gray-400">Stage</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Healthcare -->
+                <div class="demo-card healthcare-theme p-8 relative">
+                    <div class="absolute top-6 right-6">
+                        <div class="status-indicator"></div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <div class="w-16 h-16 bg-gradient-to-r from-green-500 to-blue-600 rounded-full flex items-center justify-center mb-4">
+                            <i class="fas fa-heartbeat text-2xl text-white"></i>
+                        </div>
+                        <h2 class="text-3xl font-black text-white mb-2">MediCare Plus</h2>
+                        <p class="text-green-400 font-semibold mb-4">Healthcare Corporation</p>
+                        <p class="text-gray-300 text-sm leading-relaxed">
+                            A leading healthcare provider focused on patient care and medical innovation. 
+                            Features a trusted green and blue theme with professional styling.
+                        </p>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <div class="flex flex-wrap gap-2">
+                            <span class="feature-badge">
+                                <i class="fas fa-leaf"></i>
+                                Green Theme
+                            </span>
+                            <span class="feature-badge">
+                                <i class="fas fa-shield-alt"></i>
+                                HIPAA Compliant
+                            </span>
+                            <span class="feature-badge">
+                                <i class="fas fa-users"></i>
+                                Patient Focus
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <button onclick="openDemo('healthcare-corp')" class="w-full neon-btn py-4 px-6 text-lg font-bold">
+                            <i class="fas fa-external-link-alt mr-2"></i>
+                            Launch MediCare Demo
+                        </button>
+                        <div class="grid grid-cols-2 gap-4 text-center">
+                            <div>
+                                <div class="text-green-400 font-bold text-xl">500K+</div>
+                                <div class="text-xs text-gray-400">Patients</div>
+                            </div>
+                            <div>
+                                <div class="text-blue-400 font-bold text-xl">24/7</div>
+                                <div class="text-xs text-gray-400">Care</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- E-commerce -->
+                <div class="demo-card ecommerce-theme p-8 relative">
+                    <div class="absolute top-6 right-6">
+                        <div class="status-indicator"></div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <div class="w-16 h-16 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center mb-4">
+                            <i class="fas fa-shopping-cart text-2xl text-white"></i>
+                        </div>
+                        <h2 class="text-3xl font-black text-white mb-2">ShopSphere</h2>
+                        <p class="text-pink-400 font-semibold mb-4">E-commerce Platform</p>
+                        <p class="text-gray-300 text-sm leading-relaxed">
+                            A vibrant e-commerce platform connecting buyers and sellers globally. 
+                            Features an energetic pink and purple theme with dynamic animations.
+                        </p>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <div class="flex flex-wrap gap-2">
+                            <span class="feature-badge">
+                                <i class="fas fa-heart"></i>
+                                Pink Theme
+                            </span>
+                            <span class="feature-badge">
+                                <i class="fas fa-store"></i>
+                                Marketplace
+                            </span>
+                            <span class="feature-badge">
+                                <i class="fas fa-mobile-alt"></i>
+                                Mobile First
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <button onclick="openDemo('ecommerce-brand')" class="w-full neon-btn py-4 px-6 text-lg font-bold">
+                            <i class="fas fa-external-link-alt mr-2"></i>
+                            Launch ShopSphere Demo
+                        </button>
+                        <div class="grid grid-cols-2 gap-4 text-center">
+                            <div>
+                                <div class="text-pink-400 font-bold text-xl">1M+</div>
+                                <div class="text-xs text-gray-400">Products</div>
+                            </div>
+                            <div>
+                                <div class="text-purple-400 font-bold text-xl">Global</div>
+                                <div class="text-xs text-gray-400">Reach</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Demo Company -->
+                <div class="demo-card demo-theme p-8 relative">
+                    <div class="absolute top-6 right-6">
+                        <div class="status-indicator"></div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <div class="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-600 rounded-full flex items-center justify-center mb-4">
+                            <i class="fas fa-star text-2xl text-white"></i>
+                        </div>
+                        <h2 class="text-3xl font-black text-white mb-2">OmniOrchestrator Demo</h2>
+                        <p class="text-purple-400 font-semibold mb-4">Default Configuration</p>
+                        <p class="text-gray-300 text-sm leading-relaxed">
+                            The default OmniOrchestrator experience with our signature cyberpunk theme. 
+                            Perfect for exploring all features with the original styling.
+                        </p>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <div class="flex flex-wrap gap-2">
+                            <span class="feature-badge">
+                                <i class="fas fa-magic"></i>
+                                Default Theme
+                            </span>
+                            <span class="feature-badge">
+                                <i class="fas fa-crown"></i>
+                                Full Features
+                            </span>
+                            <span class="feature-badge">
+                                <i class="fas fa-play"></i>
+                                Playground
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <button onclick="openDemo('demo-company')" class="w-full neon-btn py-4 px-6 text-lg font-bold">
+                            <i class="fas fa-external-link-alt mr-2"></i>
+                            Launch Default Demo
+                        </button>
+                        <div class="grid grid-cols-2 gap-4 text-center">
+                            <div>
+                                <div class="text-purple-400 font-bold text-xl">∞</div>
+                                <div class="text-xs text-gray-400">Possibilities</div>
+                            </div>
+                            <div>
+                                <div class="text-pink-400 font-bold text-xl">AI</div>
+                                <div class="text-xs text-gray-400">Powered</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </main>
+
+    <!-- Features Section -->
+    <section class="py-16 px-6">
+        <div class="max-w-7xl mx-auto text-center">
+            <h2 class="text-4xl font-black premium-gradient-text mb-8">
+                🎯 Multi-Tenant Features
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="demo-card p-6">
+                    <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-palette text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2">Dynamic Branding</h3>
+                    <p class="text-gray-300 text-sm">
+                        Each tenant gets custom colors, fonts, and styling that reflects their brand identity.
+                    </p>
+                </div>
+                
+                <div class="demo-card p-6">
+                    <div class="w-12 h-12 bg-gradient-to-r from-green-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-shield-alt text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2">Data Isolation</h3>
+                    <p class="text-gray-300 text-sm">
+                        Complete separation of data and resources between tenants for security and privacy.
+                    </p>
+                </div>
+                
+                <div class="demo-card p-6">
+                    <div class="w-12 h-12 bg-gradient-to-r from-pink-500 to-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-cogs text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2">Custom Features</h3>
+                    <p class="text-gray-300 text-sm">
+                        Industry-specific features and workflows tailored to each tenant's needs.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-8 px-6 text-center border-t border-gray-800">
+        <div class="max-w-7xl mx-auto">
+            <p class="text-gray-400 mb-4">
+                🚀 Built with ❤️ by the OmniOrchestrator Team
+            </p>
+            <p class="text-gray-500 text-sm">
+                Transforming marketing with AI, one tenant at a time
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Demo navigation function
+        function openDemo(tenantId) {
+            // Show loading state
+            const button = event.target;
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Loading...';
+            button.disabled = true;
+            
+            // Simulate loading for better UX
+            setTimeout(() => {
+                // Open the demo in a new tab
+                window.open(`/index.html?tenantId=${tenantId}`, '_blank');
+                
+                // Reset button
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }, 1000);
+        }
+        
+        // Add entrance animations
+        document.addEventListener('DOMContentLoaded', () => {
+            const cards = document.querySelectorAll('.demo-card');
+            
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(30px)';
+                
+                setTimeout(() => {
+                    card.style.transition = 'all 0.6s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 200);
+            });
+        });
+        
+        // Add hover effects
+        document.querySelectorAll('.demo-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-8px) scale(1.02)';
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+        
+        // Add particle effect
+        function createParticle() {
+            const particle = document.createElement('div');
+            particle.className = 'fixed w-1 h-1 bg-white rounded-full opacity-20 pointer-events-none';
+            particle.style.left = Math.random() * 100 + 'vw';
+            particle.style.top = '100vh';
+            particle.style.animation = `float ${Math.random() * 3 + 2}s linear forwards`;
+            
+            document.body.appendChild(particle);
+            
+            setTimeout(() => {
+                particle.remove();
+            }, 5000);
+        }
+        
+        // Create particles periodically
+        setInterval(createParticle, 2000);
+    </script>
+</body>
+</html> 
