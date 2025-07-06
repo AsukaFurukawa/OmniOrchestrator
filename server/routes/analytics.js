@@ -974,10 +974,14 @@ router.post('/strategy-recommendations', async (req, res) => {
       });
     }
 
+    // Get user context safely
+    const user = req.user || { id: 'demo-user', email: 'demo@example.com' };
+    const userId = user.id || user.userId || 'demo-user';
+
     console.log(`🎯 Generating marketing strategy for brand: ${brandName}`);
     
     const strategy = await advancedAnalytics.generateMarketingStrategy(
-      req.user.userId,
+      userId,
       brandName,
       options
     );
@@ -1002,12 +1006,16 @@ router.get('/enhanced-dashboard', async (req, res) => {
   try {
     const { brandName = 'Default Brand', timeframe = '30d' } = req.query;
     
+    // Get user context safely
+    const user = req.user || { id: 'demo-user', email: 'demo@example.com' };
+    const userId = user.id || user.userId || 'demo-user';
+    
     // Get basic analytics
-    const basicAnalytics = await getDashboardAnalytics(req.user.userId, timeframe);
+    const basicAnalytics = await getDashboardAnalytics(userId, timeframe);
     
     // Get marketing strategy recommendations
     const strategy = await advancedAnalytics.generateMarketingStrategy(
-      req.user.userId,
+      userId,
       brandName,
       { timeframe, budget: 5000 }
     );
