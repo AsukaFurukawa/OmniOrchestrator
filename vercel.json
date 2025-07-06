@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "name": "omniorchestrator",
   "builds": [
     {
       "src": "server/index.js",
@@ -23,10 +22,5 @@
   ],
   "env": {
     "NODE_ENV": "production"
-  },
-  "functions": {
-    "server/index.js": {
-      "maxDuration": 30
-    }
   }
 } 
