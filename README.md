@@ -121,49 +121,50 @@
 ## 📸 UI Screenshots & Demo
 
 ### 🎬 Demo Video
-[![OmniOrchestrator Demo](ui_images/Screenshot%202025-07-06%20215532.png)](ui_images/Screen%20Recording%202025-07-06%20225418.mp4)
+📹 **Full Demo Video**: [Screen Recording 2025-07-06 225418.mp4](ui_images/Screen%20Recording%202025-07-06%20225418.mp4)
 
-*Click the image above to watch the full demo video*
+*Watch the complete walkthrough of OmniOrchestrator features*
 
 ### 🖼️ Application Screenshots
 
-#### Dashboard & Analytics
-![Dashboard](ui_images/Screenshot%202025-07-06%20215532.png)
-*Real-time analytics dashboard with live metrics*
+> **📱 View all screenshots in the [ui_images/](ui_images/) folder**
 
-![Analytics](ui_images/Screenshot%202025-07-06%20215445.png)
-*Comprehensive marketing analytics and insights*
+#### Key Features Showcase:
 
-#### AI Content Generation
-![Video Generation](ui_images/Screenshot%202025-07-06%20215706.png)
-*AI-powered video generation interface*
+**🎯 Dashboard & Analytics**
+- Real-time analytics dashboard with live metrics
+- Comprehensive marketing analytics and insights
+- Interactive charts and performance tracking
 
-![Image Generation](ui_images/Screenshot%202025-07-06%20215730.png)
-*Multi-provider AI image generation*
+**🤖 AI Content Generation**
+- AI-powered video generation interface
+- Multi-provider AI image generation
+- Smart content creation with AI assistance
 
-#### Campaign Management
-![Campaign Creation](ui_images/Screenshot%202025-07-06%20215839.png)
-*Smart campaign creation with AI assistance*
+**📊 Campaign Management**
+- Smart campaign creation with AI assistance
+- Content management and optimization
+- Multi-platform social media integration
 
-![Content Management](ui_images/Screenshot%202025-07-06%20215853.png)
-*Content management and optimization*
+**👤 User Interface**
+- Modern authentication interface
+- User registration with validation
+- Settings and preferences management
 
-#### User Interface
-![Login](ui_images/Screenshot%202025-07-06%20215209.png)
-*Modern authentication interface*
+**📱 Mobile Responsive**
+- Fully responsive mobile interface
+- Optimized tablet experience
+- Cross-device compatibility
 
-![Registration](ui_images/Screenshot%202025-07-06%20215147.png)
-*User registration with validation*
+### 🎥 Live Demo Features
 
-![Settings](ui_images/Screenshot%202025-07-06%20215058.png)
-*User settings and preferences*
-
-#### Mobile Responsive
-![Mobile View](ui_images/Screenshot%202025-07-06%20215314.png)
-*Fully responsive mobile interface*
-
-![Tablet View](ui_images/Screenshot%202025-07-06%20215336.png)
-*Optimized tablet experience*
+**Try these features live:**
+1. **AI Video Generation** - Create marketing videos from text
+2. **Image Generation** - Generate visuals with multiple AI providers
+3. **Sentiment Analysis** - Analyze brand sentiment across platforms
+4. **Campaign Creation** - Build AI-powered marketing campaigns
+5. **Analytics Dashboard** - Real-time performance tracking
+6. **Social Media Integration** - Multi-platform content management
 
 ---
 
