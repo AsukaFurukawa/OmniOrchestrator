@@ -348,14 +348,19 @@ router.post('/sentiment/brand', auth, tenantContext, async (req, res) => {
       options
     );
 
-    // Track usage
-    if (global.usageTracker) {
-      await global.usageTracker.trackUsage(
-        req.user.id,
-        req.tenant?.id,
-        'sentiment_analysis',
-        1
-      );
+    // Track usage - skip in development mode to avoid DB errors
+    if (global.usageTracker && process.env.NODE_ENV !== 'development') {
+      try {
+        await global.usageTracker.trackUsage(
+          req.user.id,
+          req.tenant?.id,
+          'sentiment_analysis',
+          1
+        );
+      } catch (error) {
+        console.log('Usage tracking error:', error.message);
+        // Don't fail the sentiment analysis if usage tracking fails
+      }
     }
 
     // Send real-time updates
@@ -421,14 +426,19 @@ router.post('/sentiment/content', auth, tenantContext, async (req, res) => {
     // Analyze content sentiment
     const analysis = await global.sentimentAnalysis.analyzeSingleContent(text, contentType);
 
-    // Track usage
-    if (global.usageTracker) {
-      await global.usageTracker.trackUsage(
-        req.user.id,
-        req.tenant?.id,
-        'sentiment_analysis',
-        1
-      );
+    // Track usage - skip in development mode to avoid DB errors
+    if (global.usageTracker && process.env.NODE_ENV !== 'development') {
+      try {
+        await global.usageTracker.trackUsage(
+          req.user.id,
+          req.tenant?.id,
+          'sentiment_analysis',
+          1
+        );
+      } catch (error) {
+        console.log('Usage tracking error:', error.message);
+        // Don't fail the sentiment analysis if usage tracking fails
+      }
     }
 
     res.json({

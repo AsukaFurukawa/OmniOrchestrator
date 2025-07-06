@@ -31,6 +31,7 @@ const UsageTrackingService = require('./services/usageTrackingService');
 const ConversationalAI = require('./services/conversationalAI');
 const AdvancedAnalytics = require('./services/advancedAnalytics');
 const SentimentAnalysis = require('./services/sentimentAnalysis');
+const AIService = require('./services/aiService');
 
 const app = express();
 const server = createServer(app);
@@ -124,7 +125,11 @@ const socketService = new SocketService(io);
 const usageTrackingService = new UsageTrackingService();
 const conversationalAI = new ConversationalAI();
 const advancedAnalytics = new AdvancedAnalytics();
+const aiService = new AIService();
 const sentimentAnalysis = new SentimentAnalysis();
+
+// Inject AI service for failover capability
+sentimentAnalysis.aiService = aiService;
 
 // Make services available globally
 global.socketService = socketService;
@@ -132,6 +137,7 @@ global.usageTracker = usageTrackingService;
 global.conversationalAI = conversationalAI;
 global.advancedAnalytics = advancedAnalytics;
 global.sentimentAnalysis = sentimentAnalysis;
+global.aiService = aiService;
 
 // Error handling middleware
 app.use(errorHandler);
