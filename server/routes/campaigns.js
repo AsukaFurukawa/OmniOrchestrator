@@ -10,7 +10,62 @@ const usageTracker = new UsageTrackingService();
 // Get all campaigns for user
 router.get('/', async (req, res) => {
   try {
-    const user = await User.findById(req.user.userId);
+    let user = await User.findById(req.user.userId);
+    
+    // Handle development mode - create mock user data if user doesn't exist
+    if (!user && process.env.NODE_ENV === 'development') {
+      console.log('🔧 Development mode: Using mock campaign data');
+      user = {
+        campaigns: [
+          {
+            _id: 'mock-campaign-1',
+            name: 'Summer Sale Campaign',
+            type: 'email',
+            status: 'active',
+            content: {
+              headline: 'Summer Sale - Up to 50% Off!',
+              body: 'Don\'t miss our biggest sale of the year...',
+              cta: 'Shop Now'
+            },
+            targeting: { audience: 'Existing customers' },
+            metrics: { impressions: 15420, clicks: 1242, conversions: 86, spend: 450 },
+            createdAt: new Date('2024-06-01'),
+            updatedAt: new Date()
+          },
+          {
+            _id: 'mock-campaign-2',
+            name: 'Brand Awareness Campaign',
+            type: 'social',
+            status: 'active',
+            content: {
+              headline: 'Discover Our Brand',
+              body: 'Join thousands of satisfied customers...',
+              cta: 'Learn More'
+            },
+            targeting: { audience: 'New prospects' },
+            metrics: { impressions: 8930, clicks: 567, conversions: 23, spend: 280 },
+            createdAt: new Date('2024-06-15'),
+            updatedAt: new Date()
+          },
+          {
+            _id: 'mock-campaign-3',
+            name: 'Product Launch',
+            type: 'web',
+            status: 'draft',
+            content: {
+              headline: 'New Product Launch',
+              body: 'Introducing our latest innovation...',
+              cta: 'Get Early Access'
+            },
+            targeting: { audience: 'Premium customers' },
+            metrics: { impressions: 0, clicks: 0, conversions: 0, spend: 0 },
+            createdAt: new Date(),
+            updatedAt: new Date()
+          }
+        ]
+      };
+    }
+    
     if (!user) {
       return res.status(404).json({
         success: false,

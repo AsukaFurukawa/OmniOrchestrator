@@ -458,6 +458,23 @@ userSchema.methods.getCampaignStats = function() {
   };
 };
 
+// Get total performance across all campaigns
+userSchema.methods.getTotalPerformance = function() {
+  const campaigns = this.campaigns;
+  
+  return {
+    impressions: campaigns.reduce((sum, c) => sum + (c.metrics.impressions || 0), 0),
+    clicks: campaigns.reduce((sum, c) => sum + (c.metrics.clicks || 0), 0),
+    conversions: campaigns.reduce((sum, c) => sum + (c.metrics.conversions || 0), 0),
+    spend: campaigns.reduce((sum, c) => sum + (c.metrics.spend || 0), 0)
+  };
+};
+
+// Get active campaigns
+userSchema.methods.getActiveCampaigns = function() {
+  return this.campaigns.filter(campaign => campaign.status === 'active');
+};
+
 // Static methods
 userSchema.statics.findByEmail = function(email) {
   return this.findOne({ email: email.toLowerCase() });

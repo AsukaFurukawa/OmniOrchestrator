@@ -531,6 +531,162 @@ router.get('/sentiment/alerts', auth, tenantContext, async (req, res) => {
   }
 });
 
+// Get general metrics (new endpoint for company page)
+router.get('/metrics', async (req, res) => {
+  try {
+    let user = await User.findById(req.user.userId);
+    
+    // Handle development mode - create mock user data if user doesn't exist
+    if (!user && process.env.NODE_ENV === 'development') {
+      console.log('🔧 Development mode: Using mock user data');
+      user = {
+        campaigns: [
+          {
+            _id: 'mock-campaign-1',
+            name: 'Summer Sale Campaign',
+            type: 'email',
+            status: 'active',
+            metrics: { impressions: 15420, clicks: 1242, conversions: 86, spend: 450 }
+          },
+          {
+            _id: 'mock-campaign-2', 
+            name: 'Brand Awareness Campaign',
+            type: 'social',
+            status: 'active',
+            metrics: { impressions: 8930, clicks: 567, conversions: 23, spend: 280 }
+          }
+        ],
+        company: 'Demo Company',
+        industry: 'Technology',
+        apiUsage: {
+          currentMonth: {
+            campaignGenerations: 12,
+            imageGenerations: 8,
+            analysisRequests: 25,
+            totalRequests: 45
+          }
+        },
+        getTotalPerformance: () => ({
+          impressions: 24350,
+          clicks: 1809,
+          conversions: 109,
+          spend: 730
+        }),
+        getActiveCampaigns: () => user.campaigns.filter(c => c.status === 'active')
+      };
+    }
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found'
+      });
+    }
+
+    const totalPerformance = user.getTotalPerformance();
+    const activeCampaigns = user.getActiveCampaigns();
+    
+    const metrics = {
+      campaigns: {
+        total: user.campaigns.length,
+        active: activeCampaigns.length,
+        draft: user.campaigns.filter(c => c.status === 'draft').length,
+        completed: user.campaigns.filter(c => c.status === 'completed').length
+      },
+      performance: {
+        totalImpressions: totalPerformance.impressions,
+        totalClicks: totalPerformance.clicks,
+        totalConversions: totalPerformance.conversions,
+        totalSpend: totalPerformance.spend,
+        averageCTR: totalPerformance.impressions > 0 ? 
+          (totalPerformance.clicks / totalPerformance.impressions * 100).toFixed(2) : 0,
+        averageConversionRate: totalPerformance.clicks > 0 ? 
+          (totalPerformance.conversions / totalPerformance.clicks * 100).toFixed(2) : 0
+      },
+      usage: user.apiUsage.currentMonth,
+      companyProfile: {
+        name: user.company || 'Not Set',
+        industry: user.industry || 'Not Set',
+        profileCompleted: !!(user.company && user.industry)
+      }
+    };
+
+    res.json({
+      success: true,
+      metrics
+    });
+  } catch (error) {
+    console.error('Metrics error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch metrics',
+      details: error.message
+    });
+  }
+});
+
+// Get detailed metrics (new endpoint for company page)
+router.get('/detailed-metrics', async (req, res) => {
+  try {
+    const user = await User.findById(req.user.userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found'
+      });
+    }
+
+    const totalPerformance = user.getTotalPerformance();
+    const activeCampaigns = user.getActiveCampaigns();
+    
+    const detailedMetrics = {
+      overview: {
+        totalCampaigns: user.campaigns.length,
+        activeCampaigns: activeCampaigns.length,
+        totalImpressions: totalPerformance.impressions,
+        totalClicks: totalPerformance.clicks,
+        totalConversions: totalPerformance.conversions,
+        totalSpend: totalPerformance.spend
+      },
+      performance: {
+        ctr: totalPerformance.impressions > 0 ? 
+          (totalPerformance.clicks / totalPerformance.impressions * 100).toFixed(2) : 0,
+        conversionRate: totalPerformance.clicks > 0 ? 
+          (totalPerformance.conversions / totalPerformance.clicks * 100).toFixed(2) : 0,
+        costPerClick: totalPerformance.clicks > 0 ? 
+          (totalPerformance.spend / totalPerformance.clicks).toFixed(2) : 0,
+        costPerAcquisition: totalPerformance.conversions > 0 ? 
+          (totalPerformance.spend / totalPerformance.conversions).toFixed(2) : 0
+      },
+      channelBreakdown: calculateChannelPerformance(user.campaigns),
+      recentActivity: user.campaigns.slice(-5).map(campaign => ({
+        id: campaign._id,
+        name: campaign.name,
+        type: campaign.type,
+        status: campaign.status,
+        createdAt: campaign.createdAt,
+        performance: campaign.metrics
+      })),
+      trends: {
+        last7Days: generateTrendData(7),
+        last30Days: generateTrendData(30)
+      }
+    };
+
+    res.json({
+      success: true,
+      detailedMetrics
+    });
+  } catch (error) {
+    console.error('Detailed metrics error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch detailed metrics',
+      details: error.message
+    });
+  }
+});
+
 // Helper functions
 function generateTrendData(days) {
   const data = [];

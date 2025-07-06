@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
 
 const authMiddleware = (req, res, next) => {
   try {
@@ -7,9 +8,13 @@ const authMiddleware = (req, res, next) => {
     // Development mode bypass - if no JWT_SECRET or MongoDB issues
     if (process.env.NODE_ENV === 'development' && (!process.env.JWT_SECRET || !token || token.startsWith('dev-token-'))) {
       console.log('🔧 Development mode: Bypassing authentication');
+      
+      // Use a proper ObjectId for development mode
+      const devObjectId = new mongoose.Types.ObjectId('507f1f77bcf86cd799439011');
+      
       req.user = {
-        id: 'dev-user-123',
-        userId: 'dev-user-123',
+        id: devObjectId,
+        userId: devObjectId,
         name: 'Marketing Maverick',
         email: 'dev@omniorchestrator.com',
         company: 'Demo Company',

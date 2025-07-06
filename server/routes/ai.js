@@ -532,4 +532,237 @@ router.post('/batch-generate', async (req, res) => {
   }
 });
 
+// Get campaign templates (new endpoint for company page)
+router.get('/campaign-templates', async (req, res) => {
+  try {
+    const { industry = 'technology' } = req.query;
+    
+    const templates = {
+      templates: [
+        {
+          id: 'email-welcome',
+          name: 'Welcome Email Campaign',
+          type: 'email',
+          description: 'Welcome new customers with a personalized email sequence',
+          industry: 'all',
+          estimatedROI: '250%',
+          difficulty: 'easy'
+        },
+        {
+          id: 'social-awareness',
+          name: 'Brand Awareness Social Campaign',
+          type: 'social',
+          description: 'Increase brand visibility across social media platforms',
+          industry: 'all',
+          estimatedROI: '180%',
+          difficulty: 'medium'
+        },
+        {
+          id: 'retargeting-web',
+          name: 'Website Retargeting Campaign',
+          type: 'web',
+          description: 'Re-engage website visitors who didn\'t convert',
+          industry: 'ecommerce',
+          estimatedROI: '320%',
+          difficulty: 'medium'
+        },
+        {
+          id: 'lead-generation',
+          name: 'Lead Generation Campaign',
+          type: 'web',
+          description: 'Generate qualified leads for your sales team',
+          industry: industry,
+          estimatedROI: '400%',
+          difficulty: 'hard'
+        },
+        {
+          id: 'customer-retention',
+          name: 'Customer Retention Campaign',
+          type: 'email',
+          description: 'Keep existing customers engaged and reduce churn',
+          industry: 'all',
+          estimatedROI: '350%',
+          difficulty: 'medium'
+        }
+      ],
+      industrySpecific: industry !== 'all' ? [
+        {
+          id: `${industry}-specific`,
+          name: `${industry.charAt(0).toUpperCase() + industry.slice(1)} Industry Special`,
+          type: 'multi-channel',
+          description: `Tailored campaign specifically for ${industry} businesses`,
+          industry: industry,
+          estimatedROI: '450%',
+          difficulty: 'medium'
+        }
+      ] : []
+    };
+
+    res.json({
+      success: true,
+      ...templates,
+      industry
+    });
+  } catch (error) {
+    console.error('Campaign templates error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch campaign templates',
+      details: error.message
+    });
+  }
+});
+
+// Generate AI insights for company (new endpoint for company page)
+router.post('/insights', async (req, res) => {
+  try {
+    let user = await User.findById(req.user.userId);
+    
+    // Handle development mode - create mock user data if user doesn't exist
+    if (!user && process.env.NODE_ENV === 'development') {
+      console.log('🔧 Development mode: Using mock user data for insights');
+      user = {
+        campaigns: [],
+        company: 'Demo Company',
+        industry: 'Technology',
+        getTotalPerformance: () => ({
+          impressions: 24350,
+          clicks: 1809,
+          conversions: 109,
+          spend: 730
+        })
+      };
+    }
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found'
+      });
+    }
+
+    const {
+      companyName,
+      industry,
+      targetMarket,
+      companySize,
+      website,
+      goals
+    } = req.body;
+
+    // Prepare data for AI analysis
+    const companyData = {
+      profile: {
+        name: companyName || user.company || 'Your Company',
+        industry: industry || user.industry || 'Technology',
+        size: companySize || 'startup',
+        website: website || '',
+        targetMarket: targetMarket || 'General market'
+      },
+      currentCampaigns: user.campaigns ? user.campaigns.length : 0,
+      performance: user.getTotalPerformance ? user.getTotalPerformance() : { impressions: 0, clicks: 0, conversions: 0, spend: 0 },
+      goals: goals || ['Brand Awareness', 'Lead Generation']
+    };
+
+    let analysis;
+    try {
+      // Try to get market trends for context
+      const trendData = await trendsService.getMarketTrends(companyData.profile.industry || 'technology');
+      companyData.marketTrends = trendData.analysis;
+      
+      // Generate AI insights using the AI service
+      const prompt = `
+        Analyze this company's marketing situation and provide comprehensive insights:
+        
+        Company: ${JSON.stringify(companyData, null, 2)}
+        
+        Provide detailed analysis including:
+        1. Current Marketing Health Score (1-100)
+        2. Key Strengths and Opportunities
+        3. Marketing Gaps and Weaknesses
+        4. Recommended Action Plan (next 90 days)
+        5. Channel Strategy Recommendations
+        6. Budget Allocation Suggestions
+        7. Risk Assessment
+        8. ROI Predictions
+        
+        Format as a comprehensive business analysis with specific, actionable recommendations.
+      `;
+
+      analysis = await aiService.generateAnalysis({
+        prompt: prompt,
+        type: 'company_analysis'
+      });
+    } catch (error) {
+      console.log('🔧 OpenAI quota exceeded or error, using fallback analysis');
+      // Use fallback analysis when OpenAI fails
+      analysis = aiService.getFallbackAnalysis('company_analysis');
+    }
+
+    const insights = {
+      healthScore: Math.floor(Math.random() * 30) + 70, // 70-100 range
+      analysis: analysis,
+      recommendations: [
+        {
+          priority: 'High',
+          category: 'Content Strategy',
+          title: 'Develop Industry-Specific Content',
+          description: `Create content that resonates with ${companyData.profile.industry} audience`,
+          impact: 'High',
+          effort: 'Medium',
+          timeframe: '30 days'
+        },
+        {
+          priority: 'Medium',
+          category: 'Channel Optimization',
+          title: 'Expand Social Media Presence',
+          description: 'Increase engagement on platforms where your audience is most active',
+          impact: 'Medium',
+          effort: 'Low',
+          timeframe: '60 days'
+        },
+        {
+          priority: 'High',
+          category: 'Analytics',
+          title: 'Implement Advanced Tracking',
+          description: 'Set up comprehensive analytics to measure campaign effectiveness',
+          impact: 'High',
+          effort: 'High',
+          timeframe: '90 days'
+        }
+      ],
+      marketOpportunities: [
+        `Growing trend in ${companyData.profile.industry} sector`,
+        'Untapped audience segments identified',
+        'Competitor gaps in content marketing'
+      ],
+      risks: [
+        'Market saturation in primary channels',
+        'Seasonal fluctuations in demand',
+        'Increasing competition in digital space'
+      ],
+      nextSteps: [
+        'Complete company profile setup',
+        'Launch first AI-generated campaign',
+        'Set up performance tracking',
+        'Schedule monthly strategy review'
+      ]
+    };
+
+    res.json({
+      success: true,
+      insights,
+      companyData: companyData.profile,
+      generatedAt: new Date()
+    });
+  } catch (error) {
+    console.error('AI insights error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to generate AI insights',
+      details: error.message
+    });
+  }
+});
+
 module.exports = router; 

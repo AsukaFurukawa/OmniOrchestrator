@@ -4,6 +4,8 @@
 .env.development.local
 .env.test.local
 .env.production.local
+.env.updated
+env.updated
 
 # 📦 Dependencies
 node_modules/

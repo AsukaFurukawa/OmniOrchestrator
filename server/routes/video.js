@@ -13,28 +13,44 @@ router.post('/generate-text-to-video', async (req, res) => {
       return res.status(400).json({ error: 'Prompt is required' });
     }
 
-    // Check usage limits
-    if (global.usageTracker) {
-      const canUse = await global.usageTracker.checkUsageLimit(
-        req.user.id,
-        req.tenant?.id,
-        'video_generation'
-      );
-      
-      if (!canUse.allowed) {
-        return res.status(429).json({
-          success: false,
-          error: 'Video generation limit exceeded',
-          limit: canUse.limit,
-          used: canUse.used
-        });
+    // Check usage limits (optional - skip if not available)
+    if (global.usageTracker && typeof global.usageTracker.checkUsageLimit === 'function') {
+      try {
+        const canUse = await global.usageTracker.checkUsageLimit(
+          req.user?.id || 'demo-user',
+          req.tenant?.id || 'demo-tenant',
+          'video_generation'
+        );
+        
+        if (!canUse.allowed) {
+          return res.status(429).json({
+            success: false,
+            error: 'Video generation limit exceeded',
+            limit: canUse.limit,
+            used: canUse.used
+          });
+        }
+      } catch (error) {
+        console.log('🔧 Usage tracker not available, proceeding without limits');
       }
     }
 
     // Setup progress callback for real-time updates
     const progressCallback = (progress) => {
+      console.log('🎬 Video Progress Update:', progress);
+      
       if (global.socketService) {
-        global.socketService.sendToUser(req.user.id, 'video_generation_progress', {
+        // Send to specific user
+        global.socketService.sendToUser(req.user?.id || 'demo-user', 'video_generation_progress', {
+          jobId: progress.jobId,
+          progress: progress.progress,
+          status: progress.status,
+          message: progress.message,
+          estimatedTimeRemaining: progress.estimatedTimeRemaining
+        });
+        
+        // Also broadcast to all clients for development (backup)
+        global.socketService.broadcast('video_generation_progress', {
           jobId: progress.jobId,
           progress: progress.progress,
           status: progress.status,
@@ -46,14 +62,18 @@ router.post('/generate-text-to-video', async (req, res) => {
 
     const result = await videoService.generateVideoFromText(prompt, options, progressCallback);
     
-    // Track usage
-    if (global.usageTracker) {
-      await global.usageTracker.trackUsage(
-        req.user.id,
-        req.tenant?.id,
-        'video_generation',
-        1
-      );
+    // Track usage (optional)
+    if (global.usageTracker && typeof global.usageTracker.trackUsage === 'function') {
+      try {
+        await global.usageTracker.trackUsage(
+          req.user?.id || 'demo-user',
+          req.tenant?.id || 'demo-tenant',
+          'video_generation',
+          1
+        );
+      } catch (error) {
+        console.log('🔧 Usage tracking not available');
+      }
     }
 
     res.json({
@@ -98,8 +118,69 @@ router.post('/create-marketing-video', async (req, res) => {
       });
     }
 
-    const result = await videoService.createMarketingVideo(campaignData);
+    // Check usage limits (optional - skip if not available)
+    if (global.usageTracker && typeof global.usageTracker.checkUsageLimit === 'function') {
+      try {
+        const canUse = await global.usageTracker.checkUsageLimit(
+          req.user?.id || 'demo-user',
+          req.tenant?.id || 'demo-tenant',
+          'video_generation'
+        );
+        
+        if (!canUse.allowed) {
+          return res.status(429).json({
+            success: false,
+            error: 'Video generation limit exceeded',
+            limit: canUse.limit,
+            used: canUse.used
+          });
+        }
+      } catch (error) {
+        console.log('🔧 Usage tracker not available, proceeding without limits');
+      }
+    }
+
+    // Setup progress callback for real-time updates
+    const progressCallback = (progress) => {
+      console.log('🎬 Video Progress Update:', progress);
+      
+      if (global.socketService) {
+        // Send to specific user
+        global.socketService.sendToUser(req.user?.id || 'demo-user', 'video_generation_progress', {
+          jobId: progress.jobId,
+          progress: progress.progress,
+          status: progress.status,
+          message: progress.message,
+          estimatedTimeRemaining: progress.estimatedTimeRemaining
+        });
+        
+        // Also broadcast to all clients for development (backup)
+        global.socketService.broadcast('video_generation_progress', {
+          jobId: progress.jobId,
+          progress: progress.progress,
+          status: progress.status,
+          message: progress.message,
+          estimatedTimeRemaining: progress.estimatedTimeRemaining
+        });
+      }
+    };
+
+    const result = await videoService.createMarketingVideo(campaignData, progressCallback);
     
+    // Track usage (optional)
+    if (global.usageTracker && typeof global.usageTracker.trackUsage === 'function') {
+      try {
+        await global.usageTracker.trackUsage(
+          req.user?.id || 'demo-user',
+          req.tenant?.id || 'demo-tenant',
+          'video_generation',
+          1
+        );
+      } catch (error) {
+        console.log('🔧 Usage tracking not available');
+      }
+    }
+
     res.json({
       success: true,
       data: result,
@@ -192,23 +273,27 @@ router.post('/generate-batch', async (req, res) => {
       return res.status(400).json({ error: 'Prompts array is required' });
     }
 
-    // Check usage limits for batch
-    if (global.usageTracker) {
-      const canUse = await global.usageTracker.checkUsageLimit(
-        req.user.id,
-        req.tenant?.id,
-        'video_generation',
-        prompts.length
-      );
-      
-      if (!canUse.allowed) {
-        return res.status(429).json({
-          success: false,
-          error: 'Batch video generation limit exceeded',
-          limit: canUse.limit,
-          used: canUse.used,
-          requested: prompts.length
-        });
+    // Check usage limits for batch (optional)
+    if (global.usageTracker && typeof global.usageTracker.checkUsageLimit === 'function') {
+      try {
+        const canUse = await global.usageTracker.checkUsageLimit(
+          req.user?.id || 'demo-user',
+          req.tenant?.id || 'demo-tenant',
+          'video_generation',
+          prompts.length
+        );
+        
+        if (!canUse.allowed) {
+          return res.status(429).json({
+            success: false,
+            error: 'Batch video generation limit exceeded',
+            limit: canUse.limit,
+            used: canUse.used,
+            requested: prompts.length
+          });
+        }
+      } catch (error) {
+        console.log('🔧 Usage tracker not available for batch, proceeding without limits');
       }
     }
 
@@ -228,14 +313,18 @@ router.post('/generate-batch', async (req, res) => {
 
     const result = await videoService.generateVideoBatch(prompts, options, progressCallback);
     
-    // Track usage for batch
-    if (global.usageTracker) {
-      await global.usageTracker.trackUsage(
-        req.user.id,
-        req.tenant?.id,
-        'video_generation',
-        prompts.length
-      );
+    // Track usage for batch (optional)
+    if (global.usageTracker && typeof global.usageTracker.trackUsage === 'function') {
+      try {
+        await global.usageTracker.trackUsage(
+          req.user?.id || 'demo-user',
+          req.tenant?.id || 'demo-tenant',
+          'video_generation',
+          prompts.length
+        );
+      } catch (error) {
+        console.log('🔧 Batch usage tracking not available');
+      }
     }
 
     res.json({
@@ -256,6 +345,109 @@ router.get('/health', (req, res) => {
     models: videoService.getAvailableModels(),
     timestamp: new Date().toISOString()
   });
+});
+
+// AI-powered video suggestions
+router.post('/ai-suggestions', async (req, res) => {
+  try {
+    const businessData = req.body;
+    
+    if (!businessData.industry || !businessData.targetAudience) {
+      return res.status(400).json({ 
+        error: 'Industry and target audience are required' 
+      });
+    }
+
+    const result = await videoService.generateVideoSuggestions(businessData);
+    
+    res.json({
+      success: true,
+      data: result.suggestions,
+      message: 'AI video suggestions generated'
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// AI-powered video prompt generation
+router.post('/ai-prompts', async (req, res) => {
+  try {
+    const { videoType, context = {} } = req.body;
+    
+    if (!videoType) {
+      return res.status(400).json({ error: 'Video type is required' });
+    }
+
+    const result = await videoService.generateVideoPrompts(videoType, context);
+    
+    res.json({
+      success: true,
+      data: result.prompts,
+      message: 'AI video prompts generated'
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// AI image analysis for video generation
+router.post('/ai-analyze-image', async (req, res) => {
+  try {
+    const { imageUrl, userGoal } = req.body;
+    
+    if (!imageUrl || !userGoal) {
+      return res.status(400).json({ 
+        error: 'Image URL and user goal are required' 
+      });
+    }
+
+    const result = await videoService.analyzeImageForVideo(imageUrl, userGoal);
+    
+    res.json({
+      success: true,
+      data: result.analysis,
+      message: 'Image analysis completed'
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get trending video styles
+router.get('/trending-styles', async (req, res) => {
+  try {
+    const result = await videoService.getTrendingVideoStyles();
+    
+    res.json({
+      success: true,
+      data: result.trends,
+      message: 'Trending video styles retrieved'
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Enhanced Open-Sora integration check
+router.get('/open-sora-status', async (req, res) => {
+  try {
+    const models = videoService.getAvailableModels();
+    const openSoraModel = models['open-sora'];
+    
+    res.json({
+      success: true,
+      data: {
+        available: openSoraModel.available,
+        capabilities: openSoraModel.capabilities,
+        maxDuration: openSoraModel.maxDuration,
+        resolutions: openSoraModel.resolutions,
+        status: openSoraModel.available ? 'ready' : 'not_configured'
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 // Serve generated video files

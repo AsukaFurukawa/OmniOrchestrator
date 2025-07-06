@@ -18,6 +18,7 @@ const trendRoutes = require('./routes/trends');
 const webhookRoutes = require('./routes/webhooks');
 const videoRoutes = require('./routes/video');
 const usageRoutes = require('./routes/usage');
+const freeAIRoutes = require('./routes/freeAI');
 
 // Import middleware
 const authMiddleware = require('./middleware/auth');
@@ -97,11 +98,16 @@ app.use('/api/usage', usageRoutes);
 app.use('/api/webhooks', webhookRoutes);
 app.use('/api/video', authMiddleware, videoRoutes);
 app.use('/api/conversational', authMiddleware, require('./routes/conversational'));
+app.use('/api/free-ai', freeAIRoutes); // No auth required for free services!
 
 // Serve the main UI for the root path
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'index.html'));
 });
+
+// Serve static files from public directory (for videos)
+app.use('/videos', express.static(path.join(__dirname, '..', 'public', 'videos')));
+app.use('/public', express.static(path.join(__dirname, '..', 'public')));
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

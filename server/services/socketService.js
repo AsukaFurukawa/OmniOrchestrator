@@ -383,6 +383,32 @@ class SocketService {
     }
   }
 
+  // Send message to specific user
+  async sendToUser(userId, event, data) {
+    try {
+      this.io.to(`user_${userId}`).emit(event, {
+        ...data,
+        timestamp: new Date()
+      });
+      console.log(`Sent ${event} to user ${userId}`);
+    } catch (error) {
+      console.error('Send to user error:', error);
+    }
+  }
+
+  // Broadcast message to all connected clients
+  async broadcast(event, data) {
+    try {
+      this.io.emit(event, {
+        ...data,
+        timestamp: new Date()
+      });
+      console.log(`Broadcasted ${event} to all clients`);
+    } catch (error) {
+      console.error('Broadcast error:', error);
+    }
+  }
+
   // Send usage alert to user
   async sendUsageAlert(userId, alert) {
     try {
