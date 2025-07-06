@@ -112,7 +112,60 @@
 
 ## 🌐 Live Demo
 
-**Production URL**: [https://omniorchestrator.vercel.app](https://omniorchestrator.vercel.app)
+**🚀 Production URL**: [https://omniorchestrator-dhc6papuu-prachi-sinhas-projects-77217335.vercel.app/](https://omniorchestrator-dhc6papuu-prachi-sinhas-projects-77217335.vercel.app/)
+
+**📱 Try it now**: Experience the full AI-powered marketing automation platform live!
+
+---
+
+## 📸 UI Screenshots & Demo
+
+### 🎬 Demo Video
+[![OmniOrchestrator Demo](ui_images/Screenshot%202025-07-06%20215532.png)](ui_images/Screen%20Recording%202025-07-06%20225418.mp4)
+
+*Click the image above to watch the full demo video*
+
+### 🖼️ Application Screenshots
+
+#### Dashboard & Analytics
+![Dashboard](ui_images/Screenshot%202025-07-06%20215532.png)
+*Real-time analytics dashboard with live metrics*
+
+![Analytics](ui_images/Screenshot%202025-07-06%20215445.png)
+*Comprehensive marketing analytics and insights*
+
+#### AI Content Generation
+![Video Generation](ui_images/Screenshot%202025-07-06%20215706.png)
+*AI-powered video generation interface*
+
+![Image Generation](ui_images/Screenshot%202025-07-06%20215730.png)
+*Multi-provider AI image generation*
+
+#### Campaign Management
+![Campaign Creation](ui_images/Screenshot%202025-07-06%20215839.png)
+*Smart campaign creation with AI assistance*
+
+![Content Management](ui_images/Screenshot%202025-07-06%20215853.png)
+*Content management and optimization*
+
+#### User Interface
+![Login](ui_images/Screenshot%202025-07-06%20215209.png)
+*Modern authentication interface*
+
+![Registration](ui_images/Screenshot%202025-07-06%20215147.png)
+*User registration with validation*
+
+![Settings](ui_images/Screenshot%202025-07-06%20215058.png)
+*User settings and preferences*
+
+#### Mobile Responsive
+![Mobile View](ui_images/Screenshot%202025-07-06%20215314.png)
+*Fully responsive mobile interface*
+
+![Tablet View](ui_images/Screenshot%202025-07-06%20215336.png)
+*Optimized tablet experience*
+
+---
 
 ## 📱 Features in Detail
 
