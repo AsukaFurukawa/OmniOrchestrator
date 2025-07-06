@@ -1,0 +1,24 @@
+{
+  "width": 512,
+  "height": 512,
+  "prompt": "Professional marketing image for AI technology company - alternative angle",
+  "style": "photorealistic",
+  "colors": [
+    "#2c3e50",
+    "#34495e",
+    "#7f8c8d",
+    "#bdc3c7",
+    "#ecf0f1"
+  ],
+  "mood": "serious",
+  "analysis": {
+    "objects": false,
+    "people": false,
+    "nature": false,
+    "abstract": false,
+    "business": true
+  },
+  "variation": 2,
+  "timestamp": 1751820042119,
+  "id": "d2363a47-6d9d-42bc-9cc3-46dcc6bb0bbb"
+}

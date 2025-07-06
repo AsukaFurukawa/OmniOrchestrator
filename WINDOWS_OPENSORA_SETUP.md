@@ -1,265 +1,223 @@
-# 🎬 Open-Sora Setup for Windows - Complete Guide
+# 🎬 Open-Sora Windows Setup Guide
 
-## 🚀 Quick Fix (Video Generation Working Again)
+## Complete Installation Guide for OmniOrchestrator Video Generation
 
-I've just **fixed the video generation issue**! The system now properly falls back to demo videos when Open-Sora isn't available, so your video generation should work immediately.
+### 📋 Prerequisites
 
-**Test it now**: Go generate a video - it will work while we set up Open-Sora!
+1. **Windows 10/11** (64-bit)
+2. **NVIDIA GPU** (GTX 1060 or better, RTX series recommended)
+3. **16GB+ RAM** (32GB recommended for high-quality videos)
+4. **50GB+ free disk space**
+5. **Fast internet connection** (for model downloads)
+
+### 🔧 Step 1: Install Python Environment
+
+```powershell
+# Install Python 3.10 (recommended version)
+# Download from: https://www.python.org/downloads/windows/
+# Make sure to check "Add Python to PATH" during installation
+
+# Verify installation
+python --version
+# Should show: Python 3.10.x
+
+# Create virtual environment
+python -m venv opensora-env
+opensora-env\Scripts\activate
+```
+
+### 🛠️ Step 2: Install CUDA and Dependencies
+
+```powershell
+# Install CUDA 12.1 (compatible with PyTorch)
+# Download from: https://developer.nvidia.com/cuda-downloads
+
+# Install Git (if not already installed)
+# Download from: https://git-scm.com/download/win
+
+# Install Visual Studio Build Tools (for compilation)
+# Download from: https://visualstudio.microsoft.com/downloads/
+# Install "C++ build tools" workload
+```
+
+### 📦 Step 3: Clone and Install Open-Sora
+
+```powershell
+# Clone Open-Sora repository
+git clone https://github.com/hpcaitech/Open-Sora.git
+cd Open-Sora
+
+# Install dependencies
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+pip install -v .
+pip install xformers==0.0.27.post2 --index-url https://download.pytorch.org/whl/cu121
+pip install flash-attn --no-build-isolation
+```
+
+### 🎯 Step 4: Download Models
+
+```powershell
+# Option 1: Download from HuggingFace
+pip install "huggingface_hub[cli]"
+huggingface-cli login  # Enter your HF token
+huggingface-cli download hpcai-tech/Open-Sora-v2 --local-dir ./ckpts
+
+# Option 2: Download from ModelScope
+pip install modelscope
+modelscope download hpcai-tech/Open-Sora-v2 --local_dir ./ckpts
+```
+
+### 🔗 Step 5: Configure OmniOrchestrator Integration
+
+1. **Set Environment Variables** (in your `.env` file):
+```env
+# Add these to your .env file
+OPEN_SORA_PATH=C:\path\to\Open-Sora
+OPEN_SORA_PYTHON=C:\path\to\opensora-env\Scripts\python.exe
+OPEN_SORA_ENABLED=true
+```
+
+2. **Alternative: Set Windows Environment Variables**:
+```powershell
+# Set system environment variables
+setx OPEN_SORA_PATH "C:\Open-Sora"
+setx OPEN_SORA_PYTHON "C:\opensora-env\Scripts\python.exe"
+```
+
+### 🧪 Step 6: Test Installation
+
+```powershell
+# Test basic Open-Sora installation
+cd Open-Sora
+python scripts/inference.py configs/opensora-v1-2/inference/sample.py --prompt "A beautiful sunset over mountains"
+
+# Test with OmniOrchestrator
+cd ..\OmniOrchestrator
+npm start
+# Navigate to Video Studio and generate a test video
+```
+
+### 📁 Directory Structure
+
+Your setup should look like this:
+```
+C:\
+├── Open-Sora\
+│   ├── opensora\
+│   ├── scripts\
+│   ├── configs\
+│   └── ckpts\
+└── OmniOrchestrator\
+    ├── server\
+    └── public\
+```
+
+### 🚀 Quick Start Commands
+
+#### Generate 256px Video (Faster):
+```powershell
+cd Open-Sora
+python scripts/inference.py configs/opensora-v1-2/inference/sample.py --prompt "A professional product showcase video" --save-dir ..\OmniOrchestrator\generated_videos --num-frames 120 --aspect-ratio 16:9
+```
+
+#### Generate 768px Video (Higher Quality):
+```powershell
+cd Open-Sora
+python -m torch.distributed.launch --nproc_per_node=1 scripts/inference.py configs/opensora-v1-2/inference/sample.py --prompt "A cinematic brand story video" --save-dir ..\OmniOrchestrator\generated_videos --num-frames 120 --aspect-ratio 16:9
+```
+
+### 🎨 Video Templates for Marketing
+
+#### Product Showcase (15s):
+```
+A professional product showcase featuring [PRODUCT] with clean studio lighting, rotating 360-degree views, and close-up detail shots highlighting key features, professional commercial style
+```
+
+#### Brand Story (30s):
+```
+A cinematic brand story for [COMPANY] showing the journey from concept to creation, featuring behind-the-scenes moments, customer testimonials, and emotional storytelling with warm lighting
+```
+
+#### Social Media (8s):
+```
+A trendy social media video for [PRODUCT] with quick cuts, vibrant colors, dynamic transitions, and a modern aesthetic perfect for Instagram and TikTok
+```
+
+### 🛠️ Troubleshooting
+
+#### Common Issues:
+
+1. **CUDA Out of Memory**:
+   - Reduce video resolution
+   - Lower batch size
+   - Close other GPU applications
+
+2. **Python Package Conflicts**:
+   ```powershell
+   pip install --force-reinstall torch torchvision torchaudio
+   ```
+
+3. **Model Download Issues**:
+   - Check internet connection
+   - Use ModelScope as alternative
+   - Download models manually
+
+4. **Visual Studio Build Tools Missing**:
+   - Install C++ build tools
+   - Restart after installation
+
+### 🎯 Performance Optimization
+
+#### For RTX 4090 (24GB VRAM):
+- 768px videos: 4-5 seconds
+- 256px videos: 2-3 seconds
+- Use `--motion-score 7` for dynamic content
+
+#### For RTX 3080 (10GB VRAM):
+- 512px videos: 3-4 seconds
+- 256px videos: 2-3 seconds
+- Use `--offload True` to save memory
+
+#### For GTX 1060 (6GB VRAM):
+- 256px videos only: 6-8 seconds
+- Use `--offload True` and lower resolution
+
+### 🔄 Integration with OmniOrchestrator
+
+Once installed, OmniOrchestrator will:
+
+1. **Automatically detect** Open-Sora installation
+2. **Generate videos** using real AI instead of mock data
+3. **Save videos** to `generated_videos/` folder
+4. **Display progress** in real-time
+5. **Show videos** in Video Studio
+
+### 📊 Expected Results
+
+- **Text-to-Video**: Generate videos from marketing prompts
+- **Image-to-Video**: Animate product images
+- **Style Control**: Professional, cinematic, trendy styles
+- **Resolution**: Up to 768px (depending on hardware)
+- **Duration**: 2-60 seconds per video
+
+### 🆘 Support
+
+If you encounter issues:
+
+1. Check the [Open-Sora GitHub Issues](https://github.com/hpcaitech/Open-Sora/issues)
+2. Verify GPU drivers are updated
+3. Ensure all dependencies are installed
+4. Try the fallback system if needed
+
+### 🎉 Success Indicators
+
+✅ **Installation Complete When**:
+- Python command runs without errors
+- CUDA is detected by PyTorch
+- Models are downloaded successfully
+- Test video generation works
+- OmniOrchestrator shows "Open-Sora available"
 
 ---
 
-## 🎯 Setting Up Real Open-Sora AI Video Generation on Windows
-
-### Prerequisites Check
-Before starting, verify you have:
-- **Windows 10/11** (64-bit)
-- **NVIDIA GPU** with 8GB+ VRAM (GTX 1080 or better)
-- **20GB+ free disk space**
-- **Administrator access**
-
-### Step 1: Install Python 3.9-3.11 (CRITICAL)
-
-#### Option A: Official Python Installer (Recommended)
-1. **Download Python 3.10**: https://www.python.org/downloads/release/python-31011/
-2. **Run installer as Administrator**
-3. **✅ IMPORTANT**: Check "Add Python to PATH"
-4. **✅ IMPORTANT**: Check "Install for all users"
-5. **Verify installation**:
-   ```cmd
-   python --version
-   # Should show: Python 3.10.11
-   
-   pip --version
-   # Should show pip version
-   ```
-
-#### Option B: Using Chocolatey
-```powershell
-# Run PowerShell as Administrator
-Set-ExecutionPolicy Bypass -Scope Process -Force
-iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
-
-# Install Python
-choco install python310 -y
-```
-
-### Step 2: Install CUDA and PyTorch
-
-#### Install CUDA Toolkit 11.8
-1. **Download CUDA 11.8**: https://developer.nvidia.com/cuda-11-8-0-download-archive
-2. **Select**: Windows → x86_64 → Local Installer
-3. **Run installer** (takes 10-15 minutes)
-4. **Verify installation**:
-   ```cmd
-   nvcc --version
-   # Should show CUDA version 11.8
-   ```
-
-#### Install PyTorch with CUDA Support
-```cmd
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
-```
-
-### Step 3: Download and Setup Open-Sora
-
-#### Clone Repository
-```cmd
-# Navigate to desired location (e.g., C:\AI\)
-cd C:\
-mkdir AI
-cd AI
-
-# Clone Open-Sora
-git clone https://github.com/hpcaitech/Open-Sora.git
-cd Open-Sora
-```
-
-#### Create Virtual Environment
-```cmd
-# Create virtual environment
-python -m venv open-sora-env
-
-# Activate environment
-open-sora-env\Scripts\activate
-
-# Upgrade pip
-python -m pip install --upgrade pip
-```
-
-#### Install Dependencies
-```cmd
-# Install requirements
-pip install -r requirements.txt
-
-# Install additional dependencies
-pip install accelerate transformers diffusers
-
-# Install colossalai (may take time)
-pip install colossalai
-```
-
-### Step 4: Download Model Weights
-
-#### Download Models (This will take time and space!)
-```cmd
-# Still in Open-Sora directory with virtual environment activated
-python scripts/download_models.py
-
-# Alternative: Manual download of specific models
-mkdir models
-cd models
-
-# Download specific model weights (adjust URLs based on latest releases)
-# This step requires checking the Open-Sora documentation for current model URLs
-```
-
-### Step 5: Configure OmniOrchestrator Environment
-
-#### Create/Update .env file in your OmniOrchestrator root:
-```env
-# Open-Sora Windows Configuration
-OPEN_SORA_PATH=C:\AI\Open-Sora
-OPEN_SORA_PYTHON=C:\AI\Open-Sora\open-sora-env\Scripts\python.exe
-NODE_ENV=development
-
-# Other existing settings...
-MONGODB_URI=your-mongodb-uri
-OPENAI_API_KEY=your-openai-key
-```
-
-### Step 6: Test Open-Sora Installation
-
-#### Test 1: Basic Python Test
-```cmd
-# In Open-Sora directory with virtual environment activated
-python -c "import torch; print('PyTorch version:', torch.__version__); print('CUDA available:', torch.cuda.is_available())"
-```
-
-#### Test 2: Generate Test Video
-```cmd
-# Test Open-Sora directly
-python scripts/diffusion/inference.py configs/diffusion/inference/256px.py --prompt "A beautiful sunset over mountains" --save-dir ./test_output --num_frames 32
-```
-
-#### Test 3: Test with OmniOrchestrator
-1. **Restart OmniOrchestrator server**
-2. **Generate a video** through the UI
-3. **Watch console for**:
-   ```
-   🎬 Attempting Open-Sora generation at: C:\AI\Open-Sora
-   🐍 Using Python: C:\AI\Open-Sora\open-sora-env\Scripts\python.exe
-   🎬 Open-Sora stdout: Loading model...
-   ```
-
-### Windows-Specific Troubleshooting
-
-#### Issue: "spawn python ENOENT"
-**Solutions**:
-```cmd
-# Check Python installation
-where python
-# Should show: C:\Users\...\AppData\Local\Programs\Python\Python310\python.exe
-
-# Check PATH variable
-echo %PATH%
-# Should include Python directory
-
-# Update .env with full Python path
-OPEN_SORA_PYTHON=C:\Users\YourUsername\AppData\Local\Programs\Python\Python310\python.exe
-```
-
-#### Issue: CUDA/GPU Problems
-**Solutions**:
-```cmd
-# Check GPU
-nvidia-smi
-# Should show your GPU and CUDA version
-
-# Test PyTorch CUDA
-python -c "import torch; print(torch.cuda.get_device_name(0))"
-# Should show your GPU name
-
-# Reinstall PyTorch with correct CUDA version
-pip uninstall torch torchvision torchaudio
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
-```
-
-#### Issue: Permission Errors
-**Solutions**:
-- **Run Command Prompt as Administrator**
-- **Install Python for all users**
-- **Set folder permissions** for Open-Sora directory
-
-#### Issue: Out of Memory
-**Solutions**:
-```env
-# In .env file, add memory optimization
-OPEN_SORA_RESOLUTION=256x256
-OPEN_SORA_FRAMES=32
-CUDA_VISIBLE_DEVICES=0
-```
-
-### Windows Performance Optimization
-
-#### For Lower-End GPUs (8GB VRAM):
-```env
-# Add to .env
-OPEN_SORA_RESOLUTION=256x256
-OPEN_SORA_FRAMES=32
-PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512
-```
-
-#### For High-End GPUs (16GB+ VRAM):
-```env
-# Add to .env  
-OPEN_SORA_RESOLUTION=512x512
-OPEN_SORA_FRAMES=64
-```
-
-### Expected Generation Times on Windows
-
-| GPU | Resolution | Frames | Time |
-|-----|------------|--------|------|
-| RTX 3060 (12GB) | 256x256 | 32 | 3-5 min |
-| RTX 3080 (10GB) | 512x512 | 64 | 8-12 min |
-| RTX 4070 (12GB) | 512x512 | 64 | 5-8 min |
-| RTX 4090 (24GB) | 1024x576 | 64 | 10-15 min |
-
-### Verification Checklist
-
-✅ **Python 3.10+ installed and in PATH**  
-✅ **CUDA 11.8 installed**  
-✅ **PyTorch with CUDA support working**  
-✅ **Open-Sora repository cloned**  
-✅ **Virtual environment created and activated**  
-✅ **Dependencies installed**  
-✅ **Model weights downloaded**  
-✅ **Environment variables configured**  
-✅ **Test video generation successful**  
-
-### What You'll Get When Working
-
-When Open-Sora is properly installed, your video generation will:
-1. **Use your actual prompts** to generate unique AI videos
-2. **Create real MP4 files** (not demo videos)
-3. **Take 5-30 minutes** depending on settings and GPU
-4. **Generate cinematic quality** videos based on your marketing prompts
-5. **Work offline** - no external API calls needed
-
-### Support and Next Steps
-
-If you encounter issues:
-1. **Check the Windows Event Viewer** for system errors
-2. **Monitor GPU usage** with Task Manager
-3. **Check VRAM usage** with `nvidia-smi`
-4. **Verify Python environment** is correctly activated
-
-The OmniOrchestrator is now **error-resistant** - it will always fall back to demo videos if Open-Sora fails, so you can use it immediately while setting up the real AI generation!
-
-### Quick Start Summary
-
-1. **Install Python 3.10** ✅
-2. **Install CUDA 11.8** ✅  
-3. **Clone Open-Sora to C:\AI\Open-Sora** ✅
-4. **Update .env with correct paths** ✅
-5. **Test and enjoy real AI video generation!** 🎬 
+**Happy Video Generation! 🎬✨** 

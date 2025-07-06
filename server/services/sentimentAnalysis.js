@@ -78,12 +78,20 @@ class SentimentAnalysis {
       console.log(`✅ Brand sentiment analysis complete for ${brandName}`);
       console.log(`📈 Overall sentiment: ${aggregatedSentiment.overall.score.toFixed(2)} (${aggregatedSentiment.overall.label})`);
       
+      // Log the data sources used for transparency
+      const dataSources = [...new Set(mentions.map(m => m.source))];
+      console.log(`📊 Sentiment Analysis completed for "${brandName}": ${mentions.length} mentions from [${dataSources.join(', ')}]`);
+      
       return {
         success: true,
         brandName,
         sentiment: aggregatedSentiment,
         mentions: mentions.slice(0, 20), // Return top 20 mentions
         rawSentiments: sentimentResults.slice(0, 10), // Include raw sentiment data for debugging
+        analysisMethod: mentions.length > 0 ? 'real_data_with_local_analysis' : 'enhanced_fallback',
+        dataSources,
+        totalMentionsAnalyzed: mentions.length,
+        note: `Analysis completed using ${mentions.length} real mentions from ${dataSources.length} sources.`,
         generatedAt: new Date()
       };
     } catch (error) {

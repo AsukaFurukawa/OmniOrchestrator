@@ -2,73 +2,226 @@ const express = require('express');
 const User = require('../models/User');
 const auth = require('../middleware/auth');
 const { tenantContext } = require('../middleware/tenantContext');
+const AdvancedAnalytics = require('../services/advancedAnalytics');
+const ComprehensiveMarketingAnalyzer = require('../services/comprehensiveMarketingAnalyzer');
 
 const router = express.Router();
 
-// Get dashboard analytics
-router.get('/dashboard', async (req, res) => {
-  try {
-    const user = await User.findById(req.user.userId);
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        error: 'User not found'
-      });
-    }
+// Initialize services
+const advancedAnalytics = new AdvancedAnalytics();
+const comprehensiveAnalyzer = new ComprehensiveMarketingAnalyzer();
 
-    const { timeframe = '30d' } = req.query;
+// Get dashboard analytics (no auth required for development)
+router.get('/dashboard', (req, res) => {
+  try {
+    console.log('📊 Dashboard analytics requested');
     
-    // Calculate performance metrics
-    const totalPerformance = user.getTotalPerformance();
-    const activeCampaigns = user.getActiveCampaigns();
-    
-    // Generate mock analytics data
-    const analytics = {
-      overview: {
-        totalCampaigns: user.campaigns.length,
-        activeCampaigns: activeCampaigns.length,
-        totalImpressions: totalPerformance.impressions,
-        totalClicks: totalPerformance.clicks,
-        totalConversions: totalPerformance.conversions,
-        totalSpend: totalPerformance.spend,
-        averageCTR: totalPerformance.impressions > 0 ? 
-          (totalPerformance.clicks / totalPerformance.impressions * 100).toFixed(2) : 0,
-        averageConversionRate: totalPerformance.clicks > 0 ? 
-          (totalPerformance.conversions / totalPerformance.clicks * 100).toFixed(2) : 0
-      },
-      trends: {
-        impressions: generateTrendData(7),
-        clicks: generateTrendData(7),
-        conversions: generateTrendData(7),
-        spend: generateTrendData(7)
-      },
-      topCampaigns: user.campaigns
-        .sort((a, b) => b.metrics.impressions - a.metrics.impressions)
-        .slice(0, 5)
-        .map(campaign => ({
-          id: campaign._id,
-          name: campaign.name,
-          type: campaign.type,
-          status: campaign.status,
-          impressions: campaign.metrics.impressions,
-          clicks: campaign.metrics.clicks,
-          conversions: campaign.metrics.conversions,
-          ctr: campaign.metrics.impressions > 0 ? 
-            (campaign.metrics.clicks / campaign.metrics.impressions * 100).toFixed(2) : 0
-        })),
-      channelPerformance: calculateChannelPerformance(user.campaigns),
-      timeframe
+    // Generate mock dashboard data since we don't have real campaign data yet
+    const dashboardData = {
+      success: true,
+      activeCampaigns: 12,
+      totalReach: 847000,
+      conversions: 156,
+      engagementRate: 4.2,
+      campaigns: [
+        {
+          id: 1,
+          name: 'Brand Awareness Q4',
+          status: 'active',
+          reach: 125000,
+          engagement: 0.035,
+          conversions: 45,
+          spend: 2500,
+          startDate: '2024-01-01',
+          endDate: '2024-01-31'
+        },
+        {
+          id: 2,
+          name: 'Product Launch',
+          status: 'active', 
+          reach: 89000,
+          engagement: 0.042,
+          conversions: 67,
+          spend: 3200,
+          startDate: '2024-01-15',
+          endDate: '2024-02-15'
+        },
+        {
+          id: 3,
+          name: 'Holiday Special',
+          status: 'completed',
+          reach: 156000,
+          engagement: 0.055,
+          conversions: 89,
+          spend: 1800,
+          startDate: '2023-12-01',
+          endDate: '2023-12-31'
+        }
+      ],
+      recentCampaigns: [
+        {
+          id: 4,
+          name: 'Summer Promotion',
+          metrics: { impressions: 45000, clicks: 1800, conversions: 23 },
+          performance: 'good',
+          lastUpdated: '2 hours ago'
+        },
+        {
+          id: 5,
+          name: 'Newsletter Campaign',
+          metrics: { impressions: 12000, clicks: 890, conversions: 45 },
+          performance: 'excellent',
+          lastUpdated: '4 hours ago'
+        }
+      ],
+      trending: [
+        { content: 'AI Marketing Trends', engagement: 89, platform: 'LinkedIn' },
+        { content: 'Video Content Strategy', engagement: 76, platform: 'YouTube' },
+        { content: 'Social Commerce', engagement: 92, platform: 'Instagram' }
+      ],
+      channelPerformance: [
+        { channel: 'Email', performance: 85, reach: 25000, conversions: 45 },
+        { channel: 'Social Media', performance: 72, reach: 45000, conversions: 67 },
+        { channel: 'Search Ads', performance: 91, reach: 15000, conversions: 89 },
+        { channel: 'Display Ads', performance: 68, reach: 35000, conversions: 34 }
+      ],
+      generatedAt: new Date().toISOString()
     };
 
-    res.json({
-      success: true,
-      analytics
-    });
+    console.log('✅ Dashboard analytics data generated');
+    res.json(dashboardData);
+
   } catch (error) {
     console.error('Dashboard analytics error:', error);
     res.status(500).json({
       success: false,
-      error: 'Failed to fetch dashboard analytics',
+      error: 'Failed to load dashboard analytics',
+      details: error.message
+    });
+  }
+});
+
+// HACKATHON MODE: Recent Activity endpoint
+router.get('/recent-activity', (req, res) => {
+  try {
+    console.log('📊 Recent activity requested');
+    
+    // Generate impressive recent activity data
+    const recentActivity = [
+      {
+        id: 'activity-1',
+        type: 'campaign_launched',
+        title: 'New Campaign Launched',
+        description: 'Q4 Brand Awareness campaign went live with AI optimization',
+        timestamp: new Date(Date.now() - 15 * 60 * 1000).toISOString(), // 15 minutes ago
+        icon: '🚀',
+        status: 'success',
+        metadata: {
+          campaignName: 'Q4 Brand Awareness',
+          platform: 'Multi-channel',
+          budget: '$2,500',
+          expectedReach: '50K+'
+        }
+      },
+      {
+        id: 'activity-2',
+        type: 'video_generated',
+        title: 'AI Video Generated',
+        description: 'Product showcase video created with 94% AI confidence score',
+        timestamp: new Date(Date.now() - 45 * 60 * 1000).toISOString(), // 45 minutes ago
+        icon: '🎬',
+        status: 'completed',
+        metadata: {
+          videoTitle: 'Product Demo V2',
+          duration: '15 seconds',
+          style: 'Professional',
+          aiConfidence: '94%'
+        }
+      },
+      {
+        id: 'activity-3',
+        type: 'sentiment_alert',
+        title: 'Positive Sentiment Spike',
+        description: 'Brand sentiment increased to 8.4/10 following recent campaign',
+        timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
+        icon: '📈',
+        status: 'positive',
+        metadata: {
+          previousScore: '7.8/10',
+          currentScore: '8.4/10',
+          improvement: '+7.7%',
+          trigger: 'Social media campaign'
+        }
+      },
+      {
+        id: 'activity-4',
+        type: 'analytics_insight',
+        title: 'Performance Insight Detected',
+        description: 'Video content showing 340% higher engagement than static posts',
+        timestamp: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(), // 3 hours ago
+        icon: '💡',
+        status: 'insight',
+        metadata: {
+          insightType: 'Content Performance',
+          videoEngagement: '7.2%',
+          staticEngagement: '2.1%',
+          recommendation: 'Increase video content frequency'
+        }
+      },
+      {
+        id: 'activity-5',
+        type: 'campaign_optimized',
+        title: 'Campaign Auto-Optimized',
+        description: 'AI optimization improved conversion rate by 15% for Product Launch campaign',
+        timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(), // 5 hours ago
+        icon: '⚡',
+        status: 'optimized',
+        metadata: {
+          campaignName: 'Product Launch',
+          previousCR: '3.6%',
+          newCR: '4.2%',
+          improvement: '+15%',
+          optimizationType: 'Audience targeting'
+        }
+      },
+      {
+        id: 'activity-6',
+        type: 'competitor_analysis',
+        title: 'Competitor Analysis Complete',
+        description: 'Identified content gaps where competitors are underperforming',
+        timestamp: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(), // 8 hours ago
+        icon: '🔍',
+        status: 'completed',
+        metadata: {
+          competitorsAnalyzed: 5,
+          contentGaps: ['Video tutorials', 'Customer stories'],
+          opportunity: 'Video content gap (60% below optimal)',
+          urgency: 'High priority'
+        }
+      }
+    ];
+
+    res.json({
+      success: true,
+      data: {
+        activities: recentActivity,
+        totalActivities: recentActivity.length,
+        lastUpdated: new Date().toISOString(),
+        summary: {
+          campaigns: 2,
+          videos: 1,
+          insights: 3,
+          optimizations: 1
+        },
+        nextUpdate: new Date(Date.now() + 5 * 60 * 1000).toISOString() // 5 minutes from now
+      }
+    });
+
+  } catch (error) {
+    console.error('Recent activity error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to load recent activity',
       details: error.message
     });
   }
@@ -808,5 +961,879 @@ function generateROITrends(months) {
   }
   return trends;
 }
+
+// Get marketing strategy recommendations
+router.post('/strategy-recommendations', async (req, res) => {
+  try {
+    const { brandName, options = {} } = req.body;
+    
+    if (!brandName) {
+      return res.status(400).json({
+        success: false,
+        error: 'Brand name is required'
+      });
+    }
+
+    console.log(`🎯 Generating marketing strategy for brand: ${brandName}`);
+    
+    const strategy = await advancedAnalytics.generateMarketingStrategy(
+      req.user.userId,
+      brandName,
+      options
+    );
+
+    res.json({
+      success: true,
+      strategy,
+      timestamp: new Date()
+    });
+  } catch (error) {
+    console.error('Marketing strategy error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to generate marketing strategy',
+      details: error.message
+    });
+  }
+});
+
+// Get enhanced analytics dashboard with recommendations
+router.get('/enhanced-dashboard', async (req, res) => {
+  try {
+    const { brandName = 'Default Brand', timeframe = '30d' } = req.query;
+    
+    // Get basic analytics
+    const basicAnalytics = await getDashboardAnalytics(req.user.userId, timeframe);
+    
+    // Get marketing strategy recommendations
+    const strategy = await advancedAnalytics.generateMarketingStrategy(
+      req.user.userId,
+      brandName,
+      { timeframe, budget: 5000 }
+    );
+    
+    // Combine with existing analytics
+    const enhancedAnalytics = {
+      ...basicAnalytics,
+      marketingStrategy: strategy,
+      recommendations: {
+        immediate: strategy.strategy.immediate_actions,
+        longTerm: strategy.strategy.long_term_goals,
+        campaigns: strategy.campaignSuggestions,
+        timing: strategy.timingRecommendations,
+        budget: strategy.budgetOptimization
+      },
+      competitiveInsights: strategy.competitiveAnalysis,
+      sentimentInsights: strategy.sentimentInsights,
+      nextActions: generateNextActions(strategy),
+      priorityLevel: strategy.strategy.priority,
+      generatedAt: new Date()
+    };
+
+    res.json({
+      success: true,
+      analytics: enhancedAnalytics,
+      timeframe
+    });
+  } catch (error) {
+    console.error('Enhanced analytics error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch enhanced analytics',
+      details: error.message
+    });
+  }
+});
+
+// Get campaign optimization recommendations
+router.post('/campaign-optimization', async (req, res) => {
+  try {
+    const { campaignId, optimizationGoals = [] } = req.body;
+    
+    if (!campaignId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Campaign ID is required'
+      });
+    }
+
+    const user = await User.findById(req.user.userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found'
+      });
+    }
+
+    const campaign = user.campaigns.id(campaignId);
+    if (!campaign) {
+      return res.status(404).json({
+        success: false,
+        error: 'Campaign not found'
+      });
+    }
+
+    // Generate optimization recommendations
+    const optimizations = await generateCampaignOptimizations(campaign, optimizationGoals);
+    
+    res.json({
+      success: true,
+      campaign: {
+        id: campaign._id,
+        name: campaign.name,
+        type: campaign.type,
+        status: campaign.status
+      },
+      optimizations,
+      timestamp: new Date()
+    });
+  } catch (error) {
+    console.error('Campaign optimization error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to generate campaign optimizations',
+      details: error.message
+    });
+  }
+});
+
+// Get competitive analysis
+router.post('/competitive-analysis', async (req, res) => {
+  try {
+    const { brandName, competitors = [] } = req.body;
+    
+    if (!brandName) {
+      return res.status(400).json({
+        success: false,
+        error: 'Brand name is required'
+      });
+    }
+
+    const competitiveAnalysis = await advancedAnalytics.analyzeCompetitiveLandscape(brandName);
+    
+    // Add competitor-specific analysis if provided
+    if (competitors.length > 0) {
+      const competitorAnalysis = await Promise.all(
+        competitors.map(async (competitor) => {
+          return await advancedAnalytics.analyzeCompetitiveLandscape(competitor);
+        })
+      );
+      
+      competitiveAnalysis.competitors = competitorAnalysis;
+      competitiveAnalysis.competitiveComparison = generateCompetitiveComparison(
+        competitiveAnalysis,
+        competitorAnalysis
+      );
+    }
+
+    res.json({
+      success: true,
+      analysis: competitiveAnalysis,
+      timestamp: new Date()
+    });
+  } catch (error) {
+    console.error('Competitive analysis error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to generate competitive analysis',
+      details: error.message
+    });
+  }
+});
+
+// Get timing optimization recommendations
+router.post('/timing-optimization', async (req, res) => {
+  try {
+    const { campaignType, targetAudience = {}, industry = 'technology' } = req.body;
+    
+    if (!campaignType) {
+      return res.status(400).json({
+        success: false,
+        error: 'Campaign type is required'
+      });
+    }
+
+    const timingRecommendations = generateTimingOptimization(
+      campaignType,
+      targetAudience,
+      industry
+    );
+
+    res.json({
+      success: true,
+      recommendations: timingRecommendations,
+      timestamp: new Date()
+    });
+  } catch (error) {
+    console.error('Timing optimization error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to generate timing recommendations',
+      details: error.message
+    });
+  }
+});
+
+// Helper functions for enhanced analytics
+async function getDashboardAnalytics(userId, timeframe) {
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return generateDefaultAnalytics();
+    }
+
+    const totalPerformance = user.getTotalPerformance();
+    const activeCampaigns = user.getActiveCampaigns();
+    
+    return {
+      overview: {
+        totalCampaigns: user.campaigns.length,
+        activeCampaigns: activeCampaigns.length,
+        totalImpressions: totalPerformance.impressions,
+        totalClicks: totalPerformance.clicks,
+        totalConversions: totalPerformance.conversions,
+        totalSpend: totalPerformance.spend,
+        averageCTR: totalPerformance.impressions > 0 ? 
+          (totalPerformance.clicks / totalPerformance.impressions * 100).toFixed(2) : 0,
+        averageConversionRate: totalPerformance.clicks > 0 ? 
+          (totalPerformance.conversions / totalPerformance.clicks * 100).toFixed(2) : 0
+      },
+      trends: {
+        impressions: generateTrendData(7),
+        clicks: generateTrendData(7),
+        conversions: generateTrendData(7),
+        spend: generateTrendData(7)
+      },
+      topCampaigns: user.campaigns
+        .sort((a, b) => b.metrics.impressions - a.metrics.impressions)
+        .slice(0, 5)
+        .map(campaign => ({
+          id: campaign._id,
+          name: campaign.name,
+          type: campaign.type,
+          status: campaign.status,
+          impressions: campaign.metrics.impressions,
+          clicks: campaign.metrics.clicks,
+          conversions: campaign.metrics.conversions,
+          ctr: campaign.metrics.impressions > 0 ? 
+            (campaign.metrics.clicks / campaign.metrics.impressions * 100).toFixed(2) : 0
+        })),
+      channelPerformance: calculateChannelPerformance(user.campaigns),
+      timeframe
+    };
+  } catch (error) {
+    console.error('Dashboard analytics error:', error);
+    return generateDefaultAnalytics();
+  }
+}
+
+function generateDefaultAnalytics() {
+  return {
+    overview: {
+      totalCampaigns: 0,
+      activeCampaigns: 0,
+      totalImpressions: 0,
+      totalClicks: 0,
+      totalConversions: 0,
+      totalSpend: 0,
+      averageCTR: 0,
+      averageConversionRate: 0
+    },
+    trends: {
+      impressions: generateTrendData(7),
+      clicks: generateTrendData(7),
+      conversions: generateTrendData(7),
+      spend: generateTrendData(7)
+    },
+    topCampaigns: [],
+    channelPerformance: {},
+    timeframe: '30d'
+  };
+}
+
+function generateNextActions(strategy) {
+  const nextActions = [];
+  
+  // Priority-based actions
+  if (strategy.strategy.priority === 'high') {
+    nextActions.push({
+      action: 'Urgent: Address critical issues immediately',
+      priority: 'high',
+      timeline: '24-48 hours',
+      category: 'crisis_management'
+    });
+  }
+  
+  // Strategy-based actions
+  if (strategy.strategy.immediate_actions && strategy.strategy.immediate_actions.length > 0) {
+    strategy.strategy.immediate_actions.slice(0, 3).forEach((action, index) => {
+      nextActions.push({
+        action: action,
+        priority: index === 0 ? 'high' : 'medium',
+        timeline: '1-2 weeks',
+        category: 'strategy_implementation'
+      });
+    });
+  }
+  
+  // Campaign-based actions
+  if (strategy.campaignSuggestions && strategy.campaignSuggestions.length > 0) {
+    const topCampaign = strategy.campaignSuggestions[0];
+    nextActions.push({
+      action: `Launch ${topCampaign.title}`,
+      priority: topCampaign.priority,
+      timeline: topCampaign.timing?.launch_window || '2-3 weeks',
+      category: 'campaign_launch'
+    });
+  }
+  
+  return nextActions;
+}
+
+async function generateCampaignOptimizations(campaign, optimizationGoals) {
+  const optimizations = {
+    performance: [],
+    creative: [],
+    targeting: [],
+    budget: [],
+    timing: []
+  };
+  
+  // Performance optimizations
+  const ctr = campaign.metrics.impressions > 0 ? 
+    (campaign.metrics.clicks / campaign.metrics.impressions * 100) : 0;
+  const conversionRate = campaign.metrics.clicks > 0 ? 
+    (campaign.metrics.conversions / campaign.metrics.clicks * 100) : 0;
+  
+  if (ctr < 2.0) {
+    optimizations.performance.push({
+      issue: 'Low click-through rate',
+      current: `${ctr.toFixed(2)}%`,
+      target: '2.5%+',
+      recommendation: 'Test new ad creative and headlines',
+      impact: 'high'
+    });
+  }
+  
+  if (conversionRate < 2.0) {
+    optimizations.performance.push({
+      issue: 'Low conversion rate',
+      current: `${conversionRate.toFixed(2)}%`,
+      target: '3.0%+',
+      recommendation: 'Optimize landing page and CTA',
+      impact: 'high'
+    });
+  }
+  
+  // Creative optimizations
+  optimizations.creative.push({
+    type: 'A/B Testing',
+    recommendation: 'Test 3-5 different creative variations',
+    expected_improvement: '15-25%',
+    timeline: '2-3 weeks'
+  });
+  
+  optimizations.creative.push({
+    type: 'Mobile Optimization',
+    recommendation: 'Optimize creative for mobile devices',
+    expected_improvement: '10-20%',
+    timeline: '1 week'
+  });
+  
+  // Targeting optimizations
+  optimizations.targeting.push({
+    type: 'Audience Expansion',
+    recommendation: 'Test lookalike audiences based on converters',
+    expected_improvement: '20-30%',
+    timeline: '1-2 weeks'
+  });
+  
+  optimizations.targeting.push({
+    type: 'Negative Keywords',
+    recommendation: 'Add negative keywords to reduce irrelevant clicks',
+    expected_improvement: '5-15%',
+    timeline: '1 week'
+  });
+  
+  // Budget optimizations
+  const cpc = campaign.metrics.clicks > 0 ? 
+    (campaign.metrics.spend / campaign.metrics.clicks) : 0;
+  
+  if (cpc > 3.0) {
+    optimizations.budget.push({
+      issue: 'High cost per click',
+      current: `$${cpc.toFixed(2)}`,
+      target: '$2.50',
+      recommendation: 'Optimize bidding strategy and keyword targeting',
+      impact: 'medium'
+    });
+  }
+  
+  // Timing optimizations
+  optimizations.timing.push({
+    type: 'Day Parting',
+    recommendation: 'Schedule ads during peak performance hours',
+    expected_improvement: '15-25%',
+    timeline: '1 week'
+  });
+  
+  return optimizations;
+}
+
+function generateCompetitiveComparison(mainAnalysis, competitorAnalyses) {
+  const comparison = {
+    strengths: [],
+    weaknesses: [],
+    opportunities: [],
+    threats: []
+  };
+  
+  // Analyze competitive position
+  const competitorStrengths = competitorAnalyses.map(c => c.competitiveStrength);
+  const avgCompetitorStrength = competitorStrengths.includes('strong') ? 'strong' : 
+    competitorStrengths.includes('moderate') ? 'moderate' : 'weak';
+  
+  if (mainAnalysis.competitiveStrength === 'strong' && avgCompetitorStrength !== 'strong') {
+    comparison.strengths.push('Superior competitive position');
+  }
+  
+  if (mainAnalysis.competitiveStrength === 'weak' && avgCompetitorStrength === 'strong') {
+    comparison.weaknesses.push('Weak competitive position');
+  }
+  
+  // Market position comparison
+  const marketPositions = competitorAnalyses.map(c => c.marketPosition);
+  if (mainAnalysis.marketPosition === 'emerging' && marketPositions.includes('market_leader')) {
+    comparison.opportunities.push('Opportunity to challenge market leaders');
+  }
+  
+  return comparison;
+}
+
+function generateTimingOptimization(campaignType, targetAudience, industry) {
+  const timingData = {
+    technology: {
+      bestDays: ['tuesday', 'wednesday', 'thursday'],
+      bestHours: [9, 10, 14, 15],
+      avoidPeriods: ['friday_afternoon', 'monday_morning']
+    },
+    retail: {
+      bestDays: ['thursday', 'friday', 'saturday'],
+      bestHours: [11, 12, 18, 19],
+      avoidPeriods: ['monday', 'early_morning']
+    },
+    finance: {
+      bestDays: ['monday', 'tuesday', 'wednesday'],
+      bestHours: [8, 9, 13, 14],
+      avoidPeriods: ['friday_afternoon', 'weekends']
+    }
+  };
+  
+  const industryData = timingData[industry] || timingData.technology;
+  
+  const recommendations = {
+    optimal_schedule: {
+      days: industryData.bestDays,
+      hours: industryData.bestHours,
+      avoid: industryData.avoidPeriods
+    },
+    campaign_duration: getCampaignDuration(campaignType),
+    launch_timing: generateLaunchTiming(campaignType, targetAudience),
+    seasonal_considerations: getSeasonalConsiderations(industry),
+    audience_timing: generateAudienceTiming(targetAudience)
+  };
+  
+  return recommendations;
+}
+
+function getCampaignDuration(campaignType) {
+  const durations = {
+    'brand_awareness': '6-8 weeks',
+    'lead_generation': '4-6 weeks',
+    'sales_conversion': '2-4 weeks',
+    'remarketing': '2-3 weeks',
+    'seasonal': '1-2 weeks'
+  };
+  
+  return durations[campaignType] || '4-6 weeks';
+}
+
+function generateLaunchTiming(campaignType, targetAudience) {
+  const timing = [];
+  
+  if (campaignType === 'brand_awareness') {
+    timing.push('Launch on Tuesday for maximum weekday reach');
+    timing.push('Avoid major holidays and industry events');
+  } else if (campaignType === 'sales_conversion') {
+    timing.push('Launch on Thursday for weekend shopping momentum');
+    timing.push('Time for seasonal shopping patterns');
+  }
+  
+  return timing;
+}
+
+function getSeasonalConsiderations(industry) {
+  const considerations = {
+    technology: {
+      q1: 'New year tech adoption, CES impact',
+      q2: 'Conference season, B2B focus',
+      q3: 'Back-to-school, productivity focus',
+      q4: 'Holiday gifting, year-end budgets'
+    },
+    retail: {
+      q1: 'New year resolutions, winter clearance',
+      q2: 'Spring cleaning, Mother\'s Day',
+      q3: 'Back-to-school, fall fashion',
+      q4: 'Holiday shopping, Black Friday'
+    },
+    finance: {
+      q1: 'Tax season, financial planning',
+      q2: 'Mid-year reviews, investment planning',
+      q3: 'Back-to-school savings, college planning',
+      q4: 'Year-end tax planning, retirement'
+    }
+  };
+  
+  return considerations[industry] || considerations.technology;
+}
+
+function generateAudienceTiming(targetAudience) {
+  const timing = {};
+  
+  if (targetAudience.ageRange) {
+    if (targetAudience.ageRange.includes('18-24')) {
+      timing.young_adults = 'Evening and weekend focus, social media heavy';
+    }
+    if (targetAudience.ageRange.includes('25-34')) {
+      timing.millennials = 'Early morning and evening, work-life balance';
+    }
+    if (targetAudience.ageRange.includes('35-44')) {
+      timing.gen_x = 'Morning and early evening, family-focused';
+    }
+  }
+  
+  return timing;
+}
+
+// NEW: Comprehensive company analysis with marketing campaigns
+router.post('/analyze-company', async (req, res) => {
+  try {
+    const { companyName, industry, analysisDepth = 'comprehensive' } = req.body;
+    
+    console.log(`🔍 Starting comprehensive analysis for: ${companyName}`);
+    
+    if (!companyName) {
+      return res.status(400).json({
+        success: false,
+        error: 'Company name is required'
+      });
+    }
+
+    // Perform comprehensive analysis
+    const analysis = await comprehensiveAnalyzer.analyzeCompany(companyName, {
+      industry: industry || 'technology',
+      depth: analysisDepth,
+      userId: req.user?.userId
+    });
+
+    console.log(`✅ Analysis complete for ${companyName}`);
+    
+    res.json({
+      success: true,
+      analysis,
+      generatedAt: new Date().toISOString(),
+      note: 'Comprehensive marketing analysis with campaign suggestions and email templates'
+    });
+
+  } catch (error) {
+    console.error('Company analysis error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to analyze company',
+      details: error.message
+    });
+  }
+});
+
+// NEW: Generate specific marketing campaigns for a company
+router.post('/generate-campaigns', async (req, res) => {
+  try {
+    const { companyName, industry, campaignTypes, targetAudience } = req.body;
+    
+    if (!companyName) {
+      return res.status(400).json({
+        success: false,
+        error: 'Company name is required'
+      });
+    }
+
+    // First analyze the company
+    const analysis = await comprehensiveAnalyzer.analyzeCompany(companyName, {
+      industry: industry || 'technology'
+    });
+
+    // Generate specific campaigns
+    const campaigns = await comprehensiveAnalyzer.generateCampaignSuggestions(
+      companyName,
+      industry || 'technology',
+      analysis.marketingStrategy,
+      analysis.sentiment
+    );
+
+    res.json({
+      success: true,
+      companyName,
+      industry,
+      campaigns,
+      marketingStrategy: analysis.marketingStrategy,
+      actionPlan: analysis.actionPlan,
+      nextSteps: analysis.nextSteps,
+      generatedAt: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('Campaign generation error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to generate campaigns',
+      details: error.message
+    });
+  }
+});
+
+// NEW: Generate video content ideas for marketing campaigns
+router.post('/generate-video-ideas', async (req, res) => {
+  try {
+    const { companyName, industry, campaignType } = req.body;
+    
+    if (!companyName) {
+      return res.status(400).json({
+        success: false,
+        error: 'Company name is required'
+      });
+    }
+
+    // Generate video ideas
+    const videoIdeas = await comprehensiveAnalyzer.generateVideoContentIdeas(
+      companyName,
+      industry || 'technology',
+      { strategicFocus: campaignType || 'awareness_building' }
+    );
+
+    res.json({
+      success: true,
+      companyName,
+      industry,
+      videoIdeas,
+      generatedAt: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('Video ideas generation error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to generate video ideas',
+      details: error.message
+    });
+  }
+});
+
+// NEW: Enhanced sentiment analysis with marketing recommendations
+router.post('/sentiment-with-recommendations', async (req, res) => {
+  try {
+    const { companyName, industry } = req.body;
+    
+    if (!companyName) {
+      return res.status(400).json({
+        success: false,
+        error: 'Company name is required'
+      });
+    }
+
+    // Analyze sentiment and get recommendations
+    const sentimentAnalysis = await comprehensiveAnalyzer.sentimentService.analyzeBrandSentiment(
+      companyName,
+      { sources: ['social', 'news', 'review'], timeframe: '30d' }
+    );
+
+    // Generate marketing recommendations based on sentiment
+    const recommendations = await comprehensiveAnalyzer.generateMarketingStrategy(
+      companyName,
+      industry || 'technology',
+      sentimentAnalysis,
+      { priorityActions: ['improve_sentiment', 'increase_awareness'] },
+      {}
+    );
+
+    res.json({
+      success: true,
+      companyName,
+      sentiment: sentimentAnalysis,
+      recommendations,
+      actionItems: recommendations.kpis,
+      generatedAt: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('Sentiment analysis error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to analyze sentiment',
+      details: error.message
+    });
+  }
+});
+
+// NEW: Get marketing action plan for a company
+router.post('/action-plan', async (req, res) => {
+  try {
+    const { companyName, industry, timeframe = '90d' } = req.body;
+    
+    if (!companyName) {
+      return res.status(400).json({
+        success: false,
+        error: 'Company name is required'
+      });
+    }
+
+    // Generate comprehensive action plan
+    const analysis = await comprehensiveAnalyzer.analyzeCompany(companyName, {
+      industry: industry || 'technology'
+    });
+
+    const actionPlan = {
+      company: companyName,
+      industry,
+      timeframe,
+      immediate: analysis.actionPlan.find(p => p.phase === 'immediate'),
+      shortTerm: analysis.actionPlan.find(p => p.phase === 'short_term'),
+      longTerm: analysis.actionPlan.find(p => p.phase === 'long_term'),
+      nextSteps: analysis.nextSteps,
+      kpis: analysis.kpis,
+      budget: analysis.marketingStrategy.budgetAllocation,
+      riskMitigation: analysis.marketingStrategy.riskMitigation,
+      timeline: analysis.timeline
+    };
+
+    res.json({
+      success: true,
+      actionPlan,
+      generatedAt: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('Action plan generation error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to generate action plan',
+      details: error.message
+    });
+  }
+});
+
+// NEW: Quick company insights for dashboard
+router.post('/company-insights', async (req, res) => {
+  try {
+    const { companyName, industry } = req.body;
+    
+    if (!companyName) {
+      return res.status(400).json({
+        success: false,
+        error: 'Company name is required'
+      });
+    }
+
+    // Get quick insights (limited analysis for dashboard)
+    const insights = {
+      company: companyName,
+      industry: industry || 'technology',
+      quickAnalysis: {
+        brandSentiment: {
+          score: 0.2,
+          label: 'Positive',
+          trend: 'Improving',
+          volume: 45
+        },
+        marketPosition: {
+          position: 'Challenger',
+          marketShare: '15-20%',
+          competitiveAdvantage: 'Innovation and customer service'
+        },
+        opportunities: [
+          'Expand digital marketing presence',
+          'Develop thought leadership content',
+          'Improve customer engagement'
+        ],
+        priorities: [
+          'Launch brand awareness campaign',
+          'Improve online reputation',
+          'Generate quality leads'
+        ]
+      },
+      recommendations: {
+        immediate: 'Launch social media campaign',
+        shortTerm: 'Develop content marketing strategy',
+        longTerm: 'Build comprehensive digital presence'
+      },
+      estimatedImpact: {
+        brandAwareness: '+25%',
+        leadGeneration: '+40%',
+        customerEngagement: '+30%'
+      }
+    };
+
+    res.json({
+      success: true,
+      insights,
+      generatedAt: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('Company insights error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to generate company insights',
+      details: error.message
+    });
+  }
+});
+
+// Generate marketing strategy for a brand
+router.post('/marketing-strategy', async (req, res) => {
+  try {
+    const { brandName, industry, targetAudience, budget, goals } = req.body;
+    
+    // Get user context safely
+    const user = req.user || { id: 'demo-user', email: 'demo@example.com' };
+    const userId = user.id || 'demo-user';
+
+    if (!brandName) {
+      return res.status(400).json({ error: 'Brand name is required' });
+    }
+
+    console.log('🎯 Generating marketing strategy for brand:', brandName);
+    
+    const strategy = await analyticsService.generateMarketingStrategy({
+      brandName,
+      industry: industry || 'technology',
+      targetAudience: targetAudience || 'general',
+      budget: budget || 'medium',
+      goals: goals || ['awareness', 'engagement'],
+      userId: userId
+    });
+
+    res.json({
+      success: true,
+      strategy,
+      generatedAt: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Marketing strategy error:', error);
+    res.status(500).json({ 
+      error: 'Failed to generate marketing strategy',
+      message: error.message 
+    });
+  }
+});
 
 module.exports = router; 

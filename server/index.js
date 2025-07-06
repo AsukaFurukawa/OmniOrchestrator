@@ -17,6 +17,7 @@ const socialRoutes = require('./routes/social');
 const trendRoutes = require('./routes/trends');
 const webhookRoutes = require('./routes/webhooks');
 const videoRoutes = require('./routes/video');
+const imageRoutes = require('./routes/image');
 const usageRoutes = require('./routes/usage');
 const freeAIRoutes = require('./routes/freeAI');
 
@@ -90,16 +91,31 @@ app.use(express.static('.'));
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/tenants', require('./routes/tenants')); // No auth required for tenant config
-app.use('/api/campaigns', authMiddleware, campaignRoutes);
-app.use('/api/analytics', authMiddleware, analyticsRoutes);
-app.use('/api/ai', authMiddleware, aiRoutes);
-app.use('/api/social', authMiddleware, socialRoutes);
-app.use('/api/trends', authMiddleware, trendRoutes);
 app.use('/api/usage', usageRoutes);
 app.use('/api/webhooks', webhookRoutes);
-app.use('/api/video', authMiddleware, videoRoutes);
-app.use('/api/conversational', authMiddleware, require('./routes/conversational'));
 app.use('/api/free-ai', freeAIRoutes); // No auth required for free services!
+
+// HACKATHON MODE: Remove auth middleware in development for demo
+if (process.env.NODE_ENV === 'development') {
+  app.use('/api/campaigns', campaignRoutes);
+  app.use('/api/analytics', analyticsRoutes);
+  app.use('/api/ai', aiRoutes);
+  app.use('/api/social', socialRoutes);
+  app.use('/api/trends', trendRoutes);
+  app.use('/api/video', videoRoutes);
+  app.use('/api/image', imageRoutes);
+  app.use('/api/conversational', require('./routes/conversational'));
+  console.log('🔧 HACKATHON MODE: All routes without auth for demo');
+} else {
+  app.use('/api/campaigns', authMiddleware, campaignRoutes);
+  app.use('/api/analytics', authMiddleware, analyticsRoutes);
+  app.use('/api/ai', authMiddleware, aiRoutes);
+  app.use('/api/social', authMiddleware, socialRoutes);
+  app.use('/api/trends', authMiddleware, trendRoutes);
+  app.use('/api/video', authMiddleware, videoRoutes);
+  app.use('/api/image', authMiddleware, imageRoutes);
+  app.use('/api/conversational', authMiddleware, require('./routes/conversational'));
+}
 
 // Serve the main UI for the root path
 app.get('/', (req, res) => {
@@ -113,10 +129,9 @@ app.use('/public', express.static(path.join(__dirname, '..', 'public')));
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({
-    status: 'healthy',
+    status: 'ok',
     timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
-    memory: process.memoryUsage()
+    environment: process.env.NODE_ENV || 'development'
   });
 });
 
@@ -124,12 +139,15 @@ app.get('/api/health', (req, res) => {
 const socketService = new SocketService(io);
 const usageTrackingService = new UsageTrackingService();
 const conversationalAI = new ConversationalAI();
-const advancedAnalytics = new AdvancedAnalytics();
 const aiService = new AIService();
 const sentimentAnalysis = new SentimentAnalysis();
 
 // Inject AI service for failover capability
 sentimentAnalysis.aiService = aiService;
+
+// Initialize advanced analytics with proper dependencies
+const advancedAnalytics = new AdvancedAnalytics();
+advancedAnalytics.sentimentAnalysis = sentimentAnalysis;
 
 // Make services available globally
 global.socketService = socketService;
