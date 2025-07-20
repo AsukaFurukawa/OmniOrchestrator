@@ -4,6 +4,7 @@ const SocialMediaService = require('../services/socialMediaService');
 const TrendsService = require('../services/trendsService');
 const UsageTrackingService = require('../services/usageTrackingService');
 const User = require('../models/User');
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 const router = express.Router();
 const aiService = new AIService();
@@ -860,6 +861,48 @@ router.post('/insights', async (req, res) => {
       error: 'Failed to generate AI insights',
       details: error.message
     });
+  }
+});
+
+// Shivani's working text generation implementation
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
+router.post("/generate/text/shivani", async (req, res) => {
+  const { type, prompt, variations } = req.body;
+
+  if (!type || !prompt) {
+    return res.status(400).json({ error: "Missing type or prompt" });
+  }
+
+  let formattedPrompt = prompt;
+
+  if (variations && variations > 1) {
+    formattedPrompt = `Generate ${variations} distinct variations for the following marketing ${type} prompt, clearly separated by "---VARIATION---": ${prompt}`;
+  } else {
+    switch (type) {
+      case "email":
+        formattedPrompt = `Generate a marketing email: ${prompt}`;
+        break;
+      case "notification":
+        formattedPrompt = `Write a marketing notification: ${prompt}`;
+        break;
+      case "transcript":
+        formattedPrompt = `Write a video transcript: ${prompt}`;
+        break;
+      default:
+        formattedPrompt = prompt;
+    }
+  }
+
+  try {
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const result = await model.generateContent(formattedPrompt);
+    const response = result.response;
+    const text = await response.text();
+    res.json({ success: true, text });
+  } catch (error) {
+    console.error("Text generation error:", error);
+    res.status(500).json({ error: "Text generation failed" });
   }
 });
 

@@ -2889,6 +2889,189 @@ P.S. Early adopters get 50% off their first month!</textarea>
                     <!-- Generated images will be populated here -->
                 </div>
             </div>
+
+            <!-- AI Text Generation Section -->
+            <div class="neon-glass-card p-8 rounded-3xl">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-2xl font-black premium-gradient-text">📝 AI Text Generation</h3>
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm text-gray-400">Perfect for emails, notifications, and content</span>
+                        <i class="fas fa-magic text-blue-400"></i>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-white font-bold mb-2">Content Type</label>
+                            <select id="text-type" class="w-full p-3 neon-input text-white rounded-xl">
+                                <option value="email">Marketing Email</option>
+                                <option value="notification">Notification</option>
+                                <option value="transcript">Video Transcript</option>
+                                <option value="general">General Content</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-white font-bold mb-2">Text Prompt</label>
+                            <textarea id="text-prompt" class="w-full p-3 neon-input text-white rounded-xl h-32" placeholder="Describe what you want to generate..."></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-white font-bold mb-2">Tone</label>
+                            <select id="text-tone" class="w-full p-3 neon-input text-white rounded-xl">
+                                <option value="">Default</option>
+                                <option value="professional">Professional</option>
+                                <option value="casual">Casual</option>
+                                <option value="friendly">Friendly</option>
+                                <option value="formal">Formal</option>
+                                <option value="enthusiastic">Enthusiastic</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-white font-bold mb-2">Length</label>
+                            <select id="text-length" class="w-full p-3 neon-input text-white rounded-xl">
+                                <option value="">Default</option>
+                                <option value="short">Short</option>
+                                <option value="medium">Medium</option>
+                                <option value="long">Long</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-white font-bold mb-2">Target Audience</label>
+                            <select id="text-audience" class="w-full p-3 neon-input text-white rounded-xl">
+                                <option value="">General</option>
+                                <option value="professionals">Professionals</option>
+                                <option value="students">Students</option>
+                                <option value="entrepreneurs">Entrepreneurs</option>
+                                <option value="marketers">Marketers</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-white font-bold mb-2">Variations</label>
+                            <select id="text-variations" class="w-full p-3 neon-input text-white rounded-xl">
+                                <option value="1">1 Version</option>
+                                <option value="2">2 Versions</option>
+                                <option value="3">3 Versions</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-8 text-center">
+                    <button onclick="generateAIText()" class="neon-btn px-8 py-4 text-xl font-bold rounded-2xl">
+                        <i class="fas fa-magic mr-3"></i>Generate AI Text
+                    </button>
+                    <button onclick="quickTextGenerate()" class="neon-btn-secondary px-6 py-3 text-lg font-bold rounded-xl ml-4">
+                        <i class="fas fa-bolt mr-2"></i>Quick Demo
+                    </button>
+                </div>
+            </div>
+
+            <!-- Text Generation Progress -->
+            <div id="text-progress" class="neon-glass-card p-8 rounded-3xl hidden">
+                <h3 class="text-2xl font-black premium-gradient-text mb-6">📝 Text Generation in Progress</h3>
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center">
+                        <span id="text-progress-status" class="text-white font-bold">Initializing...</span>
+                        <span id="text-progress-time" class="text-gray-400">Estimated: 10s</span>
+                    </div>
+                    <div class="w-full bg-gray-700 rounded-full h-4">
+                        <div id="text-progress-bar" class="bg-gradient-to-r from-blue-500 to-cyan-600 h-4 rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                    <div id="text-progress-percentage" class="text-center text-gray-300">0%</div>
+                </div>
+            </div>
+
+            <!-- Generated Text Display -->
+            <div id="generated-text-section" class="neon-glass-card p-8 rounded-3xl hidden">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-2xl font-black premium-gradient-text">📄 Generated Text</h3>
+                    <button onclick="copyGeneratedText()" class="neon-btn-secondary px-4 py-2 rounded-xl">
+                        <i class="fas fa-copy mr-2"></i>Copy Text
+                    </button>
+                </div>
+                
+                <div id="generated-text-content" class="bg-gray-800 p-6 rounded-xl text-white whitespace-pre-wrap">
+                    <!-- Generated text will be displayed here -->
+                </div>
+            </div>
+
+            <!-- AI Audio Generation Section -->
+            <div class="neon-glass-card p-8 rounded-3xl">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-2xl font-black premium-gradient-text">🎵 AI Audio Generation</h3>
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm text-gray-400">Perfect for voiceovers, podcasts, and audio content</span>
+                        <i class="fas fa-magic text-green-400"></i>
+                    </div>
+                </div>
+                
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-white font-bold mb-2">Text to Convert to Speech</label>
+                        <textarea id="audio-text" class="w-full p-3 neon-input text-white rounded-xl h-32" placeholder="Enter the text you want to convert to speech..."></textarea>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-white font-bold mb-2">Voice Type</label>
+                            <select id="audio-voice" class="w-full p-3 neon-input text-white rounded-xl">
+                                <option value="professional">Professional</option>
+                                <option value="friendly">Friendly</option>
+                                <option value="enthusiastic">Enthusiastic</option>
+                                <option value="calm">Calm</option>
+                                <option value="energetic">Energetic</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-white font-bold mb-2">Audio Quality</label>
+                            <select id="audio-quality" class="w-full p-3 neon-input text-white rounded-xl">
+                                <option value="standard">Standard</option>
+                                <option value="high">High Quality</option>
+                                <option value="premium">Premium</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-8 text-center">
+                    <button onclick="generateAIAudio()" class="neon-btn px-8 py-4 text-xl font-bold rounded-2xl">
+                        <i class="fas fa-magic mr-3"></i>Generate AI Audio
+                    </button>
+                    <button onclick="quickAudioGenerate()" class="neon-btn-secondary px-6 py-3 text-lg font-bold rounded-xl ml-4">
+                        <i class="fas fa-bolt mr-2"></i>Quick Demo
+                    </button>
+                </div>
+            </div>
+
+            <!-- Audio Generation Progress -->
+            <div id="audio-progress" class="neon-glass-card p-8 rounded-3xl hidden">
+                <h3 class="text-2xl font-black premium-gradient-text mb-6">🎵 Audio Generation in Progress</h3>
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center">
+                        <span id="audio-progress-status" class="text-white font-bold">Initializing...</span>
+                        <span id="audio-progress-time" class="text-gray-400">Estimated: 15s</span>
+                    </div>
+                    <div class="w-full bg-gray-700 rounded-full h-4">
+                        <div id="audio-progress-bar" class="bg-gradient-to-r from-green-500 to-emerald-600 h-4 rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                    <div id="audio-progress-percentage" class="text-center text-gray-300">0%</div>
+                </div>
+            </div>
+
+            <!-- Generated Audio Display -->
+            <div id="generated-audio-section" class="neon-glass-card p-8 rounded-3xl hidden">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-2xl font-black premium-gradient-text">🎵 Generated Audio</h3>
+                    <button onclick="downloadGeneratedAudio()" class="neon-btn-secondary px-4 py-2 rounded-xl">
+                        <i class="fas fa-download mr-2"></i>Download Audio
+                    </button>
+                </div>
+                
+                <div id="generated-audio-content" class="bg-gray-800 p-6 rounded-xl">
+                    <!-- Generated audio will be displayed here -->
+                </div>
+            </div>
             
             <!-- Video Generation Progress -->
             <div id="video-progress" class="neon-glass-card p-8 rounded-3xl hidden">
@@ -6114,18 +6297,13 @@ The OmniOrchestrator Team`
             }
         }
 
-        // Image Generation Functions
+        // Image Generation Functions - Using Shivani's working implementation
         async function generateAIImage() {
-            const formData = {
-                prompt: document.getElementById('image-prompt').value,
-                style: document.getElementById('image-style').value,
-                provider: document.getElementById('image-provider').value,
-                size: document.getElementById('image-size').value,
-                count: document.getElementById('image-count').value,
-                quality: document.getElementById('image-quality').value
-            };
+            const prompt = document.getElementById('image-prompt').value;
+            const size = document.getElementById('image-size').value || '1024x1024';
+            const [width, height] = size.split('x').map(Number);
 
-            if (!formData.prompt) {
+            if (!prompt) {
                 showNotification('Please enter an image description', 'warning');
                 return;
             }
@@ -6135,35 +6313,43 @@ The OmniOrchestrator Team`
             if (progressDiv) progressDiv.classList.remove('hidden');
             
             try {
-                console.log('🎨 Generating images with provider:', formData.provider);
-                const response = await fetch('/api/image/generate', {
+                console.log('🎨 Generating image with Shivani\'s working implementation');
+                const response = await fetch('/api/image/generate/shivani', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
                     },
-                    body: JSON.stringify(formData)
+                    body: JSON.stringify({
+                        prompt,
+                        width,
+                        height
+                    })
                 });
                 
                 const result = await response.json();
                 
                 if (result.success) {
-                    showNotification(`🎨 ${formData.count} image(s) generated successfully!`, 'success');
+                    showNotification('🎨 Image generated successfully!', 'success');
                     if (progressDiv) progressDiv.classList.add('hidden');
                     
-                    // Display the generated images
-                    if (result.images) {
-                        displayImages(result.images.map(img => ({
-                            id: `generated_${Date.now()}`,
-                            prompt: formData.prompt,
-                            style: formData.style,
-                            provider: formData.provider,
-                            size: formData.size,
-                            createdAt: new Date().toISOString(),
-                            images: [img],
-                            metadata: result.metadata || {}
-                        })));
-                    }
+                    // Display the generated image
+                    const imageData = {
+                        id: `generated_${Date.now()}`,
+                        prompt: prompt,
+                        provider: 'FLUX.1-schnell',
+                        size: size,
+                        createdAt: new Date().toISOString(),
+                        images: [result.image],
+                        imageUrl: result.imageUrl,
+                        metadata: {
+                            model: 'FLUX.1-schnell',
+                            quality: 'high'
+                        }
+                    };
+                    
+                    displayImages([imageData]);
+                    updateImageMetrics({ images: [imageData] });
                 } else {
                     throw new Error(result.error || 'Image generation failed');
                 }
@@ -6174,29 +6360,25 @@ The OmniOrchestrator Team`
                 // Use fallback generation
                 setTimeout(() => {
                     if (progressDiv) progressDiv.classList.add('hidden');
-                    showNotification(`🎨 ${formData.count} image(s) generated with fallback system!`, 'success');
+                    showNotification('🎨 Image generated with fallback system!', 'success');
                     
                     // Create mock image data
-                    const mockImages = [];
-                    for (let i = 0; i < parseInt(formData.count); i++) {
-                        mockImages.push({
-                            id: `mock_${Date.now()}_${i}`,
-                            prompt: formData.prompt,
-                            style: formData.style,
-                            provider: 'fallback',
-                            size: formData.size,
-                            createdAt: new Date().toISOString(),
-                            images: [`data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiM2NjdlZWEiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNmMDkzZmIiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgZmlsbD0idXJsKCNnKSIvPjx0ZXh0IHg9IjUwJSIgeT0iNDAlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNDAiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+🎨</L3RleHQ+PHRleHQgeD0iNTAlIiB5PSI2MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNiIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5BSSBHZW5lcmF0ZWQ8L3RleHQ+PC9zdmc+`],
-                            metadata: {
-                                mood: 'professional',
-                                colors: ['#667eea', '#f093fb'],
-                                composition: 'balanced'
-                            }
-                        });
-                    }
+                    const mockImage = {
+                        id: `mock_${Date.now()}`,
+                        prompt: prompt,
+                        provider: 'fallback',
+                        size: size,
+                        createdAt: new Date().toISOString(),
+                        images: [`data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiM2NjdlZWEiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNmMDkzZmIiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgZmlsbD0idXJsKCNnKSIvPjx0ZXh0IHg9IjUwJSIgeT0iNDAlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iNDAiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+🎨</L3RleHQ+PHRleHQgeD0iNTAlIiB5PSI2MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNiIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5BSSBHZW5lcmF0ZWQ8L3RleHQ+PC9zdmc+`],
+                        metadata: {
+                            mood: 'professional',
+                            colors: ['#667eea', '#f093fb'],
+                            composition: 'balanced'
+                        }
+                    };
                     
-                    displayImages(mockImages);
-                    updateImageMetrics({ images: mockImages });
+                    displayImages([mockImage]);
+                    updateImageMetrics({ images: [mockImage] });
                 }, 1500);
             }
         }
@@ -6232,6 +6414,293 @@ The OmniOrchestrator Team`
                 if (loadingEl) loadingEl.classList.add('hidden');
                 if (emptyEl) emptyEl.classList.remove('hidden');
             }
+        }
+
+        // Text Generation Functions - Using Shivani's working implementation
+        async function generateAIText() {
+            const type = document.getElementById('text-type').value;
+            const prompt = document.getElementById('text-prompt').value;
+            const tone = document.getElementById('text-tone').value;
+            const length = document.getElementById('text-length').value;
+            const targetAudience = document.getElementById('text-audience').value;
+            const variations = document.getElementById('text-variations').value;
+
+            if (!prompt) {
+                showNotification('Please enter a text prompt', 'warning');
+                return;
+            }
+
+            // Show progress
+            const progressDiv = document.getElementById('text-progress');
+            if (progressDiv) progressDiv.classList.remove('hidden');
+            
+            try {
+                console.log('📝 Generating text with Shivani\'s working implementation');
+                const response = await fetch('/api/ai/generate/text/shivani', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+                    },
+                    body: JSON.stringify({
+                        type,
+                        prompt: `${prompt}${tone ? ` in ${tone} tone` : ''}${targetAudience ? ` for ${targetAudience}` : ''}${length ? ` with ${length} length` : ''}`,
+                        variations: parseInt(variations)
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showNotification('📝 Text generated successfully!', 'success');
+                    if (progressDiv) progressDiv.classList.add('hidden');
+                    
+                    // Display the generated text
+                    displayGeneratedText({
+                        id: `text_${Date.now()}`,
+                        type: type,
+                        prompt: prompt,
+                        content: result.text,
+                        tone: tone,
+                        length: length,
+                        targetAudience: targetAudience,
+                        createdAt: new Date().toISOString()
+                    });
+                } else {
+                    throw new Error(result.error || 'Text generation failed');
+                }
+            } catch (error) {
+                console.error('Text generation error:', error);
+                showNotification('Text generation failed - using fallback', 'warning');
+                
+                // Use fallback generation
+                setTimeout(() => {
+                    if (progressDiv) progressDiv.classList.add('hidden');
+                    showNotification('📝 Text generated with fallback system!', 'success');
+                    
+                    // Create mock text data
+                    const mockText = {
+                        id: `text_mock_${Date.now()}`,
+                        type: type,
+                        prompt: prompt,
+                        content: `This is a sample ${type} content generated for your prompt: "${prompt}". This demonstrates the fallback text generation system when the main AI service is unavailable.`,
+                        tone: tone,
+                        length: length,
+                        targetAudience: targetAudience,
+                        createdAt: new Date().toISOString()
+                    };
+                    
+                    displayGeneratedText(mockText);
+                }, 1500);
+            }
+        }
+
+        // Display generated text
+        function displayGeneratedText(textData) {
+            const textSection = document.getElementById('generated-text-section');
+            const textContent = document.getElementById('generated-text-content');
+            
+            if (textSection && textContent) {
+                textSection.classList.remove('hidden');
+                textContent.innerHTML = `
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="text-lg font-bold text-white mb-2">${textData.type.charAt(0).toUpperCase() + textData.type.slice(1)} Content</h4>
+                                <p class="text-gray-400 text-sm">Generated on ${new Date(textData.createdAt).toLocaleString()}</p>
+                            </div>
+                            <div class="text-right">
+                                <span class="bg-blue-500 text-white px-2 py-1 rounded text-xs">${textData.tone || 'Default'} Tone</span>
+                            </div>
+                        </div>
+                        <div class="border-t border-gray-600 pt-4">
+                            <p class="text-white leading-relaxed">${textData.content}</p>
+                        </div>
+                        <div class="flex gap-2 pt-4">
+                            <button onclick="copyGeneratedText()" class="neon-btn-secondary px-4 py-2 rounded-lg text-sm">
+                                <i class="fas fa-copy mr-2"></i>Copy Text
+                            </button>
+                            <button onclick="downloadTextAsFile('${textData.content}', '${textData.type}_content.txt')" class="neon-btn-secondary px-4 py-2 rounded-lg text-sm">
+                                <i class="fas fa-download mr-2"></i>Download
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // Copy generated text to clipboard
+        function copyGeneratedText() {
+            const textContent = document.getElementById('generated-text-content');
+            if (textContent) {
+                const text = textContent.textContent || textContent.innerText;
+                navigator.clipboard.writeText(text).then(() => {
+                    showNotification('Text copied to clipboard!', 'success');
+                }).catch(() => {
+                    showNotification('Failed to copy text', 'error');
+                });
+            }
+        }
+
+        // Download text as file
+        function downloadTextAsFile(content, filename) {
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            showNotification('Text file downloaded!', 'success');
+        }
+
+        // Quick text generation demo
+        function quickTextGenerate() {
+            document.getElementById('text-type').value = 'email';
+            document.getElementById('text-prompt').value = 'Write a marketing email for a new AI-powered marketing tool that helps businesses automate their marketing campaigns';
+            document.getElementById('text-tone').value = 'professional';
+            document.getElementById('text-audience').value = 'marketers';
+            generateAIText();
+        }
+
+        // Audio Generation Functions - Using Shivani's working implementation
+        async function generateAIAudio() {
+            const text = document.getElementById('audio-text').value;
+            const voice = document.getElementById('audio-voice').value;
+            const quality = document.getElementById('audio-quality').value;
+
+            if (!text) {
+                showNotification('Please enter text to convert to speech', 'warning');
+                return;
+            }
+
+            // Show progress
+            const progressDiv = document.getElementById('audio-progress');
+            if (progressDiv) progressDiv.classList.remove('hidden');
+            
+            try {
+                console.log('🎵 Generating audio with Shivani\'s working implementation');
+                const response = await fetch('/api/video/generate/audio/shivani', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+                    },
+                    body: JSON.stringify({
+                        text: `${text} (${voice} voice, ${quality} quality)`
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showNotification('🎵 Audio generated successfully!', 'success');
+                    if (progressDiv) progressDiv.classList.add('hidden');
+                    
+                    // Display the generated audio
+                    displayGeneratedAudio({
+                        id: `audio_${Date.now()}`,
+                        text: text,
+                        voice: voice,
+                        quality: quality,
+                        audioPath: result.audioPath,
+                        createdAt: new Date().toISOString()
+                    });
+                } else {
+                    throw new Error(result.error || 'Audio generation failed');
+                }
+            } catch (error) {
+                console.error('Audio generation error:', error);
+                showNotification('Audio generation failed - using fallback', 'warning');
+                
+                // Use fallback generation
+                setTimeout(() => {
+                    if (progressDiv) progressDiv.classList.add('hidden');
+                    showNotification('🎵 Audio generated with fallback system!', 'success');
+                    
+                    // Create mock audio data
+                    const mockAudio = {
+                        id: `audio_mock_${Date.now()}`,
+                        text: text,
+                        voice: voice,
+                        quality: quality,
+                        audioPath: '/audio/mock-audio.mp3',
+                        createdAt: new Date().toISOString()
+                    };
+                    
+                    displayGeneratedAudio(mockAudio);
+                }, 1500);
+            }
+        }
+
+        // Display generated audio
+        function displayGeneratedAudio(audioData) {
+            const audioSection = document.getElementById('generated-audio-section');
+            const audioContent = document.getElementById('generated-audio-content');
+            
+            if (audioSection && audioContent) {
+                audioSection.classList.remove('hidden');
+                audioContent.innerHTML = `
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="text-lg font-bold text-white mb-2">Generated Audio</h4>
+                                <p class="text-gray-400 text-sm">Generated on ${new Date(audioData.createdAt).toLocaleString()}</p>
+                            </div>
+                            <div class="text-right">
+                                <span class="bg-green-500 text-white px-2 py-1 rounded text-xs">${audioData.voice} Voice</span>
+                            </div>
+                        </div>
+                        <div class="border-t border-gray-600 pt-4">
+                            <p class="text-white mb-4">"${audioData.text}"</p>
+                            <audio controls class="w-full">
+                                <source src="${audioData.audioPath}" type="audio/mpeg">
+                                Your browser does not support the audio element.
+                            </audio>
+                        </div>
+                        <div class="flex gap-2 pt-4">
+                            <button onclick="downloadGeneratedAudio('${audioData.audioPath}')" class="neon-btn-secondary px-4 py-2 rounded-lg text-sm">
+                                <i class="fas fa-download mr-2"></i>Download Audio
+                            </button>
+                            <button onclick="playAudio('${audioData.audioPath}')" class="neon-btn-secondary px-4 py-2 rounded-lg text-sm">
+                                <i class="fas fa-play mr-2"></i>Play Audio
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // Download generated audio
+        function downloadGeneratedAudio(audioPath) {
+            const link = document.createElement('a');
+            link.href = audioPath;
+            link.download = `generated_audio_${Date.now()}.mp3`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showNotification('Audio file downloaded!', 'success');
+        }
+
+        // Play audio
+        function playAudio(audioPath) {
+            const audio = new Audio(audioPath);
+            audio.play().then(() => {
+                showNotification('Playing audio...', 'info');
+            }).catch((error) => {
+                console.error('Error playing audio:', error);
+                showNotification('Failed to play audio', 'error');
+            });
+        }
+
+        // Quick audio generation demo
+        function quickAudioGenerate() {
+            document.getElementById('audio-text').value = 'Welcome to OmniOrchestrator, the ultimate AI-powered marketing automation platform. Transform your marketing campaigns with cutting-edge AI technology.';
+            document.getElementById('audio-voice').value = 'professional';
+            document.getElementById('audio-quality').value = 'high';
+            generateAIAudio();
         }
 
         // Display images in grid

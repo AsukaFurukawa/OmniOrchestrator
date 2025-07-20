@@ -65,7 +65,7 @@
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 18+ 
+- Node.js 18+
 - MongoDB (local or Atlas)
 - API keys for external services
 
