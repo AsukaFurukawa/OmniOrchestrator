@@ -1,7 +1,6 @@
 const axios = require('axios');
 const SentimentAnalysis = require('./sentimentAnalysis');
 const AdvancedAnalytics = require('./advancedAnalytics');
-const VideoService = require('./videoService');
 const TrendsService = require('./trendsService');
 const NoAPIFallbackService = require('./noAPIFallbackService');
 
@@ -9,7 +8,6 @@ class ComprehensiveMarketingAnalyzer {
   constructor() {
     this.sentimentService = new SentimentAnalysis();
     this.analyticsService = new AdvancedAnalytics();
-    this.videoService = new VideoService();
     this.trendsService = new TrendsService();
     this.fallbackService = new NoAPIFallbackService();
     
@@ -304,23 +302,6 @@ class ComprehensiveMarketingAnalyzer {
     } catch (error) {
       console.error('Campaign suggestions error:', error);
       return this.generateBasicCampaignSuggestions(companyName, industry);
-    }
-  }
-
-  /**
-   * Generate video content ideas
-   */
-  async generateVideoContentIdeas(companyName, industry, marketingStrategy) {
-    try {
-      // Use fallback service for video ideas
-      const videoIdeas = this.fallbackService.generateVideoIdeas(companyName, industry);
-      
-      console.log(`🎬 Generated ${videoIdeas.length} video content ideas for ${companyName}`);
-      return videoIdeas;
-      
-    } catch (error) {
-      console.error('Video content ideas error:', error);
-      return this.generateBasicVideoIdeas(companyName, industry);
     }
   }
 
@@ -718,93 +699,6 @@ class ComprehensiveMarketingAnalyzer {
     };
   }
 
-  // Video generation helpers
-  generateVideoTitle(type, companyName) {
-    const titles = {
-      'brand_story': `The ${companyName} Story`,
-      'product_showcase': `${companyName} Products in Action`,
-      'customer_testimonial': `${companyName} Customer Success`,
-      'educational': `${companyName} Expert Tips`,
-      'behind_the_scenes': `Behind the Scenes at ${companyName}`
-    };
-    return titles[type] || `${companyName} Video`;
-  }
-
-  getVideoDuration(type) {
-    const durations = {
-      'brand_story': '2 minutes',
-      'product_showcase': '90 seconds',
-      'customer_testimonial': '3 minutes',
-      'educational': '5 minutes',
-      'behind_the_scenes': '2 minutes'
-    };
-    return durations[type] || '2 minutes';
-  }
-
-  generateVideoScript(type, companyName, industry) {
-    const scripts = {
-      'brand_story': `Opening: ${companyName} has been transforming the ${industry} industry for years.\nMiddle: Our mission is to deliver exceptional value to our customers.\nClosing: Join the thousands who trust ${companyName} for their success.`,
-      'product_showcase': `Opening: See how ${companyName} products solve real problems.\nMiddle: Watch our solutions in action.\nClosing: Ready to experience the difference?`,
-      'customer_testimonial': `Opening: Hear from our satisfied customers.\nMiddle: Real stories, real results.\nClosing: Your success story could be next.`
-    };
-    return scripts[type] || `Professional video script for ${companyName} showcasing their expertise in ${industry}.`;
-  }
-
-  generateVisualConcepts(type, companyName) {
-    const concepts = {
-      'brand_story': 'Office scenes, team collaboration, customer interactions',
-      'product_showcase': 'Product demos, before/after comparisons, user interface',
-      'customer_testimonial': 'Customer interviews, workplace settings, success metrics',
-      'educational': 'Expert presentations, diagrams, real-world examples',
-      'behind_the_scenes': 'Office culture, team meetings, development process'
-    };
-    return concepts[type] || 'Professional corporate visuals';
-  }
-
-  generateVideoCTA(type, companyName) {
-    const ctas = {
-      'brand_story': 'Learn more about our story',
-      'product_showcase': 'Try our products today',
-      'customer_testimonial': 'Join our successful customers',
-      'educational': 'Get more expert tips',
-      'behind_the_scenes': 'Join our team'
-    };
-    return ctas[type] || 'Contact us today';
-  }
-
-  getTargetPlatforms(type) {
-    const platforms = {
-      'brand_story': ['LinkedIn', 'YouTube', 'Website'],
-      'product_showcase': ['YouTube', 'Facebook', 'Instagram'],
-      'customer_testimonial': ['LinkedIn', 'Website', 'Sales presentations'],
-      'educational': ['YouTube', 'LinkedIn', 'Blog'],
-      'behind_the_scenes': ['Instagram', 'Facebook', 'LinkedIn']
-    };
-    return platforms[type] || ['LinkedIn', 'YouTube', 'Website'];
-  }
-
-  estimateVideoProductionBudget(type) {
-    const budgets = {
-      'brand_story': '$1,500-3,000',
-      'product_showcase': '$1,000-2,500',
-      'customer_testimonial': '$800-1,500',
-      'educational': '$500-1,200',
-      'behind_the_scenes': '$400-1,000'
-    };
-    return budgets[type] || '$1,000-2,000';
-  }
-
-  generateOpenSoraPrompt(type, companyName, industry) {
-    const prompts = {
-      'brand_story': `A professional corporate video showing ${companyName} office building, diverse team members collaborating in modern workspace, customers using products successfully, clean modern aesthetic with natural lighting, inspiring and trustworthy mood`,
-      'product_showcase': `Professional product demonstration video showing ${companyName} products in use, sleek product shots, happy customers, modern office environment, high-quality commercial style, bright and professional lighting`,
-      'customer_testimonial': `Professional interview setup with satisfied ${companyName} customers, clean corporate background, professional lighting, authentic and credible atmosphere, customers speaking confidently about their positive experience`,
-      'educational': `Professional educational video setup with expert presenter, clean modern background, charts and diagrams, professional lighting, informative and engaging style, corporate training aesthetic`,
-      'behind_the_scenes': `Authentic behind-the-scenes footage of ${companyName} team working, modern office environment, collaborative meetings, product development, casual but professional atmosphere, natural lighting`
-    };
-    return prompts[type] || `Professional corporate video for ${companyName} showcasing their expertise in ${industry}, modern office setting, professional team, high-quality commercial production style`;
-  }
-
   // Mock data generators
   generateMockCompetitors(industry) {
     const competitors = {
@@ -935,17 +829,6 @@ class ComprehensiveMarketingAnalyzer {
         subject: `Discover ${companyName} - Your Partner in Success`,
         template: `Hi [Name],\n\nWe're excited to introduce you to ${companyName}.\n\nBest regards,\nThe ${companyName} Team`
       }]
-    }];
-  }
-
-  generateBasicVideoIdeas(companyName, industry) {
-    return [{
-      title: `The ${companyName} Story`,
-      type: 'brand_story',
-      duration: '2 minutes',
-      script: `Professional video showcasing ${companyName}'s mission and values in the ${industry} industry`,
-      budget: '$1,500-3,000',
-      openSoraPrompt: `Professional corporate video showing ${companyName} team collaboration, modern office environment, satisfied customers, inspiring business atmosphere with natural lighting`
     }];
   }
 
