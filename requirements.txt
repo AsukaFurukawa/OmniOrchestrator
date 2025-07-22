@@ -1,0 +1,17 @@
+# Python requirements for MongoDB and AI integration (if any Python scripts are used)
+pymongo
+
+# Node.js dependencies (for reference, install via package.json, not pip)
+# express
+# mongoose
+# axios
+# dotenv
+# cors
+# helmet
+# express-rate-limit
+# socket.io
+# chart.js
+# tailwindcss
+# (and any other dependencies listed in package.json)
+
+# If you use Python for any AI or data processing, add those packages here 
