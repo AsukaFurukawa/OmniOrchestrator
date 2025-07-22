@@ -1,6 +1,5 @@
 const axios = require('axios');
-const fs = require('fs');
-const path = require('path');
+const Image = require('../models/Image');
 const crypto = require('crypto');
 
 class ImageService {
@@ -46,17 +45,8 @@ class ImageService {
         }
       }
     };
-    
     this.activeJobs = new Map();
     this.generatedImages = new Map();
-    this.imageDirectory = path.join(process.cwd(), 'public', 'images');
-    this.ensureImageDirectory();
-  }
-
-  ensureImageDirectory() {
-    if (!fs.existsSync(this.imageDirectory)) {
-      fs.mkdirSync(this.imageDirectory, { recursive: true });
-    }
   }
 
   async generateImage(prompt, options = {}) {
@@ -86,63 +76,39 @@ class ImageService {
 
     try {
       this.updateProgress(jobId, 10, 'processing_prompt');
-      
-      // Enhance prompt with style
       const enhancedPrompt = this.enhancePrompt(prompt, style);
-      
       this.updateProgress(jobId, 25, 'contacting_provider');
-      
-      // Generate with selected provider
       let result;
       try {
         result = await this.generateWithProvider(provider, enhancedPrompt, {
-        size,
-        count: parseInt(count),
-        quality,
-        negativePrompt,
-        seed
-      });
-      } catch (error) {
-        console.error(`❌ Image generation failed for ${provider}:`, error.message);
-        // Use fallback generation
-        result = await this.generateWithFallback(enhancedPrompt, options, jobId);
+          size,
+          count: parseInt(count),
+          quality,
+          negativePrompt,
+          seed
+        });
+      } catch (err) {
+        throw new Error('Image provider error: ' + err.message);
       }
-      
-      this.updateProgress(jobId, 90, 'finalizing');
-      
-      // Save results
-      const imageData = {
-        jobId,
-        prompt,
-        enhancedPrompt,
-        provider,
-        style,
-        size,
-        count,
-        images: result.images,
-        metadata: result.metadata,
-        createdAt: new Date(),
-        status: 'completed'
-      };
-      
-      await this.saveImageData(imageData);
-      this.generatedImages.set(jobId, imageData);
-      
+      this.updateProgress(jobId, 80, 'saving_image');
+      // Save each image to MongoDB
+      const savedImages = [];
+      for (const img of result.images) {
+        const buffer = Buffer.isBuffer(img) ? img : Buffer.from(img, 'base64');
+        const imageDoc = new Image({
+          data: buffer,
+          provider,
+          prompt,
+          createdAt: new Date()
+        });
+        await imageDoc.save();
+        savedImages.push(imageDoc);
+      }
       this.updateProgress(jobId, 100, 'completed');
-      
-      return {
-        success: true,
-        jobId,
-        images: result.images,
-        metadata: result.metadata
-      };
-      
+      return savedImages;
     } catch (error) {
-      console.error(`❌ Image generation failed for ${provider}:`, error.message);
-      this.updateProgress(jobId, 0, 'failed', error.message);
-      
-      // Try fallback generation
-      return await this.generateWithFallback(prompt, options, jobId);
+      this.updateProgress(jobId, 100, 'error', error.message);
+      throw error;
     }
   }
 
@@ -488,32 +454,37 @@ class ImageService {
         responseType: 'arraybuffer',
         timeout: 30000
       });
-      
       const imageBuffer = Buffer.from(response.data, 'binary');
-      return await this.saveImageBuffer(imageBuffer, provider);
-      
+      // Save to MongoDB
+      const imageDoc = new Image({
+        data: imageBuffer,
+        provider,
+        prompt: '', // You can pass prompt if available
+        createdAt: new Date()
+      });
+      await imageDoc.save();
+      return imageDoc;
     } catch (error) {
       throw new Error(`Failed to download image: ${error.message}`);
     }
   }
 
   async saveImageBuffer(buffer, provider) {
-    const fileName = `${provider}_${Date.now()}_${Math.random().toString(36).substring(7)}.png`;
-    const filePath = path.join(this.imageDirectory, fileName);
-    
-    fs.writeFileSync(filePath, buffer);
-    
-    return `/public/images/${fileName}`;
+    // Save to MongoDB only
+    const imageDoc = new Image({
+      data: buffer,
+      provider,
+      prompt: '', // You can pass prompt if available
+      createdAt: new Date()
+    });
+    await imageDoc.save();
+    return imageDoc;
   }
 
   async saveImageData(imageData) {
-    const fileName = `image_data_${Date.now()}_${Math.random().toString(36).substring(7)}.json`;
-    const filePath = path.join(this.imageDirectory, fileName);
-    
-    fs.writeFileSync(filePath, JSON.stringify(imageData, null, 2));
-    
-    console.log(`💾 Image data saved: ${filePath}`);
-    return fileName;
+    // Save metadata to MongoDB (optionally store as a separate collection or as part of Image)
+    // Here, just return true for compatibility
+    return true;
   }
 
   updateProgress(jobId, progress, status, message = '') {
@@ -531,35 +502,8 @@ class ImageService {
   }
 
   async getGeneratedImages() {
-    try {
-      const imageFiles = fs.readdirSync(this.imageDirectory)
-        .filter(file => file.endsWith('.json') && (file.includes('image_data_') || file.includes('mock_image_')))
-        .sort((a, b) => {
-          const aTime = fs.statSync(path.join(this.imageDirectory, a)).mtime;
-          const bTime = fs.statSync(path.join(this.imageDirectory, b)).mtime;
-          return bTime - aTime;
-        });
-
-      const images = [];
-      for (const file of imageFiles.slice(0, 20)) { // Limit to 20 most recent
-        try {
-          const filePath = path.join(this.imageDirectory, file);
-          const imageData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-          images.push({
-            id: imageData.id || file,
-            fileName: file,
-            ...imageData
-          });
-        } catch (error) {
-          console.error(`Error reading image file ${file}:`, error.message);
-        }
-      }
-
-      return images;
-    } catch (error) {
-      console.error('Error loading generated images:', error);
-      return [];
-    }
+    // Get the 20 most recent images from MongoDB
+    return await Image.find().sort({ createdAt: -1 }).limit(20);
   }
 }
 

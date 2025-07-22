@@ -17,11 +17,10 @@ const aiRoutes = require('./routes/ai');
 const socialRoutes = require('./routes/social');
 const trendRoutes = require('./routes/trends');
 const webhookRoutes = require('./routes/webhooks');
-const videoRoutes = require('./routes/video');
 const imageRoutes = require('./routes/image');
 const usageRoutes = require('./routes/usage');
 const freeAIRoutes = require('./routes/freeAI');
-const vadooRoutes = require('./routes/vadoo');
+// const vadooRoutes = require('./routes/vadoo'); // Removed
 
 // Import middleware
 const authMiddleware = require('./middleware/auth');
@@ -96,7 +95,7 @@ app.use('/api/tenants', require('./routes/tenants')); // No auth required for te
 app.use('/api/usage', usageRoutes);
 app.use('/api/webhooks', webhookRoutes);
 app.use('/api/free-ai', freeAIRoutes); // No auth required for free services!
-app.use('/api/vadoo', vadooRoutes);
+// app.use('/api/vadoo', vadooRoutes); // Removed
 
 // HACKATHON MODE: Remove auth middleware in development for demo
 if (process.env.NODE_ENV === 'development') {
@@ -105,7 +104,6 @@ if (process.env.NODE_ENV === 'development') {
   app.use('/api/ai', aiRoutes);
   app.use('/api/social', socialRoutes);
   app.use('/api/trends', trendRoutes);
-  app.use('/api/video', videoRoutes);
   app.use('/api/image', imageRoutes);
   app.use('/api/conversational', require('./routes/conversational'));
   console.log('🔧 HACKATHON MODE: All routes without auth for demo');
@@ -115,7 +113,6 @@ if (process.env.NODE_ENV === 'development') {
   app.use('/api/ai', authMiddleware, aiRoutes);
   app.use('/api/social', authMiddleware, socialRoutes);
   app.use('/api/trends', authMiddleware, trendRoutes);
-  app.use('/api/video', authMiddleware, videoRoutes);
   app.use('/api/image', authMiddleware, imageRoutes);
   app.use('/api/conversational', authMiddleware, require('./routes/conversational'));
 }
