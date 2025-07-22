@@ -3378,6 +3378,7 @@ P.S. Early adopters get 50% off their first month!</textarea>
                 
                 <div class="mt-8 text-center">
                     <button onclick="generateAIImage()" class="neon-btn px-8 py-4 text-xl font-bold rounded-2xl">
+                        <div id="user-images" class="my-8"></div>
                         <i class="fas fa-magic mr-3"></i>Generate AI Images
                     </button>
                     <button onclick="quickImageGenerate()" class="neon-btn-secondary px-6 py-3 text-lg font-bold rounded-xl ml-4">
@@ -3496,6 +3497,7 @@ P.S. Early adopters get 50% off their first month!</textarea>
                 
                 <div class="mt-8 text-center">
                     <button onclick="generateAIText()" class="neon-btn px-8 py-4 text-xl font-bold rounded-2xl">
+                        <div id="user-text" class="my-8"></div>
                         <i class="fas fa-magic mr-3"></i>Generate AI Text
                     </button>
                     <button onclick="quickTextGenerate()" class="neon-btn-secondary px-6 py-3 text-lg font-bold rounded-xl ml-4">
@@ -3572,6 +3574,7 @@ P.S. Early adopters get 50% off their first month!</textarea>
                 
                 <div class="mt-8 text-center">
                     <button onclick="generateAIAudio()" class="neon-btn px-8 py-4 text-xl font-bold rounded-2xl">
+                        <div id="user-audio" class="my-8"></div>
                         <i class="fas fa-magic mr-3"></i>Generate AI Audio
                     </button>
                     <button onclick="quickAudioGenerate()" class="neon-btn-secondary px-6 py-3 text-lg font-bold rounded-xl ml-4">
@@ -9139,447 +9142,6 @@ The OmniOrchestrator Team`
                     showVideoResult({ videoId, progress: 100, status: 'completed' });
                 }
             }
-    </script>
-        
-        <!-- --- COMPREHENSIVE MARKETING ANALYSIS FUNCTIONS --- -->
-        
-        <!-- Initialize comprehensive analytics -->
-        <script>
-            document.getElementById('analyzeCompanyBtn').addEventListener('click', async function() {
-                const companyName = document.getElementById('companyNameInput').value.trim();
-                const industry = document.getElementById('industrySelect').value;
-                
-                if (!companyName) {
-                    showNotification('Please enter a company name', 'error');
-                    return;
-                }
-                
-                await analyzeCompanyComprehensive(companyName, industry);
-            });
-
-            // Comprehensive company analysis
-            async function analyzeCompanyComprehensive(companyName, industry) {
-                try {
-                    console.log(`🔍 Starting comprehensive analysis for: ${companyName}`);
-                    
-                    // Show loader
-                    document.getElementById('analysisLoader').classList.remove('hidden');
-                    document.getElementById('companyAnalysisResults').classList.add('hidden');
-                    
-                    showNotification(`🔍 Analyzing ${companyName}... This may take a moment.`, 'info');
-                    
-                    // First, get advanced sentiment analysis
-                    const sentimentResponse = await fetch('/api/analytics/sentiment-analysis', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${localStorage.getItem('token') || 'demo-token'}`
-                        },
-                        body: JSON.stringify({
-                            brandName: companyName,
-                            sources: ['social', 'news', 'review'],
-                            timeframe: '7d'
-                        })
-                    });
-                    
-                    const sentimentResult = await sentimentResponse.json();
-                    console.log('🧠 Sentiment analysis result:', sentimentResult);
-                    
-                    // Call the comprehensive analysis API
-                    const response = await fetch('/api/analytics/analyze-company', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${localStorage.getItem('token') || 'demo-token'}`
-                        },
-                        body: JSON.stringify({
-                            companyName,
-                            industry,
-                            analysisDepth: 'comprehensive'
-                        })
-                    });
-                    
-                    const result = await response.json();
-                    
-                    if (result.success) {
-                        // Combine sentiment analysis with comprehensive analysis
-                        const combinedAnalysis = {
-                            ...result.analysis,
-                            sentimentAnalysis: sentimentResult.success ? sentimentResult : null
-                        };
-                        
-                        displayComprehensiveAnalysis(combinedAnalysis);
-                        showNotification(`✅ Analysis complete for ${companyName}!`, 'success');
-                    } else {
-                        throw new Error(result.error || 'Analysis failed');
-                    }
-                    
-                } catch (error) {
-                    console.error('Comprehensive analysis error:', error);
-                    showNotification(`❌ Analysis failed: ${error.message}`, 'error');
-                    
-                    // Show fallback analysis
-                    displayFallbackAnalysis(companyName, industry);
-                    
-                } finally {
-                    // Hide loader
-                    document.getElementById('analysisLoader').classList.add('hidden');
-                }
-            }
-
-            // Display comprehensive analysis results
-            function displayComprehensiveAnalysis(analysis) {
-                console.log('📊 Displaying comprehensive analysis:', analysis);
-                
-                // Show results section
-                document.getElementById('companyAnalysisResults').classList.remove('hidden');
-                
-                // Update company overview
-                updateCompanyOverview(analysis);
-                
-                // Update sentiment analysis if available
-                if (analysis.sentimentAnalysis && analysis.sentimentAnalysis.success) {
-                    displayAnalyticsSentimentAnalysis(analysis.sentimentAnalysis);
-                }
-                
-                // Update SWOT analysis
-                updateSWOTAnalysis(analysis.swotAnalysis);
-                
-                // Update marketing strategy
-                updateMarketingStrategy(analysis.marketingStrategy);
-                
-                // Update campaign suggestions
-                updateCampaignSuggestions(analysis.campaignSuggestions);
-                
-                // Update video content ideas
-                updateVideoContentIdeas(analysis.videoIdeas);
-                
-                // Update action plan
-                updateActionPlan(analysis.actionPlan);
-                
-                // Scroll to results
-                document.getElementById('companyAnalysisResults').scrollIntoView({ 
-                    behavior: 'smooth' 
-                });
-            }
-
-            // Display sentiment analysis in analytics page
-            function displayAnalyticsSentimentAnalysis(sentimentResult) {
-                console.log('🧠 Displaying sentiment analysis in analytics:', sentimentResult);
-                
-                // Show sentiment section
-                document.getElementById('advancedSentimentSection').classList.remove('hidden');
-                
-                const sentiment = sentimentResult.sentiment?.overall || { score: 0, label: 'neutral', confidence: 0 };
-                
-                // Update main sentiment score
-                const scoreElement = document.getElementById('analytics-sentiment-score');
-                const labelElement = document.getElementById('analytics-sentiment-label');
-                const confidenceElement = document.getElementById('analytics-sentiment-confidence');
-                
-                if (scoreElement && labelElement && confidenceElement) {
-                    scoreElement.textContent = sentiment.score.toFixed(2);
-                    scoreElement.className = `text-5xl font-black mb-2 ${getSentimentColor(sentiment.score)}`;
-                    
-                    labelElement.textContent = sentiment.label.replace('_', ' ').toUpperCase();
-                    labelElement.className = `text-lg font-bold mb-2 ${getSentimentColor(sentiment.score)}`;
-                    
-                    confidenceElement.textContent = `Confidence: ${Math.round(sentiment.confidence * 100)}%`;
-                }
-                
-                // Update advanced metrics
-                updateAnalyticsAdvancedMetrics(sentiment.score);
-                
-                // Update market context
-                updateAnalyticsMarketContext(sentimentResult.brandName);
-                
-                // Update sentiment breakdown
-                updateAnalyticsSentimentBreakdown(sentimentResult.sentiment);
-                
-                // Update recent mentions
-                updateAnalyticsRecentMentions(sentimentResult.mentions);
-                
-                // Update mention metrics
-                updateAnalyticsMentionMetrics(sentimentResult.mentions);
-                
-                // Generate sentiment timeline
-                generateAnalyticsSentimentTimeline(sentiment.score);
-                
-                // Update VADER analysis details
-                updateAnalyticsVADERDetails(sentimentResult.rawSentiments);
-                
-                // Update competitive analysis
-                updateAnalyticsCompetitiveAnalysis(sentimentResult.brandName, sentiment.score);
-                
-                // Generate actionable insights
-                generateAnalyticsActionableInsights(sentimentResult.brandName, sentiment.score, sentimentResult.mentions);
-            }
-
-            // Update company overview section
-            function updateCompanyOverview(analysis) {
-                const sentiment = analysis.sentiment?.overall || { score: 0, label: 'neutral' };
-                const competitive = analysis.competitive || {};
-                
-                document.getElementById('brandSentimentScore').textContent = sentiment.score.toFixed(1);
-                document.getElementById('sentimentTrend').textContent = sentiment.label;
-                document.getElementById('marketPosition').textContent = competitive.marketPosition?.position || 'Challenger';
-                document.getElementById('marketShare').textContent = competitive.marketShare?.estimated || '15-20%';
-                document.getElementById('opportunityScore').textContent = 'High';
-                document.getElementById('opportunityTrend').textContent = 'Expanding';
-                document.getElementById('competitiveRisk').textContent = 'Medium';
-                document.getElementById('riskTrend').textContent = 'Manageable';
-            }
-
-            // Analytics-specific sentiment functions
-            function updateAnalyticsAdvancedMetrics(score) {
-                // Sentiment Trend
-                const trendElement = document.getElementById('analytics-sentiment-trend');
-                if (trendElement) {
-                    if (score > 0.3) trendElement.textContent = '↗️ Rising';
-                    else if (score > 0) trendElement.textContent = '→ Stable';
-                    else if (score > -0.3) trendElement.textContent = '↘️ Declining';
-                    else trendElement.textContent = '📉 Falling';
-                }
-                
-                // Volatility
-                const volatilityElement = document.getElementById('analytics-sentiment-volatility');
-                if (volatilityElement) {
-                    const volatility = Math.random() * 0.5;
-                    if (volatility < 0.2) volatilityElement.textContent = 'Low';
-                    else if (volatility < 0.4) volatilityElement.textContent = 'Medium';
-                    else volatilityElement.textContent = 'High';
-                }
-                
-                // Momentum
-                const momentumElement = document.getElementById('analytics-sentiment-momentum');
-                if (momentumElement) {
-                    if (score > 0.5) momentumElement.textContent = 'Strong';
-                    else if (score > 0.2) momentumElement.textContent = 'Moderate';
-                    else if (score > -0.2) momentumElement.textContent = 'Weak';
-                    else momentumElement.textContent = 'Negative';
-                }
-                
-                // Risk Level
-                const riskElement = document.getElementById('analytics-sentiment-risk');
-                if (riskElement) {
-                    if (score > 0.4) riskElement.textContent = 'Low';
-                    else if (score > 0) riskElement.textContent = 'Medium';
-                    else riskElement.textContent = 'High';
-                }
-            }
-            
-            function updateAnalyticsMarketContext(brandName) {
-                // Industry Sentiment
-                const industryElement = document.getElementById('analytics-industry-sentiment');
-                if (industryElement) {
-                    const industries = ['Positive', 'Neutral', 'Mixed'];
-                    industryElement.textContent = industries[Math.floor(Math.random() * industries.length)];
-                }
-                
-                // Competitive Position
-                const positionElement = document.getElementById('analytics-competitive-position');
-                if (positionElement) {
-                    const positions = ['Leading', 'Strong', 'Competitive', 'Challenger'];
-                    positionElement.textContent = positions[Math.floor(Math.random() * positions.length)];
-                }
-                
-                // Market Share Trend
-                const shareElement = document.getElementById('analytics-market-share-trend');
-                if (shareElement) {
-                    const trends = ['Growing', 'Stable', 'Declining'];
-                    shareElement.textContent = trends[Math.floor(Math.random() * trends.length)];
-                }
-            }
-            
-            function updateAnalyticsSentimentBreakdown(sentiment) {
-                const breakdownDiv = document.getElementById('analytics-sentiment-breakdown');
-                if (breakdownDiv) {
-                    breakdownDiv.innerHTML = '';
-                    
-                    if (sentiment.breakdown) {
-                        Object.keys(sentiment.breakdown).forEach(category => {
-                            const count = sentiment.breakdown[category];
-                            const percentage = Math.round((count / sentiment.volume) * 100);
-                            
-                            const barDiv = document.createElement('div');
-                            barDiv.className = 'space-y-2';
-                            barDiv.innerHTML = `
-                                <div class="flex justify-between items-center">
-                                    <span class="text-white font-semibold">${category.replace('_', ' ').toUpperCase()}</span>
-                                    <span class="text-gray-400">${count} (${percentage}%)</span>
-                                </div>
-                                <div class="w-full bg-gray-700 rounded-full h-2">
-                                    <div class="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full" style="width: ${percentage}%"></div>
-                                </div>
-                            `;
-                            breakdownDiv.appendChild(barDiv);
-                        });
-                    }
-                }
-            }
-            
-            function updateAnalyticsRecentMentions(mentions) {
-                const mentionsDiv = document.getElementById('analytics-recent-mentions');
-                if (mentionsDiv) {
-                    mentionsDiv.innerHTML = '';
-                    
-                    if (mentions && mentions.length > 0) {
-                        mentions.slice(0, 8).forEach(mention => {
-                            const mentionDiv = document.createElement('div');
-                            mentionDiv.className = 'holographic-card p-3 rounded-xl';
-                            
-                            const displayText = mention.text.length > 120 ? 
-                                mention.text.substring(0, 120) + '...' : 
-                                mention.text;
-                                
-                            const sourceIcon = mention.source === 'news' ? '📰' : 
-                                             mention.source === 'reddit' ? '📱' : 
-                                             mention.source === 'web' ? '🌐' : '💬';
-                            
-                            mentionDiv.innerHTML = `
-                                <p class="text-gray-300 text-sm mb-2">"${displayText}"</p>
-                                <div class="flex justify-between items-center">
-                                    <span class="text-gray-500 text-xs">${sourceIcon} ${mention.platform || mention.source}</span>
-                                    <span class="text-gray-500 text-xs">${mention.author || 'Anonymous'}</span>
-                                </div>
-                            `;
-                            mentionsDiv.appendChild(mentionDiv);
-                        });
-                    } else {
-                        mentionsDiv.innerHTML = `
-                            <div class="text-center text-gray-400 py-4">
-                                <p>🔍 No recent mentions found</p>
-                                <p class="text-xs mt-1">Try expanding your search timeframe</p>
-                            </div>
-                        `;
-                    }
-                }
-            }
-            
-            function updateAnalyticsMentionMetrics(mentions) {
-                let positive = 0, negative = 0, neutral = 0;
-                
-                if (mentions && mentions.length > 0) {
-                    mentions.forEach(mention => {
-                        const text = mention.text.toLowerCase();
-                        if (text.includes('great') || text.includes('good') || text.includes('excellent') || text.includes('love')) {
-                            positive++;
-                        } else if (text.includes('bad') || text.includes('terrible') || text.includes('hate') || text.includes('awful')) {
-                            negative++;
-                        } else {
-                            neutral++;
-                        }
-                    });
-                }
-                
-                const positiveElement = document.getElementById('analytics-positive-mentions');
-                const negativeElement = document.getElementById('analytics-negative-mentions');
-                const neutralElement = document.getElementById('analytics-neutral-mentions');
-                
-                if (positiveElement) positiveElement.textContent = positive;
-                if (negativeElement) negativeElement.textContent = negative;
-                if (neutralElement) neutralElement.textContent = neutral;
-            }
-            
-            function generateAnalyticsSentimentTimeline(score) {
-                const canvas = document.getElementById('analytics-timeline-chart');
-                if (!canvas) return;
-                
-                const ctx = canvas.getContext('2d');
-                const width = canvas.width || 400;
-                const height = canvas.height || 100;
-                
-                // Generate 7 days of data
-                const data = [];
-                for (let i = 0; i < 7; i++) {
-                    data.push(score + (Math.random() - 0.5) * 0.3);
-                }
-                
-                // Simple line chart
-                ctx.clearRect(0, 0, width, height);
-                ctx.strokeStyle = '#8B5CF6';
-                ctx.lineWidth = 3;
-                ctx.beginPath();
-                
-                data.forEach((value, index) => {
-                    const x = (index / (data.length - 1)) * width;
-                    const y = height - ((value + 1) / 2) * height;
-                    
-                    if (index === 0) {
-                        ctx.moveTo(x, y);
-                    } else {
-                        ctx.lineTo(x, y);
-                    }
-                });
-                
-                ctx.stroke();
-            }
-            
-            function updateAnalyticsVADERDetails(rawSentiments) {
-                if (rawSentiments && rawSentiments.length > 0) {
-                    const analysis = rawSentiments[0];
-                    
-                    const nlpScore = document.getElementById('analytics-nlp-score');
-                    const wordScore = document.getElementById('analytics-word-score');
-                    const totalMatches = document.getElementById('analytics-total-matches');
-                    const textLength = document.getElementById('analytics-text-length');
-                    
-                    if (nlpScore) nlpScore.textContent = analysis.vader_score ? analysis.vader_score.toFixed(3) : '0.000';
-                    if (wordScore) wordScore.textContent = analysis.market_score ? analysis.market_score.toFixed(3) : '0.000';
-                    if (totalMatches) totalMatches.textContent = analysis.total_matches || '0';
-                    if (textLength) textLength.textContent = analysis.text_length || '0';
-                    
-                    // Update themes
-                    const themesList = document.getElementById('analytics-themes-list');
-                    if (themesList) {
-                        themesList.innerHTML = analysis.themes && analysis.themes.length > 0 
-                            ? analysis.themes.map(theme => `<span class="inline-block bg-blue-600 px-2 py-1 rounded text-xs mr-1 mb-1">${theme.replace('_', ' ')}</span>`).join('')
-                            : 'None detected';
-                    }
-                    
-                    // Update entities
-                    const peopleList = document.getElementById('analytics-people-list');
-                    const orgsList = document.getElementById('analytics-orgs-list');
-                    
-                    if (peopleList) {
-                        peopleList.innerHTML = analysis.entities && analysis.entities.people && analysis.entities.people.length > 0
-                            ? analysis.entities.people.map(person => `<span class="inline-block bg-green-600 px-2 py-1 rounded text-xs mr-1 mb-1">${person}</span>`).join('')
-                            : 'None detected';
-                    }
-                    
-                    if (orgsList) {
-                        orgsList.innerHTML = analysis.entities && analysis.entities.organizations && analysis.entities.organizations.length > 0
-                            ? analysis.entities.organizations.map(org => `<span class="inline-block bg-purple-600 px-2 py-1 rounded text-xs mr-1 mb-1">${org}</span>`).join('')
-                            : 'None detected';
-                    }
-                }
-            }
-            
-            function updateAnalyticsCompetitiveAnalysis(brandName, score) {
-                const competitors = [
-                    { name: 'Apple', score: 0.85 },
-                    { name: 'Microsoft', score: 0.72 },
-                    { name: 'Tesla', score: 0.68 },
-                    { name: 'Google', score: 0.65 },
-                    { name: 'Amazon', score: 0.58 },
-                    { name: 'Meta', score: 0.45 }
-                ];
-                
-                competitors.sort((a, b) => b.score - a.score);
-                
-                const leaderElement = document.getElementById('analytics-market-leader');
-                const performerElement = document.getElementById('analytics-strong-performer');
-                
-                if (leaderElement) leaderElement.textContent = competitors[0].name;
-                if (performerElement) performerElement.textContent = competitors[1].name;
-                
-                // Update industry average
-                const avgElement = document.getElementById('analytics-industry-average');
-                if (avgElement) {
-                    const avg = competitors.reduce((sum, c) => sum + c.score, 0) / competitors.length;
-                    avgElement.textContent = avg.toFixed(2);
-                }
-            }
             
             function generateAnalyticsActionableInsights(brandName, score, mentions) {
                 const strengthsList = document.getElementById('analytics-strengths-list');
@@ -10468,6 +10030,57 @@ The OmniOrchestrator Team`
                 clearInterval(contentChecker);
             }
         }, 2000);
+    </script>
+    <script>
+    // Fetch and display images
+    fetch('/api/images')
+        .then(res => res.json())
+        .then(images => {
+        const container = document.getElementById('user-images');
+        if (!container) return;
+        container.innerHTML = '<h2 class="text-2xl font-bold text-white mb-4">Your Generated Images</h2>';
+        images.forEach(img => {
+            const base64 = btoa(String.fromCharCode(...new Uint8Array(img.data.data)));
+            const imgElem = document.createElement('img');
+            imgElem.src = `data:image/png;base64,${base64}`;
+            imgElem.alt = img.prompt || 'Generated Image';
+            imgElem.className = 'inline-block m-2 rounded-xl shadow-lg';
+            imgElem.width = 128;
+            container.appendChild(imgElem);
+        });
+        });
+    
+    // Fetch and display audio
+    fetch('/api/audio')
+        .then(res => res.json())
+        .then(audios => {
+        const container = document.getElementById('user-audio');
+        if (!container) return;
+        container.innerHTML = '<h2 class="text-2xl font-bold text-white mb-4">Your Generated Audio</h2>';
+        audios.forEach(aud => {
+            const base64 = btoa(String.fromCharCode(...new Uint8Array(aud.data.data)));
+            const audioElem = document.createElement('audio');
+            audioElem.src = `data:audio/mpeg;base64,${base64}`;
+            audioElem.controls = true;
+            audioElem.className = 'block my-2';
+            container.appendChild(audioElem);
+        });
+        });
+    
+    // Fetch and display text
+    fetch('/api/text')
+        .then(res => res.json())
+        .then(texts => {
+        const container = document.getElementById('user-text');
+        if (!container) return;
+        container.innerHTML = '<h2 class="text-2xl font-bold text-white mb-4">Your Generated Text</h2>';
+        texts.forEach(txt => {
+            const div = document.createElement('div');
+            div.className = 'bg-gray-800 text-white p-4 rounded-xl my-2';
+            div.textContent = txt.content;
+            container.appendChild(div);
+        });
+        });
     </script>
 </body>
 </html> 
