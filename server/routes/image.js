@@ -6,6 +6,7 @@ const fs = require('fs').promises;
 const path = require('path');
 const { body, validationResult } = require('express-validator');
 const { v4: uuidv4 } = require('uuid');
+const Image = require('../models/Image');
 
 const imageService = new ImageService();
 
@@ -317,6 +318,16 @@ router.post('/generate-enhanced', async (req, res) => {
       success: false,
       error: error.message
     });
+  }
+});
+
+// GET /api/images - return latest images
+router.get('/', async (req, res) => {
+  try {
+    const images = await Image.find().sort({ createdAt: -1 }).limit(20);
+    res.json(images);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch images' });
   }
 });
 
