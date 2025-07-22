@@ -10,7 +10,94 @@ const usageTracker = new UsageTrackingService();
 // Get all campaigns for user
 router.get('/', async (req, res) => {
   try {
-    let user = await User.findById(req.user.userId);
+    // Handle development mode - bypass user lookup
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔧 Development mode: Using mock campaign data');
+      const mockUser = {
+        campaigns: [
+          {
+            _id: 'mock-campaign-1',
+            name: 'Summer Sale Campaign',
+            type: 'email',
+            status: 'active',
+            content: {
+              headline: 'Summer Sale - Up to 50% Off!',
+              body: 'Don\'t miss our biggest sale of the year...',
+              cta: 'Shop Now'
+            },
+            targeting: { audience: 'Existing customers' },
+            metrics: { impressions: 15420, clicks: 1242, conversions: 86, spend: 450 },
+            createdAt: new Date('2024-06-01'),
+            updatedAt: new Date()
+          },
+          {
+            _id: 'mock-campaign-2',
+            name: 'Brand Awareness Campaign',
+            type: 'social',
+            status: 'active',
+            content: {
+              headline: 'Discover Our Brand',
+              body: 'Join thousands of satisfied customers...',
+              cta: 'Learn More'
+            },
+            targeting: { audience: 'New prospects' },
+            metrics: { impressions: 8930, clicks: 567, conversions: 23, spend: 280 },
+            createdAt: new Date('2024-06-15'),
+            updatedAt: new Date()
+          },
+          {
+            _id: 'mock-campaign-3',
+            name: 'Product Launch',
+            type: 'web',
+            status: 'draft',
+            content: {
+              headline: 'New Product Launch',
+              body: 'Introducing our latest innovation...',
+              cta: 'Get Early Access'
+            },
+            targeting: { audience: 'Premium customers' },
+            metrics: { impressions: 0, clicks: 0, conversions: 0, spend: 0 },
+            createdAt: new Date(),
+            updatedAt: new Date()
+          }
+        ]
+      };
+      
+      const { status, type, limit = 20, page = 1 } = req.query;
+      let campaigns = mockUser.campaigns;
+
+      // Filter by status
+      if (status) {
+        campaigns = campaigns.filter(campaign => campaign.status === status);
+      }
+
+      // Filter by type
+      if (type) {
+        campaigns = campaigns.filter(campaign => campaign.type === type);
+      }
+
+      // Sort by creation date (newest first)
+      campaigns.sort((a, b) => b.createdAt - a.createdAt);
+
+      // Pagination
+      const startIndex = (page - 1) * limit;
+      const endIndex = page * limit;
+      const paginatedCampaigns = campaigns.slice(startIndex, endIndex);
+
+      return res.json({
+        success: true,
+        campaigns: paginatedCampaigns,
+        pagination: {
+          total: campaigns.length,
+          page: parseInt(page),
+          limit: parseInt(limit),
+          totalPages: Math.ceil(campaigns.length / limit)
+        }
+      });
+    }
+
+    // Production mode - normal user lookup
+    let user = await User.findById(req.user?.userId);
     
     // Handle development mode - create mock user data if user doesn't exist
     if (!user && process.env.NODE_ENV === 'development') {

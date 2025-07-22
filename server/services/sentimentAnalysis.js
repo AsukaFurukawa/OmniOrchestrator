@@ -1,12 +1,16 @@
 const OpenAI = require('openai');
 const axios = require('axios');
 const crypto = require('crypto');
+const SimpleSentimentAnalyzer = require('./simpleSentimentAnalysis');
 
 class SentimentAnalysis {
   constructor() {
     this.openai = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY,
     });
+    
+    // Use simple VADER-based sentiment analyzer
+    this.simpleAnalyzer = new SimpleSentimentAnalyzer();
     
     // Use AI service for failover capability
     this.aiService = null;
@@ -267,9 +271,9 @@ class SentimentAnalysis {
    * 🚀 LIGHTNING FAST LOCAL-ONLY sentiment analysis
    */
   async analyzeSingleContent(text, contentType = 'general') {
-    // 🔥 SKIP ALL AI - GO STRAIGHT TO LOCAL ANALYSIS
-    console.log('🔥 Using LOCAL-ONLY sentiment analysis (no AI dependencies)');
-    return await this.getFallbackSentimentAnalysis(text);
+    // 📊 Use VADER market sentiment analysis
+    console.log('📊 Using VADER market sentiment analysis');
+    return await this.simpleAnalyzer.analyzeSentiment(text, contentType);
   }
 
   // 🚀 LIGHTNING FAST 100% LOCAL sentiment analysis 

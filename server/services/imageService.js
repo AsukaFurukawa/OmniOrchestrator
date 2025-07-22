@@ -96,12 +96,12 @@ class ImageService {
       let result;
       try {
         result = await this.generateWithProvider(provider, enhancedPrompt, {
-          size,
-          count: parseInt(count),
-          quality,
-          negativePrompt,
-          seed
-        });
+        size,
+        count: parseInt(count),
+        quality,
+        negativePrompt,
+        seed
+      });
       } catch (error) {
         console.error(`❌ Image generation failed for ${provider}:`, error.message);
         // Use fallback generation
@@ -303,14 +303,14 @@ class ImageService {
     const mockImages = [];
     for (let i = 0; i < parseInt(count); i++) {
       const mockImageData = await this.createMockImage({
-        prompt,
+      prompt,
         style: options.style || 'photorealistic',
         provider: 'fallback'
       }, width, height);
       
       mockImages.push(mockImageData);
     }
-    
+
     return {
       images: mockImages,
       metadata: {

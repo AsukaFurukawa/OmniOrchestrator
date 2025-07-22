@@ -7,6 +7,7 @@ const { createServer } = require('http');
 const { Server } = require('socket.io');
 const path = require('path');
 require('dotenv').config();
+console.log('Loaded IMAGINE_TOKEN:', process.env.IMAGINE_TOKEN ? 'set' : 'not set');
 
 // Import routes
 const authRoutes = require('./routes/auth');
@@ -20,6 +21,7 @@ const videoRoutes = require('./routes/video');
 const imageRoutes = require('./routes/image');
 const usageRoutes = require('./routes/usage');
 const freeAIRoutes = require('./routes/freeAI');
+const vadooRoutes = require('./routes/vadoo');
 
 // Import middleware
 const authMiddleware = require('./middleware/auth');
@@ -94,6 +96,7 @@ app.use('/api/tenants', require('./routes/tenants')); // No auth required for te
 app.use('/api/usage', usageRoutes);
 app.use('/api/webhooks', webhookRoutes);
 app.use('/api/free-ai', freeAIRoutes); // No auth required for free services!
+app.use('/api/vadoo', vadooRoutes);
 
 // HACKATHON MODE: Remove auth middleware in development for demo
 if (process.env.NODE_ENV === 'development') {
@@ -122,8 +125,10 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'index.html'));
 });
 
-// Serve static files from public directory (for videos)
+// Serve static files from public directory (for videos, images, and audio)
 app.use('/videos', express.static(path.join(__dirname, '..', 'public', 'videos')));
+app.use('/images', express.static(path.join(__dirname, '..', 'public', 'images')));
+app.use('/audio', express.static(path.join(__dirname, '..', 'public', 'audio')));
 app.use('/public', express.static(path.join(__dirname, '..', 'public')));
 
 // Health check endpoint

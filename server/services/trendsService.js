@@ -122,9 +122,9 @@ class TrendsService {
 
       // Check if we have valid data
       if (response.data && response.data['Global Quote'] && response.data['Global Quote']['01. symbol']) {
-        const quote = response.data['Global Quote'];
-        return {
-          symbol: quote['01. symbol'],
+      const quote = response.data['Global Quote'];
+      return {
+        symbol: quote['01. symbol'],
           price: parseFloat(quote['05. price']) || 0,
           change: parseFloat(quote['09. change']) || 0,
           changePercent: quote['10. change percent'] || '0%',
@@ -179,10 +179,10 @@ class TrendsService {
 
       if (response.data && response.data.articles) {
         return response.data.articles.map(article => ({
-          title: article.title,
-          description: article.description,
-          url: article.url,
-          publishedAt: article.publishedAt,
+        title: article.title,
+        description: article.description,
+        url: article.url,
+        publishedAt: article.publishedAt,
           source: article.source?.name || 'Unknown',
           sentiment: this.analyzeNewsSentiment(article.title + ' ' + article.description)
         }));
@@ -586,6 +586,30 @@ class TrendsService {
       priority: trend.strength > 0.7 ? 'high' : 'medium',
       timeline: '30-60 days'
     }));
+  }
+
+  // Analyze news sentiment (simplified local implementation)
+  analyzeNewsSentiment(text) {
+    if (!text) return 'neutral';
+    
+    const positiveWords = ['positive', 'growth', 'profit', 'success', 'up', 'gain', 'rise', 'strong', 'excellent', 'great', 'good', 'increase', 'improve', 'boost', 'surge', 'jump', 'climb', 'soar', 'rally', 'breakthrough', 'innovation', 'launch', 'expand', 'acquire', 'partnership', 'win', 'award', 'recognition'];
+    const negativeWords = ['negative', 'loss', 'decline', 'down', 'fall', 'drop', 'crash', 'plunge', 'weak', 'poor', 'bad', 'decrease', 'worse', 'problem', 'issue', 'concern', 'risk', 'threat', 'failure', 'bankruptcy', 'layoff', 'cut', 'reduce', 'close', 'exit', 'sell', 'lose'];
+    
+    const lowerText = text.toLowerCase();
+    let positiveCount = 0;
+    let negativeCount = 0;
+    
+    positiveWords.forEach(word => {
+      if (lowerText.includes(word)) positiveCount++;
+    });
+    
+    negativeWords.forEach(word => {
+      if (lowerText.includes(word)) negativeCount++;
+    });
+    
+    if (positiveCount > negativeCount) return 'positive';
+    if (negativeCount > positiveCount) return 'negative';
+    return 'neutral';
   }
 }
 

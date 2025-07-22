@@ -11,6 +11,10 @@ class VideoService {
     
     // Alternative video generation services
     this.alternatives = {
+      fluxVideo: {
+        url: 'https://ginigen-flux-video.hf.space',
+        key: process.env.FLUX_VIDEO_API_KEY || 'free'
+      },
       runway: {
         url: 'https://api.runwayml.com',
         key: process.env.RUNWAY_API_KEY
@@ -109,7 +113,7 @@ class VideoService {
       
       let result;
       try {
-        result = await this.generateWithMockAPI(enhancedPrompt, defaultOptions, jobId);
+          result = await this.generateWithMockAPI(enhancedPrompt, defaultOptions, jobId);
       } catch (error) {
         console.error('Primary video generation failed, using fallback:', error);
         result = await this.generateWithEnhancedFallback(enhancedPrompt, defaultOptions, jobId);
@@ -328,37 +332,6 @@ class VideoService {
     return Math.max(0, remaining);
   }
 
-  // Check if Open-Sora is available locally
-  checkOpenSoraAvailability() {
-    try {
-      const fs = require('fs');
-      const path = require('path');
-      
-      // Check if Open-Sora path is configured and exists
-      const openSoraPath = process.env.OPEN_SORA_PATH || '/opt/Open-Sora';
-      
-      // For development/demo purposes, we'll consider it "available" if:
-      // 1. Python is available, OR
-      // 2. We're in development mode (can use mock fallback)
-      
-      if (process.env.NODE_ENV === 'development') {
-        // In development, always try Open-Sora first (with mock fallback)
-        return true;
-      }
-      
-      // Check if Open-Sora directory exists
-      if (fs.existsSync(openSoraPath)) {
-        const inferenceScript = path.join(openSoraPath, 'scripts', 'diffusion', 'inference.py');
-        return fs.existsSync(inferenceScript);
-      }
-      
-      return false;
-    } catch (error) {
-      console.log('🔧 Open-Sora availability check failed:', error.message);
-      return process.env.NODE_ENV === 'development'; // Available in dev mode with fallback
-    }
-  }
-
   // Select best available model
   selectBestModel(preferredModel) {
     const models = this.getAvailableModels();
@@ -367,7 +340,8 @@ class VideoService {
       return preferredModel;
     }
     
-    // Fallback hierarchy - prioritize Open-Sora for best results
+    // Fallback hierarchy - prioritize Flux-VIDEO for best results (free and reliable)
+    if (models['flux-video']?.available) return 'flux-video';
     if (models['open-sora']?.available) return 'open-sora';
     if (models.runway?.available) return 'runway';
     if (models.replicate?.available) return 'replicate';
@@ -380,6 +354,8 @@ class VideoService {
     
     try {
       switch (provider) {
+        case 'flux-video':
+          return await this.generateWithFluxVideo(prompt, options, jobId);
         case 'open_sora':
           return await this.generateWithOpenSora(prompt, options, jobId);
         case 'deepai':
@@ -518,6 +494,124 @@ class VideoService {
       
     } catch (error) {
       console.log('⚠️ Replicate video generation failed:', error.message);
+      throw error;
+    }
+  }
+
+  // Flux-VIDEO integration
+  async generateWithFluxVideo(prompt, options, jobId) {
+    console.log('🎬 Attempting Flux-VIDEO generation...');
+    
+    try {
+      this.updateProgress(jobId, 20, 'initializing_flux_video');
+      
+      const axios = require('axios');
+      
+      // Flux-VIDEO API parameters
+      const fluxOptions = {
+        prompt: prompt,
+        negative_prompt: options.negative_prompt || 'blurry, low quality, distorted, watermark, text',
+        num_frames: Math.min(options.duration * options.fps, 128), // Flux limit
+        num_inference_steps: options.quality === 'high' ? 50 : 25,
+        guidance_scale: 7.5,
+        width: parseInt(options.resolution.split('x')[0]),
+        height: parseInt(options.resolution.split('x')[1]),
+        fps: options.fps,
+        motion_bucket_id: options.motion_strength || 5,
+        cond_aug: 0.02,
+        decoding_t: 7,
+        seed: Math.floor(Math.random() * 1000000)
+      };
+
+      console.log('🎬 Flux-VIDEO generation starting with options:', fluxOptions);
+      
+      this.updateProgress(jobId, 40, 'processing_with_flux_video');
+      
+      const headers = {
+        'Content-Type': 'application/json'
+      };
+      // Prefer the video-specific key if present
+      if (process.env.HUGGINGFACE_PRACHI_API_KEY) {
+        headers['Authorization'] = `Bearer ${process.env.HUGGINGFACE_PRACHI_API_KEY}`;
+      } else if (process.env.HUGGINGFACE_API_KEY) {
+        headers['Authorization'] = `Bearer ${process.env.HUGGINGFACE_API_KEY}`;
+      }
+
+      const response = await axios.post(
+        `${this.alternatives.fluxVideo.url}/api/predict`,
+        {
+          fn_index: 0, // Text-to-video function
+          data: [
+            fluxOptions.prompt,
+            fluxOptions.negative_prompt,
+            fluxOptions.num_frames,
+            fluxOptions.num_inference_steps,
+            fluxOptions.guidance_scale,
+            fluxOptions.width,
+            fluxOptions.height,
+            fluxOptions.fps,
+            fluxOptions.motion_bucket_id,
+            fluxOptions.cond_aug,
+            fluxOptions.decoding_t,
+            fluxOptions.seed
+          ]
+        },
+        {
+          headers,
+          timeout: 120000 // 2 minutes timeout
+        }
+      );
+      console.log('Flux-VIDEO API raw response:', JSON.stringify(response.data, null, 2));
+      this.updateProgress(jobId, 80, 'finalizing_flux_video');
+      if (response.data && response.data.data) {
+        const result = await this.processFluxVideoResult(response.data, jobId);
+        return result;
+      } else {
+        console.error('Invalid response from Flux-VIDEO API:', JSON.stringify(response.data, null, 2));
+        throw new Error('Invalid response from Flux-VIDEO API');
+      }
+    } catch (error) {
+      console.error('Flux-VIDEO generation failed:', error.message, error.response ? error.response.data : '');
+      throw error;
+    }
+  }
+
+  // Process Flux-VIDEO results
+  async processFluxVideoResult(responseData, jobId) {
+    try {
+      console.log('Processing Flux-VIDEO result:', JSON.stringify(responseData, null, 2));
+      if (responseData.data && responseData.data[0]) {
+        const videoData = responseData.data[0];
+        let videoUrl = null;
+        if (typeof videoData === 'string' && videoData.startsWith('data:video')) {
+          videoUrl = videoData;
+        } else if (typeof videoData === 'string' && videoData.startsWith('http')) {
+          videoUrl = videoData;
+        } else if (videoData.name && videoData.data) {
+          videoUrl = `data:video/mp4;base64,${videoData.data}`;
+        }
+        if (videoUrl) {
+          this.updateProgress(jobId, 100, 'completed');
+          return {
+            videoUrl: videoUrl,
+            metadata: {
+              provider: 'flux-video',
+              model: 'flux-video-v1',
+              status: 'completed',
+              duration: responseData.duration || 4,
+              resolution: responseData.resolution || '1024x576'
+            }
+          };
+        } else {
+          console.error('No valid video data in Flux-VIDEO response:', JSON.stringify(responseData, null, 2));
+          throw new Error('No valid video data in Flux-VIDEO response');
+        }
+      } else {
+        console.error('Empty response from Flux-VIDEO:', JSON.stringify(responseData, null, 2));
+        throw new Error('Empty response from Flux-VIDEO');
+      }
+    } catch (error) {
+      console.error('Error processing Flux-VIDEO result:', error.message, JSON.stringify(responseData, null, 2));
       throw error;
     }
   }
@@ -1444,9 +1538,19 @@ class VideoService {
   // Get available video models and capabilities
   getAvailableModels() {
     return {
+      'flux-video': {
+        name: 'Flux-VIDEO',
+        available: true, // Always available (free Hugging Face Space)
+        capabilities: ['text-to-video', 'image-to-video'],
+        maxDuration: 8,
+        resolutions: ['512x512', '1024x576', '1280x720'],
+        quality: 'high',
+        cost: 'free',
+        description: 'Advanced video generation model from Hugging Face'
+      },
       'open-sora': {
         name: 'Open-Sora',
-        available: this.checkOpenSoraAvailability(),
+        available: false, // Removed local check
         capabilities: ['text-to-video', 'image-to-video', 'video-editing'],
         maxDuration: 60,
         resolutions: ['256x256', '512x512', '1024x576', '1920x1080'],
@@ -1482,7 +1586,7 @@ class VideoService {
       },
       mock: {
         name: 'Mock Generator (Demo)',
-        available: true,
+        available: false, // Removed mock generation
         capabilities: ['text-to-video', 'image-to-video', 'video-editing'],
         maxDuration: 120,
         resolutions: ['256x256', '512x512', '1024x576', '1920x1080'],

@@ -5,90 +5,21 @@ const path = require('path');
 
 class AIService {
   constructor() {
-    // Primary OpenAI instance
-    this.openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
-    });
-    
-    // CometAPI as fallback (1M free tokens)
-    this.cometai = new OpenAI({
-      apiKey: process.env.COMETAI_API_KEY || 'sk-your-cometai-key',
-      baseURL: 'https://api.cometapi.com/v1'
-    });
-    
-    // DeepInfra as secondary fallback
-    this.deepinfra = new OpenAI({
-      apiKey: process.env.DEEPINFRA_API_KEY || 'your-deepinfra-key',
-      baseURL: 'https://api.deepinfra.com/v1/openai'
-    });
+    // Simplified constructor - using only local fallback content
+    console.log('🔧 AI Service: Using local fallback content only');
     
     this.models = {
-      text: 'gpt-4o',
-      image: 'gpt-4o',
-      analysis: 'gpt-4o',
-      // Fallback models
-      cometai_text: 'gpt-4o',
-      deepinfra_text: 'google/gemini-1.5-flash'
+      text: 'local-fallback',
+      image: 'local-fallback',
+      analysis: 'local-fallback'
     };
     
-    this.providers = ['openai', 'cometai', 'deepinfra'];
+    this.providers = ['local'];
   }
 
-  // Smart AI call with automatic failover
+  // Simplified AI call - using only local fallback content
   async makeAICall(messages, options = {}) {
-    const { model = 'gpt-4o', temperature = 0.7, max_tokens = 2000 } = options;
-    
-    for (const provider of this.providers) {
-      try {
-        console.log(`🤖 Trying ${provider.toUpperCase()} API...`);
-        
-        let client, modelName;
-        
-        switch (provider) {
-          case 'openai':
-            client = this.openai;
-            modelName = model;
-            break;
-          case 'cometai':
-            client = this.cometai;
-            modelName = this.models.cometai_text;
-            break;
-          case 'deepinfra':
-            client = this.deepinfra;
-            modelName = this.models.deepinfra_text;
-            break;
-        }
-        
-        const response = await client.chat.completions.create({
-          model: modelName,
-          messages: messages,
-          temperature: temperature,
-          max_tokens: max_tokens
-        });
-        
-        console.log(`✅ ${provider.toUpperCase()} API successful!`);
-        return {
-          content: response.choices[0].message.content,
-          provider: provider,
-          model: modelName
-        };
-        
-      } catch (error) {
-        console.log(`❌ ${provider.toUpperCase()} failed:`, error.message);
-        
-        // If it's a quota error with OpenAI, skip to alternatives
-        if (error.code === 'insufficient_quota' || error.status === 429) {
-          console.log(`💡 ${provider.toUpperCase()} quota exceeded, trying next provider...`);
-          continue;
-        }
-        
-        // For other errors, try next provider
-        continue;
-      }
-    }
-    
-    // If all providers fail, return fallback content
-    console.log('🔄 All AI providers failed, using fallback content');
+    console.log('🔧 Using local fallback content for AI calls');
     return this.getFallbackContent();
   }
 

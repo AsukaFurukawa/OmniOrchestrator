@@ -694,6 +694,125 @@ router.get('/sentiment/alerts', auth, tenantContext, async (req, res) => {
   }
 });
 
+/**
+ * @route   POST /api/analytics/sentiment/enhanced
+ * @desc    Get enhanced sentiment analysis with VADER details
+ * @access  Private
+ */
+router.post('/sentiment/enhanced', auth, tenantContext, async (req, res) => {
+  try {
+    const { text, context = 'market' } = req.body;
+    
+    if (!text) {
+      return res.status(400).json({
+        success: false,
+        error: 'Text is required for enhanced analysis'
+      });
+    }
+
+    console.log('📊 Enhanced VADER sentiment analysis requested');
+    
+    // Get enhanced analysis
+    const analysis = await global.sentimentAnalysis.simpleAnalyzer.analyzeSentiment(text, context);
+    
+    // Get learning stats
+    const learningStats = global.sentimentAnalysis.simpleAnalyzer.getLearningStats();
+
+    res.json({
+      success: true,
+      analysis: {
+        score: analysis.score,
+        label: analysis.label,
+        confidence: analysis.confidence,
+        themes: analysis.themes,
+        entities: analysis.entities,
+        emotions: analysis.emotions,
+        positives: analysis.positives,
+        negatives: analysis.negatives,
+        method: analysis.method,
+        vader_score: analysis.vader_score,
+        market_score: analysis.market_score,
+        total_matches: analysis.total_matches,
+        text_length: analysis.text_length,
+        analyzed_at: analysis.analyzed_at
+      },
+      learning_stats: learningStats,
+      message: `✅ VADER Market Analysis - ${analysis.label} (${(analysis.confidence * 100).toFixed(1)}% confidence)`
+    });
+  } catch (error) {
+    console.error('Enhanced sentiment analysis error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to perform enhanced sentiment analysis'
+    });
+  }
+});
+
+/**
+ * @route   POST /api/analytics/sentiment/feedback
+ * @desc    Provide feedback to improve sentiment analysis
+ * @access  Private
+ */
+router.post('/sentiment/feedback', auth, tenantContext, async (req, res) => {
+  try {
+    const { text, userFeedback } = req.body;
+    
+    if (!text || !userFeedback) {
+      return res.status(400).json({
+        success: false,
+        error: 'Text and user feedback are required'
+      });
+    }
+
+    if (!['positive', 'negative', 'neutral'].includes(userFeedback)) {
+      return res.status(400).json({
+        success: false,
+        error: 'User feedback must be positive, negative, or neutral'
+      });
+    }
+
+    console.log('🎓 User feedback received for sentiment analysis');
+    
+    // Update model with feedback
+    const result = global.sentimentAnalysis.simpleAnalyzer.updateModel(text, userFeedback);
+
+    res.json({
+      success: true,
+      result,
+      message: '✅ Model updated with your feedback!'
+    });
+  } catch (error) {
+    console.error('Sentiment feedback error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to process feedback'
+    });
+  }
+});
+
+/**
+ * @route   GET /api/analytics/sentiment/learning-stats
+ * @desc    Get learning statistics for sentiment analysis
+ * @access  Private
+ */
+router.get('/sentiment/learning-stats', auth, tenantContext, async (req, res) => {
+  try {
+    const learningStats = global.sentimentAnalysis.simpleAnalyzer.getLearningStats();
+
+    res.json({
+      success: true,
+      learning_stats: learningStats,
+      message: '✅ Learning statistics retrieved'
+    });
+  } catch (error) {
+    console.error('Learning stats error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch learning statistics'
+    });
+  }
+});
+
 // Get general metrics (new endpoint for company page)
 router.get('/metrics', async (req, res) => {
   try {
@@ -791,7 +910,7 @@ router.get('/metrics', async (req, res) => {
 // Get detailed metrics (new endpoint for company page)
 router.get('/detailed-metrics', async (req, res) => {
   try {
-    const user = await User.findById(req.user.userId);
+    const user = await User.findById(req.user?.userId);
     if (!user) {
       return res.status(404).json({
         success: false,

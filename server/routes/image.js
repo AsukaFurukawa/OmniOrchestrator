@@ -24,14 +24,15 @@ const cleanupOldImages = async () => {
   try {
     const files = await fs.readdir(imagesDir);
     const now = Date.now();
-    const oneDayAgo = now - (24 * 60 * 60 * 1000);
+    const sevenDaysAgo = now - (7 * 24 * 60 * 60 * 1000); // Keep images for 7 days instead of 1 day
     
     for (const file of files) {
       const filePath = path.join(imagesDir, file);
       const stats = await fs.stat(filePath);
       
-      if (stats.mtime.getTime() < oneDayAgo) {
+      if (stats.mtime.getTime() < sevenDaysAgo) {
         await fs.unlink(filePath);
+        console.log(`🗑️ Cleaned up old image: ${file}`);
       }
     }
   } catch (error) {
@@ -42,7 +43,7 @@ const cleanupOldImages = async () => {
 // Initialize cleanup
 ensureImagesDir();
 cleanupOldImages();
-setInterval(cleanupOldImages, 60 * 60 * 1000);
+setInterval(cleanupOldImages, 24 * 60 * 60 * 1000); // Run cleanup once per day instead of every hour
 
 // Shivani's working image generation endpoint
 router.post("/generate/shivani", [

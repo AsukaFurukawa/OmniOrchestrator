@@ -113,8 +113,52 @@ router.get('/recommendations', async (req, res) => {
 // Generate marketing campaign content
 router.post('/generate-campaign', async (req, res) => {
   try {
-    // Check usage limits first
-    const user = await User.findById(req.user.userId);
+    // Handle development mode - bypass user lookup
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔧 Development mode: Bypassing user lookup for campaign generation');
+      
+      const {
+        product,
+        targetAudience,
+        campaignGoal,
+        tone,
+        channel,
+        brandGuidelines,
+        includeVisual = false
+      } = req.body;
+
+      // Generate campaign content using local fallback
+      const campaignData = {
+        product,
+        targetAudience,
+        campaignGoal,
+        tone,
+        channel,
+        brandGuidelines,
+        currentTrends: 'Local analysis'
+      };
+
+      const content = await aiService.generateCampaignContent(campaignData);
+
+      return res.json({
+        success: true,
+        campaign: {
+          content,
+          visual: null,
+          metadata: {
+            generatedAt: new Date(),
+            trendsConsidered: 'Local analysis',
+            channel,
+            targetAudience,
+            provider: 'local-fallback'
+          }
+        },
+        usage: { remaining: 999, limit: 1000 }
+      });
+    }
+
+    // Production mode - normal user lookup
+    const user = await User.findById(req.user?.userId);
     if (!user) {
       return res.status(404).json({
         success: false,
